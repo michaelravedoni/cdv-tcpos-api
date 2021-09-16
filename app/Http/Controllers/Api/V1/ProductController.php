@@ -38,9 +38,7 @@ class ProductController extends Controller
      */
     public function getProducts()
     {
-        $req = Http::withOptions([
-            'verify' => false,
-        ])->get(env('TCPOS_API_WOND_URL').'/getArticles');
+        $req = Http::timeout(1000)->get(env('TCPOS_API_WOND_URL').'/getArticles');
         $response = $req->json();
         $data = data_get($response, 'getArticles.articleList');
         return $data;
