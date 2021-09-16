@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# Turn on maintenance mode
+echo 'Command: down'
+php artisan down --render="errors::maintenance" --secret="1630542a-246b-4b66-afa1-dd72a4c43515"
+
+# Pull the latest changes from the git repository
+# git reset --hard
+# git clean -df
+# git pull origin master
+
+# Install/update composer dependecies
+echo 'Command: composer'
+composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-ansi
+# composer2 for Infomaniak
+# composer2 install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-ansi
+# composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+# --no-interaction Do not ask any interactive question
+# --no-dev  Disables installation of require-dev packages.
+# --prefer-dist  Forces installation from package dist even for dev versions.
+
+# Run generate key
+# echo 'Command: key'
+# php artisan key:generate
+
+# Run storage link
+echo 'Command: storage'
+php artisan storage:link
+
+# Run database migrations
+echo 'Command: migrate'
+php artisan migrate:fresh --seed --force
+# php artisan migrate --force --seed
+# php artisan migrate --force
+# --force  Required to run when in production.
+
+# Clear caches
+echo 'Command: cache'
+php artisan cache:clear
+
+# Clear expired password reset tokens
+# php artisan auth:clear-resets
+
+# Clear and cache routes
+# php artisan route:cache
+
+# Clear and cache config
+# php artisan config:cache
+
+# Clear and cache views
+# php artisan view:cache
+
+# Install node modules
+# npm install
+
+# Build assets using Laravel Mix
+# npm run production
+
+# Turn off maintenance mode
+echo 'Command: up'
+php artisan up
+
+# Start Queue
+php artisan queue:work
+
+# Start Cronless schedule
+php artisan schedule:run-cronless
+
+echo '🚀 Deploy finished.'
