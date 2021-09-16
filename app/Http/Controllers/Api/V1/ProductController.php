@@ -38,7 +38,7 @@ class ProductController extends Controller
      */
     public function getProducts()
     {
-        $req = Http::get(env('TCPOS_API_WOND_URL').'/getArticles');
+        $req = Http::timeout(10)->retry(3, 1000)->get(env('TCPOS_API_WOND_URL').'/getArticles');
         $response = $req->json();
         $data = data_get($response, 'getArticles.articleList');
         return $data;
