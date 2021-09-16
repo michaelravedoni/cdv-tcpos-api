@@ -25,7 +25,7 @@ class Product extends Model
         'attributes' => 'object',
     ];
 
-    protected $with = ['pricesRelations', 'attributeRelationCellar', 'attributeRelationGrape', 'attributeRelationFillingLevel', 'attributeRelationTownship'];
+    protected $with = ['pricesRelations', 'stockRelation', 'attributeRelationCellar', 'attributeRelationGrape', 'attributeRelationFillingLevel', 'attributeRelationTownship'];
 
     /**
      * Get the prices for the product.
@@ -33,6 +33,14 @@ class Product extends Model
     public function pricesRelations()
     {
         return $this->hasMany(Price::class, '_tcpos_product_id', '_tcposId');
+    }
+    
+    /**
+     * Get the stock for the product.
+     */
+    public function stockRelation()
+    {
+        return $this->hasOne(Stock::class, '_tcpos_product_id', '_tcposId');
     }
 
     /**
@@ -65,6 +73,14 @@ class Product extends Model
     public function attributeRelationTownship()
     {
         return $this->hasOne(Attribute::class, '_tcposId', 'groupDId');
+    }
+
+    /**
+     * Get the stock for the product.
+     */
+    public function stock()
+    {
+        return data_get($this->stockRelation, 'value');
     }
 
     /**
@@ -119,6 +135,38 @@ class Product extends Model
      */
     public function wineType()
     {
+        return $this->notes2;
+    }
+
+    /**
+     * Get the category for the product.
+     */
+    public function category()
+    {
+        if (in_array($this->notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
+            return "wine";
+        }
+        if (in_array($this->notes2, ['Service du vin'])) {
+            return "wineSet";
+        }
+        if (in_array($this->notes2, ['Bière', 'Bières et Cidres'])) {
+            return "beer";
+        }
+        if (in_array($this->notes2, ['Bières et Cidres', '– Cidre'])) {
+            return "cider";
+        }
+        if (in_array($this->notes2, ['Alcools'])) {
+            return "spirit";
+        }
+        if (in_array($this->notes2, ['Sélection du mois'])) {
+            return "selection";
+        }
+        if (in_array($this->notes2, ['Jus et minérales'])) {
+            return "mineralDrink";
+        }
+        if (in_array($this->notes2, ['Livres'])) {
+            return "book";
+        }
         return $this->notes2;
     }
 }

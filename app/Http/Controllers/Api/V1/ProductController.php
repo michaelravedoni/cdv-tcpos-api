@@ -50,12 +50,18 @@ class ProductController extends Controller
     {
         $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data={
             "data": {
-            "customerId": 897,
-            "shopId": 1,
-            "date": "2025-11-02T15:23:56",
+                "shopId": 1,
                 "priceLevelId": 14,
                 "itemList": [{
                     "article": {
+                "priceLevelId": 14,
+                        "id": '.$id.',
+                        "quantity": 1
+                    }
+                },
+            {
+                    "article": {
+                "priceLevelId": 6,
                         "id": '.$id.',
                         "quantity": 1
                     }
@@ -63,8 +69,14 @@ class ProductController extends Controller
             }
         }');
         $response = $req->json();
-        $data = data_get($response, 'getPrice.data.itemList.0.article.price');
-        return $data;
+        $data = data_get($response, 'getPrice.data.itemList');
+
+        $array = [];
+        foreach ($data as $key => $value) {
+            $priceItem = (object) data_get($value, 'article');
+            $array[] = $priceItem;
+        }
+        return $array;
     }
 
     /**

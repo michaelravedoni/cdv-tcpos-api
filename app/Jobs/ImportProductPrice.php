@@ -39,12 +39,18 @@ class ImportProductPrice implements ShouldQueue
     {
         $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data={
             "data": {
-            "customerId": 897,
-            "shopId": 1,
-            "date": "2025-11-02T15:23:56",
+                "shopId": 1,
                 "priceLevelId": 14,
                 "itemList": [{
                     "article": {
+                        "priceLevelId": 14,
+                        "id": '.$this->id.',
+                        "quantity": 1
+                    }
+                },
+                {
+                    "article": {
+                        "priceLevelId": 6,
                         "id": '.$this->id.',
                         "quantity": 1
                     }
@@ -52,15 +58,17 @@ class ImportProductPrice implements ShouldQueue
             }
         }');
         $response = $req->json();
-        $data = data_get($response, 'getPrice.data.itemList.0.article');
+        //$data = data_get($response, 'getPrice.data.itemList.0.article');
+        $data = data_get($response, 'getPrice.data.itemList');
 
-        $priceData = (object) $data;
-            
-        $price = new Price;
-        $price->_tcpos_product_id = $priceData->id;
-        $price->price = $priceData->price;
-        $price->discountedprice = $priceData->discountedprice;
-        $price->pricelevelid = $priceData->pricelevelid;
-        $price->save();
+        foreach ($data as $key => $value) {
+            $priceData = (object) data_get($value, 'article');
+            $price = new Price;
+            $price->_tcpos_product_id = $priceData->id;
+            $price->price = $priceData->price;
+            $price->discountedprice = $priceData->discountedprice;
+            $price->pricelevelid = $priceData->pricelevelid;
+            $price->save();
+        }
     }
 }

@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use App\Models\Product;
+use App\Models\Stock;
+use App\Jobs\ImportProductStock;
+
+class StockController extends Controller
+{
+    /**
+     * Show the stock by id.
+     */
+    public function getStock($id)
+    {
+        $req = Http::withOptions([
+            'verify' => false,
+        ])->get(env('TCPOS_API_CDV_URL').'/getarticlesstock/id/'.$id);
+        $response = $req->json();
+        $data = data_get($response, 'STOCK');
+        return $data;
+    }
+
+    /**
+     * Import products stocks.
+     */
+    public function importStocks()
+    {
+
+        Stock::truncate();
+
+        $ids = Product::all()->pluck('_tcposId')->all();
+
+        foreach ($ids as $keyId => $valueId) {
+            ImportProductStock::dispatch($valueId);
+        }
+
+        return response()->json([
+            'message' => 'job launched',
+        ]);
+    }
+}

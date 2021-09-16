@@ -24,6 +24,12 @@ class ProductResource extends JsonResource
                     'priceLevelCode' => data_get($this->pricesRelations, '0.pricelevelid'),
                     'price' => data_get($this->pricesRelations, '0.price'),
                     'vatInPercent' => $this->vatInPercent,
+                ],
+                'onSite' => [
+                    'articleCode' => $this->_tcposCode,
+                    'priceLevelCode' => data_get($this->pricesRelations, '1.pricelevelid'),
+                    'price' => data_get($this->pricesRelations, '1.price'),
+                    'vatInPercent' => $this->vatInPercent,
                 ]
             ],
             'pictures' => [
@@ -39,9 +45,13 @@ class ProductResource extends JsonResource
             ],
             'minQuantity' => $this->minQuantity,
             'maxQuantity' => $this->maxQuantity,
-            'stockQty' => $this->stockQty,
-            'category' => null,
+            'stockQty' => $this->stock(),
+            'category' => $this->category(),
             'weight' => $this->weight,
+            'proof' => '? to do',
+            'detailUrl' => '? selection note3',
+            'mineralDrinkType' => '? mineral note3',
+            'bookEditor' => '? book note3',
             '_tcposCode' => $this->_tcposCode,
             '_tcposId' => $this->_tcposId,
             'created_at' => $this->created_at,
