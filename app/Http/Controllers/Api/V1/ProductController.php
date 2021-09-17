@@ -30,7 +30,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        return Product::where('_tcposId', $id)->get();
+        return Product::where('_tcposId', $id)->first();
     }
 
     /**
@@ -46,7 +46,7 @@ class ProductController extends Controller
     /**
      * Filter products by category.
      */
-    public function indexByCategory($category)
+    public function indexByCategory($category = 'wine')
     {
         return ProductResource::collection(Product::where('category', $category)->get());
     }

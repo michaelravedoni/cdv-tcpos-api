@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\ImportController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AttributeController;
 use App\Http\Controllers\Api\V1\StockController;
+use App\Http\Controllers\Api\V1\VoucherController;
+use App\Http\Controllers\Api\V1\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +36,8 @@ Route::get('/import/stocks', [StockController::class, 'importStocks'])->name('im
 Route::get('/products/raw', [ProductController::class, 'getProducts'])->name('products.raw');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/prices', [ProductController::class, 'indexPrices'])->name('products.prices.index');
+Route::get('/products/getById/{id}', [ProductController::class, 'show'])->name('products.getById');
+Route::get('/products/menu', [ProductController::class, 'indexByCategory'])->name('products.category');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');
 Route::get('/products/{id}/show', [ProductController::class, 'show'])->name('products.show');
 Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category');
@@ -43,3 +47,11 @@ Route::get('/attributes', [AttributeController::class, 'index'])->name('attribut
 Route::get('/attributes/{id}/show', [AttributeController::class, 'show'])->name('attributes.show');
 
 Route::get('/stocks/{id}/show', [StockController::class, 'getStock'])->name('stocks.show');
+
+Route::get('/vouchers', [VoucherController::class, 'getVouchers'])->name('vouchers.index');
+Route::get('/vouchers/{id}', [VoucherController::class, 'getVoucher'])->name('vouchers.show');
+
+Route::get('/customers/{cardnum}', [CustomerController::class, 'getCustomerByCardnum'])->name('customers.show');
+Route::get('/customers/{cardnum}/funds', [CustomerController::class, 'getCustomerFundsByCardnumber'])->name('customers.funds');
+Route::get('/customers/{cardnum}/verification', [CustomerController::class, 'getCustomerVerificationField'])->name('customers.verification');
+Route::post('/customers/{cardnum}/verification', [CustomerController::class, 'verifyCustomer'])->name('customers.verification.post');
