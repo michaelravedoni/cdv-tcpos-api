@@ -141,7 +141,8 @@ class Product extends Model
     /**
      * Get the category for the product.
      */
-    public function category()
+    
+    /* public function category()
     {
         if (in_array($this->notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
             return "wine";
@@ -168,5 +169,5 @@ class Product extends Model
             return "book";
         }
         return $this->notes2;
-    }
+    }*/
 }

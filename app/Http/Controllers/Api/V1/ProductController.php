@@ -48,9 +48,7 @@ class ProductController extends Controller
      */
     public function indexByCategory($category)
     {
-        return ProductResource::collection(Product::all()->filter(function($item) use($category) {
-            return $item->category() == $category;
-        }));
+        return ProductResource::collection(Product::where('category', $category)->get());
     }
     
     /**
@@ -103,7 +101,6 @@ class ProductController extends Controller
      */
     public function importPrices($ids = null)
     {
-
         Price::truncate();
 
         if ($ids == null) {
@@ -114,51 +111,8 @@ class ProductController extends Controller
             ImportProductPrice::dispatch($valueId);
         }
 
-        /*
-        $collectionIds = collect($ids);
-        $collectionIdsChunk = array_chunk($collectionIds->all(), 50);
-        $array = [];
-        foreach ($collectionIdsChunk as $keyId => $valueId) {
-            
-            $items = '';
-            foreach ($valueId as $key => $value) {
-                $items .= '{"article": {"id": '.$value.',"quantity": 1}},';
-            }
-            $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data={
-                "data": {
-                    "customerId": 897,
-                    "shopId": 1,
-                    "date": "2025-11-02T15:23:56",
-                    "priceLevelId": 14,
-                    "itemList": [
-                        '.$items.'
-                    ]
-                }
-            }');
-            $response = $req->json();
-            $pricesData = data_get($response, 'getPrice.data.itemList');
-            $array[] = $pricesData;
-
-        }
-
-        $data = collect($array)->collapse();
-
-        foreach ($data as $keyPrice => $valuePrice) {
-
-            $valuePriceData = (object) data_get($valuePrice, 'article');
-            
-            $price = new Price;
-            $price->_tcpos_product_id = $valuePriceData->id;
-            $price->price = $valuePriceData->price;
-            $price->discountedprice = $valuePriceData->discountedprice;
-            $price->pricelevelid = $valuePriceData->pricelevelid;
-            $price->save();
-        }
-        */
-
         return response()->json([
-            'message' => 'job launched',
-            //'data' => $data,
+            'message' => 'job launched. See /jobs',
         ]);
     }
 
@@ -177,21 +131,21 @@ class ProductController extends Controller
 
             $productCreate = new Product;
             $productCreate->name = $product->description;
+            $productCreate->category = $this->getProductCategory($product->notes2);
             $productCreate->minQuantity = config('cdv.default_product_min_quantity');
             $productCreate->maxQuantity = $product->articleOrder ?? config('cdv.default_product_max_quantity');
-            $productCreate->weight = $product->preparationWeight ?? 0;
 
-            $productCreate->stockQty = null;
-            $productCreate->category = null;
-            $productCreate->pictures = null;
-            $productCreate->attributes = null;
-            
+            $productCreate->weight = $product->preparationWeight ?? 0;
             $productCreate->vatInPercent = data_get($product, 'vats.vatindex1', 'vats.vatindex2');
+
+            $productCreate->description = $product->description;
+            $productCreate->articleOrder = $product->articleOrder;
+            $productCreate->isAddition = $product->isAddition;
             $productCreate->measureUnitId = $product->measureUnitId;
             $productCreate->printoutNotes = $product->printoutNotes;
             $productCreate->notes1 = $product->notes1;
             $productCreate->notes2 = $product->notes2;
-            $productCreate->notes2 = $product->notes2;
+            $productCreate->notes3 = $product->notes3;
             $productCreate->groupAId = $product->groupAId;
             $productCreate->groupBId = $product->groupBId;
             $productCreate->groupCId = $product->groupCId;
@@ -250,9 +204,39 @@ class ProductController extends Controller
         }
 
         return response()->json([
-            'message' => 'imported',
-            'time' => null,
-            'count' => null,
+            'message' => 'job launched. See /jobs',
         ]);
+    }
+
+    /**
+     * Set product category.
+     */
+    public function getProductCategory($notes2)
+    {
+        if (in_array($notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
+            return "wine";
+        }
+        if (in_array($notes2, ['Service du vin'])) {
+            return "wineSet";
+        }
+        if (in_array($notes2, ['Bière', 'Bières et Cidres'])) {
+            return "beer";
+        }
+        if (in_array($notes2, ['Bières et Cidres', '– Cidre'])) {
+            return "cider";
+        }
+        if (in_array($notes2, ['Alcools'])) {
+            return "spirit";
+        }
+        if (in_array($notes2, ['Sélection du mois'])) {
+            return "selection";
+        }
+        if (in_array($notes2, ['Jus et minérales'])) {
+            return "mineralDrink";
+        }
+        if (in_array($notes2, ['Livres'])) {
+            return "book";
+        }
+        return $notes2;
     }
 }

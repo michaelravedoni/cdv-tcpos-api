@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\V1\ImportController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AttributeController;
 use App\Http\Controllers\Api\V1\StockController;
@@ -23,14 +24,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+Route::get('/import/all', [ImportController::class, 'importAll'])->name('import.all');
 Route::get('/import/products', [ProductController::class, 'importProducts'])->name('import.products');
-Route::get('/import/products/prices', [ProductController::class, 'importPrices'])->name('import.products');
+Route::get('/import/prices', [ProductController::class, 'importPrices'])->name('import.prices');
 Route::get('/import/products/images', [ProductController::class, 'importImages'])->name('import.products.images');
 Route::get('/import/attributes', [AttributeController::class, 'importAttributes'])->name('import.attributes');
 Route::get('/import/stocks', [StockController::class, 'importStocks'])->name('import.attributes');
 
 Route::get('/products/raw', [ProductController::class, 'getProducts'])->name('products.raw');
-Route::get('/products/import', [ProductController::class, 'importProducts'])->name('products.import');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/prices', [ProductController::class, 'indexPrices'])->name('products.prices.index');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');

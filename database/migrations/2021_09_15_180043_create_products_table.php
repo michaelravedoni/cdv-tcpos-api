@@ -16,17 +16,15 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('description')->nullable();
-            $table->json('pictures')->nullable();
-            $table->integer('priceTakeAway')->nullable();
-            $table->json('attributes')->nullable();
             $table->string('minQuantity')->nullable();
             $table->string('maxQuantity')->nullable();
-            $table->string('stockQty')->nullable();
             $table->string('category')->nullable();
             $table->string('weight')->nullable();
+            $table->float('vatInPercent')->nullable();
 
-            $table->integer('vatInPercent')->nullable();
+            $table->string('description')->nullable();
+            $table->integer('isAddition')->nullable();
+            $table->integer('articleOrder')->nullable();
             $table->string('measureUnitId')->nullable();
             $table->string('printoutNotes')->nullable();
             $table->string('notes1')->nullable();

@@ -39,7 +39,7 @@ class StockController extends Controller
         }
 
         return response()->json([
-            'message' => 'job launched',
+            'message' => 'job launched. See /jobs',
         ]);
     }
 }
