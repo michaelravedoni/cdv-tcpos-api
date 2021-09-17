@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\VoucherController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\InfoController;
+use App\Http\Controllers\Sync\AttributeController as SyncAttributeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,3 +63,9 @@ Route::post('/customers/{cardnum}/verification', [CustomerController::class, 've
 Route::post('/orders', [OrderController::class, 'postOrders'])->name('orders.post');
 
 Route::get('/info', [InfoController::class, 'show'])->name('info');
+
+/* Woocommerce sync */
+Route::get('/wc/attributes', [SyncAttributeController::class, 'getWooAttributes'])->name('wc.attributes');
+Route::get('/wc/attributes/cellar', [SyncAttributeController::class, 'getWooCellarTerms'])->name('wc.attributes.cellar');
+
+Route::get('/wc/sync/attributes', [SyncAttributeController::class, 'sync'])->name('wc.sync.attributes');
