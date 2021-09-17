@@ -46,7 +46,7 @@ class ImportProductStock implements ShouldQueue
         $stockData = $data;
         $stock = new Stock;
         $stock->value = $stockData;
-        $stock->_tcposId = $this->id;
+        $stock->_tcpos_product_id = $this->id;
         $stock->save();
     }
 }
