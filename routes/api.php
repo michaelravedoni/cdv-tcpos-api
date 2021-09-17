@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\AttributeController;
 use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\VoucherController;
 use App\Http\Controllers\Api\V1\CustomerController;
+use App\Http\Controllers\Api\V1\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,3 +57,5 @@ Route::get('/customers/{cardnum}', [CustomerController::class, 'getCustomerByCar
 Route::get('/customers/{cardnum}/funds', [CustomerController::class, 'getCustomerFundsByCardnumber'])->name('customers.funds');
 Route::get('/customers/{cardnum}/verification', [CustomerController::class, 'getCustomerVerificationField'])->name('customers.verification');
 Route::post('/customers/{cardnum}/verification', [CustomerController::class, 'verifyCustomer'])->name('customers.verification.post');
+
+Route::post('/orders', [OrderController::class, 'postOrders'])->name('orders.post');
