@@ -18,16 +18,16 @@ class ImportProductImage implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use IsMonitored;
 
-    public $valueId;
+    public $id;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($valueId)
+    public function __construct($id)
     {
-        $this->id = $valueId;
+        $this->id = $id;
     }
 
     /**
@@ -37,16 +37,14 @@ class ImportProductImage implements ShouldQueue
      */
     public function handle()
     {
-        $req = Http::get(env('TCPOS_API_WOND_URL').'/getImage?id='.$this->valueId);
+        $req = Http::get(env('TCPOS_API_WOND_URL').'/getImage?id='.$this->id);
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
         $image = $data;
         $image = str_replace(' ', '+', $image);
         $imageDecode = base64_decode($image);
-        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->valueId.'.jpg';
+        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
-
-        $url = Storage::disk('public')->url($path);
     }
 }

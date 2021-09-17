@@ -181,18 +181,6 @@ class ProductController extends Controller
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
-        //$image = 'data:image/jpg;base64,'.$data;
-        /*$imageDecode = base64_decode(chunk_split($data));
-        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$id.'.jpg';
-        $store = Storage::disk('public')->put($path, $imageDecode);
-        $url = Storage::disk('public')->url($path);*/
-
-        /*$image = $request->image;  // your base64 encoded
-        $image = str_replace('data:image/png;base64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-        $imageName = str_random(10).'.'.'png';
-        \File::put(storage_path(). '/' . $imageName, base64_decode($image));*/
-
         $image = $data;
         $image = str_replace(' ', '+', $image);
         $imageDecode = base64_decode($image);
