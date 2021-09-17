@@ -33,7 +33,12 @@ class ProductResource extends JsonResource
                 ]
             ],
             'pictures' => [
-                'url' => $this->imageUrl(),
+                'id' => $this->_tcposId,
+                'images' => [
+                    'url' => $this->imageUrl(),
+                    'hash' => md5($this->imageHash),
+                ],
+                'hash' => null,
             ],
             'attributes' => [
                 'year' => in_array($this->category, ['wine', 'cider']) ? $this->year() : null,

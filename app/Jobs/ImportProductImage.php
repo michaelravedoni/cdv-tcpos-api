@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use romanzipp\QueueMonitor\Traits\IsMonitored;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Product;
 
 class ImportProductImage implements ShouldQueue
 {
@@ -46,5 +47,10 @@ class ImportProductImage implements ShouldQueue
         $imageDecode = base64_decode($image);
         $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
+
+        $product = Product::where('_tcposId', $this->id);
+        $product->imageHash = md5($data);
+        $product->save();
+
     }
 }
