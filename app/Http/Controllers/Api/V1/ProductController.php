@@ -21,7 +21,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return ProductResource::collection(Product::all());
+        return ProductResource::collection(Product::where('category', '<>', 'none')->get());
         //return Product::all();
     }
 
@@ -240,6 +240,6 @@ class ProductController extends Controller
         if (in_array($notes2, ['Livres'])) {
             return "book";
         }
-        return '';
+        return 'none';
     }
 }
