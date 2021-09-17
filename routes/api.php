@@ -35,6 +35,7 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/prices', [ProductController::class, 'indexPrices'])->name('products.prices.index');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');
 Route::get('/products/{id}/show', [ProductController::class, 'show'])->name('products.show');
+Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category');
 
 Route::get('/attributes/raw', [AttributeController::class, 'getAttributes'])->name('attributes.raw');
 Route::get('/attributes', [AttributeController::class, 'index'])->name('attributes.index');

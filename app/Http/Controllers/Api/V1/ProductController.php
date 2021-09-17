@@ -44,6 +44,16 @@ class ProductController extends Controller
     }
     
     /**
+     * Filter products by category.
+     */
+    public function indexByCategory($category)
+    {
+        return ProductResource::collection(Product::all()->filter(function($item) use($category) {
+            return $item->category() == $category;
+        }));
+    }
+    
+    /**
      * Get product price.
      */
     public function getPrice($id)

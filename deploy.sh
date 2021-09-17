@@ -29,9 +29,9 @@ php artisan storage:link
 
 # Run database migrations
 echo 'Command: migrate'
-php artisan migrate:fresh --seed --force
+# php artisan migrate:fresh --seed --force
 # php artisan migrate --force --seed
-# php artisan migrate --force
+php artisan migrate --force
 # --force  Required to run when in production.
 
 # Clear caches
