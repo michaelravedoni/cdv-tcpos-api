@@ -42,13 +42,21 @@ class ImportProductImage implements ShouldQueue
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
+        $product = Product::where('_tcposId', $this->id)->first();
+
+        if ($product->imageHash == md5($data)) {
+            return response()->json([
+                'message' => 'Image already saved',
+            ]);
+        }
+
         $image = $data;
         $image = str_replace(' ', '+', $image);
         $imageDecode = base64_decode($image);
         $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
 
-        $product = Product::where('_tcposId', $this->id);
+        $product = Product::where('_tcposId', $this->id)->first();
         $product->imageHash = md5($data);
         $product->save();
 

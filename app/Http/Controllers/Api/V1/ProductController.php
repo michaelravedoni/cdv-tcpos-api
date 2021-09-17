@@ -177,9 +177,19 @@ class ProductController extends Controller
      */
     public function importImage($id)
     {
+
         $req = Http::get(env('TCPOS_API_WOND_URL').'/getImage?id='.$id);
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
+
+
+        $product = Product::where('_tcposId', $id)->first();
+
+        if ($product->imageHash == md5($data)) {
+            return response()->json([
+                'message' => 'Image already saved',
+            ]);
+        }
 
         $image = $data;
         $image = str_replace(' ', '+', $image);
@@ -187,10 +197,13 @@ class ProductController extends Controller
         $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
 
+        $product->imageHash = md5($data);
+        $product->save();
+
         $url = Storage::disk('public')->url($path);
 
         return response()->json([
-            'message' => 'ok',
+            'message' => 'Image saved',
             'url' => $url,
         ]);
     }
