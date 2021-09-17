@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers\Sync;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Codexshaper\WooCommerce\Facades\Term;
+use Codexshaper\WooCommerce\Facades\Attribute;
+use App\Models\Attribute as TcposAttribute;
+use App\Jobs\SyncAttributeTermUpdate;
+use App\Jobs\SyncAttributeUpdate;
+
+class AttributeController extends Controller
+{
+    /**
+     * Get all woo attributes.
+     */
+    public function getWooAttributes()
+    {
+        $attributes = Attribute::all(['per_page' => 100, 'page' => 1]);
+        $attributes2 = Attribute::all(['per_page' => 100, 'page' => 2]);
+        return $attributes->merge($attributes2);
+    }
+
+    /**
+     * Get all woo cellar terms.
+     */
+    public function getWooCellarTerms()
+    {
+        $terms = Term::all(config('cdv.wc_attribute_ids.cellarAttribute'), ['per_page' => 100, 'page' => 1]);
+        $terms2 = Term::all(config('cdv.wc_attribute_ids.cellarAttribute'), ['per_page' => 100, 'page' => 2]);
+        return $terms->merge($terms2);
+    }
+
+    /**
+     * Get all tcpos attributes.
+     */
+    public function getTcposAttributes()
+    {
+        return TcposAttribute::all();
+    }
+
+
+
+    /**
+     * Sync attributes.
+     */
+    public function sync()
+    {
+        $count_attribute_update = 0;
+        foreach ($this->getWooAttributes() as $wooAttributes) {
+            $attribute_id = $wooAttributes->id;
+            $data = [
+                'has_archives' => true,
+            ];
+            //Attribute::update($attribute_id, $data);
+            SyncAttributeUpdate::dispatch($attribute_id, $data);
+            $count_attribute_update += 1;
+        }
+
+        $count_term_update = 0;
+        $count_term_not_found = 0;
+        foreach ($this->getWooCellarTerms() as $wooCellarTerm) {
+            $woo_cellar_term_id = $wooCellarTerm->id;
+            $woo_cellar_term_name = $wooCellarTerm->name;
+
+            $tcposAttribute = TcposAttribute::where('name', str_replace('&amp;', '&', $woo_cellar_term_name))->first();
+
+            if ($tcposAttribute) {
+                $data = [
+                    'meta_data' => [
+                        ['key' => 'website', 'value' => $tcposAttribute->notes1],
+                        ['key' => 'email', 'value' => $tcposAttribute->notes2],
+                        ['key' => 'phone', 'value' => $tcposAttribute->notes3],
+                    ],
+                ];
+                //Term::update(config('cdv.wc_attribute_ids.cellarAttribute'), $woo_cellar_term_id, $data);
+                SyncAttributeTermUpdate::dispatch($woo_cellar_term_id, $data);
+                $count_term_update += 1;
+            } else {
+                $count_term_not_found += 1;
+            }
+        }
+
+        return response()->json([
+            'message' => 'Sync queued. See /jobs.',
+            'count_term_update' => $count_term_update,
+            'count_term_not_found' => $count_term_not_found,
+            'count_attribute_update' => $count_attribute_update,
+        ]);
+    }
+}
