@@ -19,6 +19,7 @@ class CreateAttributesTable extends Migration
             $table->string('notes1');
             $table->string('notes2');
             $table->string('notes3');
+            $table->json('notes');
             $table->integer('_tcposId')->nullable();
             $table->string('_tcposCode')->nullable();
             $table->timestamps();

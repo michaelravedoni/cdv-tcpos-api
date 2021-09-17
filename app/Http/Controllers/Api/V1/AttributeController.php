@@ -46,6 +46,7 @@ class AttributeController extends Controller
             $attributeCreate->notes1 = $attribute->NOTES1;
             $attributeCreate->notes2 = $attribute->NOTES2;
             $attributeCreate->notes3 = $attribute->NOTES3;
+            $attributeCreate->notes = [$attribute->NOTES3, $attribute->NOTES2, $attribute->NOTES3];
             $attributeCreate->_tcposId = $attribute->ID;
             $attributeCreate->_tcposCode = $attribute->CODE;
             $attributeCreate->save();

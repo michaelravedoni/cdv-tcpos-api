@@ -17,15 +17,6 @@ class Product extends Model
      */
     protected $guarded = ['id'];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'attributes' => 'object',
-    ];
-
     protected $with = ['pricesRelations', 'stockRelation', 'attributeRelationCellar', 'attributeRelationGrape', 'attributeRelationFillingLevel', 'attributeRelationTownship'];
 
     /**
