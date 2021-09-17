@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\VoucherController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\InfoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,3 +60,5 @@ Route::get('/customers/{cardnum}/verification', [CustomerController::class, 'get
 Route::post('/customers/{cardnum}/verification', [CustomerController::class, 'verifyCustomer'])->name('customers.verification.post');
 
 Route::post('/orders', [OrderController::class, 'postOrders'])->name('orders.post');
+
+Route::get('/info', [InfoController::class, 'show'])->name('info');
