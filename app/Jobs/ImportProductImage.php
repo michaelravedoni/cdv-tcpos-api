@@ -41,10 +41,12 @@ class ImportProductImage implements ShouldQueue
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
-        //$image = 'data:image/jpg;base64,'.$data;
-        $imageDecode = base64_decode(chunk_split($data));
-        $path = '/products/'.$this->valueId.'.jpg';
-        $store = Storage::disk('public')->put($path, $imageDecode);
+        $image = $data;
+        $image = str_replace(' ', '+', $image);
+        $imageDecode = base64_decode($image);
+        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->valueId.'.jpg';
+        Storage::disk('public')->put($path, $imageDecode);
+
         $url = Storage::disk('public')->url($path);
     }
 }

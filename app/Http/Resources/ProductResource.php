@@ -33,7 +33,7 @@ class ProductResource extends JsonResource
                 ]
             ],
             'pictures' => [
-                'url' => Storage::disk('public')->url('products/'.$this->_tcposId.'.jpg'),
+                'url' => $this->imageUrl(),
             ],
             'attributes' => [
                 'year' => in_array($this->category, ['wine', 'cider']) ? $this->year() : null,

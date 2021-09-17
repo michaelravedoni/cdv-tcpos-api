@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -139,35 +140,13 @@ class Product extends Model
     }
 
     /**
-     * Get the category for the product.
+     * Get the image url for the product.
      */
     
-    /* public function category()
+    public function imageUrl()
     {
-        if (in_array($this->notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
-            return "wine";
-        }
-        if (in_array($this->notes2, ['Service du vin'])) {
-            return "wineSet";
-        }
-        if (in_array($this->notes2, ['Bière', 'Bières et Cidres'])) {
-            return "beer";
-        }
-        if (in_array($this->notes2, ['Bières et Cidres', '– Cidre'])) {
-            return "cider";
-        }
-        if (in_array($this->notes2, ['Alcools'])) {
-            return "spirit";
-        }
-        if (in_array($this->notes2, ['Sélection du mois'])) {
-            return "selection";
-        }
-        if (in_array($this->notes2, ['Jus et minérales'])) {
-            return "mineralDrink";
-        }
-        if (in_array($this->notes2, ['Livres'])) {
-            return "book";
-        }
-        return $this->notes2;
-    }*/
+        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->_tcposId.'.jpg';
+        $url = Storage::disk('public')->url($path);
+        return $url;
+    }
 }

@@ -30,6 +30,7 @@ Route::get('/import/all', [ImportController::class, 'importAll'])->name('import.
 Route::get('/import/products', [ProductController::class, 'importProducts'])->name('import.products');
 Route::get('/import/prices', [ProductController::class, 'importPrices'])->name('import.prices');
 Route::get('/import/products/images', [ProductController::class, 'importImages'])->name('import.products.images');
+Route::get('/import/products/images/{id}', [ProductController::class, 'importImage'])->name('import.products.image');
 Route::get('/import/attributes', [AttributeController::class, 'importAttributes'])->name('import.attributes');
 Route::get('/import/stocks', [StockController::class, 'importStocks'])->name('import.attributes');
 
