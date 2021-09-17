@@ -63,14 +63,14 @@ class ProductController extends Controller
                 "priceLevelId": 14,
                 "itemList": [{
                     "article": {
-                "priceLevelId": 14,
+                    "priceLevelId": 14,
                         "id": '.$id.',
                         "quantity": 1
                     }
                 },
-            {
+                {
                     "article": {
-                "priceLevelId": 6,
+                    "priceLevelId": 6,
                         "id": '.$id.',
                         "quantity": 1
                     }

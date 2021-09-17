@@ -16,8 +16,8 @@ class CreatePricesTable extends Migration
         Schema::create('prices', function (Blueprint $table) {
             $table->id();
             $table->integer('_tcpos_product_id')->nullable();
-            $table->integer('price')->nullable();
-            $table->integer('discountedprice')->nullable();
+            $table->float('price')->nullable();
+            $table->float('discountedprice')->nullable();
             $table->string('pricelevelid')->nullable();
             $table->timestamps();
         });

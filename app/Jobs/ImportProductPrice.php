@@ -43,7 +43,7 @@ class ImportProductPrice implements ShouldQueue
                 "priceLevelId": 14,
                 "itemList": [{
                     "article": {
-                        "priceLevelId": 14,
+                        "priceLevelId": 2,
                         "id": '.$this->id.',
                         "quantity": 1
                     }
@@ -51,6 +51,13 @@ class ImportProductPrice implements ShouldQueue
                 {
                     "article": {
                         "priceLevelId": 6,
+                        "id": '.$this->id.',
+                        "quantity": 1
+                    }
+                },
+                {
+                    "article": {
+                        "priceLevelId": 14,
                         "id": '.$this->id.',
                         "quantity": 1
                     }

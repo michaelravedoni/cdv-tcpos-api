@@ -21,14 +21,20 @@ class ProductResource extends JsonResource
             'prices' => [
                 'takeAway' => [
                     'articleCode' => $this->_tcposCode,
-                    'priceLevelCode' => data_get($this->pricesRelations, '0.pricelevelid'),
+                    'priceLevelCode' => 2, // takeAway = code 2 (http://tcposvsrv06.tcpos.com:10308/getPricelevels)
                     'price' => data_get($this->pricesRelations, '0.price'),
                     'vatInPercent' => $this->vatInPercent,
                 ],
                 'onSite' => [
                     'articleCode' => $this->_tcposCode,
-                    'priceLevelCode' => data_get($this->pricesRelations, '1.pricelevelid'),
+                    'priceLevelCode' => 5,  // onSite = code 2 (http://tcposvsrv06.tcpos.com:10308/getPricelevels)
                     'price' => data_get($this->pricesRelations, '1.price'),
+                    'vatInPercent' => $this->vatInPercent,
+                ],
+                'online' => [
+                    'articleCode' => $this->_tcposCode,
+                    'priceLevelCode' => 13,  // online = code 2 (http://tcposvsrv06.tcpos.com:10308/getPricelevels)
+                    'price' => data_get($this->pricesRelations, '2.price'),
                     'vatInPercent' => $this->vatInPercent,
                 ]
             ],
