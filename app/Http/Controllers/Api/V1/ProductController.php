@@ -240,6 +240,6 @@ class ProductController extends Controller
         if (in_array($notes2, ['Livres'])) {
             return "book";
         }
-        return 'other';
+        return 'non-classe';
     }
 }
