@@ -21,7 +21,7 @@ return [
     'customer_max_cardum' => 49000,
 
     // ID d'un produit "Frais de port" définit dans TCPOS, a utiliser pour traduire les frais de ports de la commande en... produit (#TCPOS-BestValue #CobolConvention1983)
-    'tcpos_defaultShippingItemId' => 11334,
+    'tcpos_default_shipping_item_id' => 11334,
 
     // ID des attributs dans Woocommerce
     'wc_attribute_ids' => [

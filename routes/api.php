@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\InfoController;
 use App\Http\Controllers\Sync\AttributeController as SyncAttributeController;
+use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,5 +68,7 @@ Route::get('/info', [InfoController::class, 'show'])->name('info');
 /* Woocommerce sync */
 Route::get('/wc/attributes', [SyncAttributeController::class, 'getWooAttributes'])->name('wc.attributes');
 Route::get('/wc/attributes/cellar', [SyncAttributeController::class, 'getWooCellarTerms'])->name('wc.attributes.cellar');
+Route::get('/wc/customers', [SyncCustomerController::class, 'getWooCustomers'])->name('wc.customers');
 
 Route::get('/wc/sync/attributes', [SyncAttributeController::class, 'sync'])->name('wc.sync.attributes');
+Route::get('/wc/sync/customers', [SyncCustomerController::class, 'sync'])->name('wc.sync.customers');
