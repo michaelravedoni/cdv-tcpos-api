@@ -70,6 +70,10 @@ class ProductController extends Controller
         $tcposResources = TcposProduct::all();
         $wooResources = Woo::where('resource', 'product')->get();
 
+        if ($tcposResources->count() == 0) {
+            return 'No product retrieved from API (got an empty array). Prevent to delete all the production...';
+        }
+
         $count_product_create = 0;
         $count_product_not_found = 0;
         $count_product_untouched = 0;
@@ -77,6 +81,7 @@ class ProductController extends Controller
         $count_product_update = 0;
         $count_product_delete = 0;
 
+        // The loop: from tcpos to Woo
         foreach ($tcposResources as $tcposItem) {
             // For testing only a product
             if ($tcposItem->_tcposId != 13482) {continue;}
@@ -91,7 +96,7 @@ class ProductController extends Controller
                     // Create it
                     $data = $this->dataForWoo($tcposItem, $match);
                     //Product::create($data);
-                    //SyncProductCreate::dispatch($data);
+                    SyncProductCreate::dispatch($data);
                     $count_product_create += 1;
                     continue;
                 }
@@ -118,10 +123,29 @@ class ProductController extends Controller
             }
         }
 
-        // foreach contraire
+        // The reverse loop: from Woo to tcpos
+        foreach ($wooResources as $wooItem) {
+            
+            if (empty($wooItem->sku)) {
+                continue;
+            }
+
+            $match = TcposProduct::where('_tcposCode', $wooItem->sku)->first();
+
+            if (empty($match)) {
+                dd('yes');
+                // Delete it
+                //Product::delete($match->_wooId);
+                SyncProductDelete::dispatch($match->_wooId, $data);
+                $count_product_delete += 1;
+                continue;
+            }
+        }
 
         return response()->json([
             'message' => 'Sync queued. See /jobs.',
+            'count_products_in_tcpos' => $tcposResources->count(),
+            'count_products_in_woo' => $wooResources->count(),
             'count_product_found' => $count_product_found,
             'count_product_not_found' => $count_product_not_found,
             'count_product_untouched' => $count_product_untouched,
@@ -175,7 +199,6 @@ class ProductController extends Controller
     public function dataForWoo($tcposProduct, $wooProduct = null)
     {
         $attributes = [];
-        $images = [];
         foreach (config('cdv.wc_attribute_ids') as $key => $value) {
             $option = data_get($tcposProduct->attributesArray(), $key.'.name', data_get($tcposProduct->attributesArray(), $key)) ?? null;
             if (empty($option)) {
@@ -189,11 +212,25 @@ class ProductController extends Controller
                 'options' => [$option],
             ];
         }
-        if (isset($wooProduct)) {
-            //isset(data_get($wooProduct->data, 'images.0.name'))
-            if (data_get($wooProduct->data, 'images.0.name') != $tcposProduct->imageHash) {
+        if (isset($wooProduct) && $tcposProduct->imageUrl() != null) {
+            //There is a tcpos image and a wooProduct
+            if (data_get($wooProduct->data, 'images.0.name') != null) {
+                //There is an existing image.
+                if (data_get($wooProduct->data, 'images.0.name') != $tcposProduct->imageHash) {
+                    //There is an existing image but not match the tcpos hash one : upload
+                    $images = [['name' => $tcposProduct->imageHash, 'src' => $tcposProduct->imageUrl()]];
+                } else {
+                    //There is an existing image that match the tcpos hash one : keep it
+                    $images = $wooProduct->data->images;
+                }
+            }
+            if (data_get($wooProduct->data, 'images.0.name') == null) {
+                //There is no existing image : upload
                 $images = [['name' => $tcposProduct->imageHash, 'src' => $tcposProduct->imageUrl()]];
             }
+        } else {
+            //There is no tcpos image or no wooProduct
+            $images = [];
         }
 
         return [
