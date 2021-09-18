@@ -131,6 +131,34 @@ class Product extends Model
     }
 
     /**
+     * Get the attributes for the product.
+     */
+    public function spiritType()
+    {
+        return data_get($this->attributeRelationGrape, 'name');
+    }
+
+    /**
+     * Get all the attributes for the product.
+     */
+    public function attributesArray()
+    {
+        return [
+            'year' => in_array($this->category, ['wine', 'cider']) ? $this->year() : null,
+            'wineType' => in_array($this->category, ['wine']) ? $this->wineType() : null,
+            'grape' => in_array($this->category, ['wine']) ? $this->grape() : null,
+            'cellar' => in_array($this->category, ['beer', 'spirit', 'wine', 'cider']) ? $this->cellar() : null,
+            'fillingLevel' => in_array($this->category, ['beer', 'spirit', 'wine', 'cider']) ? $this->fillingLevel() : null,
+            'township' => in_array($this->category, ['beer', 'spirit', 'wine', 'cider']) ? $this->township() : null,
+            'proof' => in_array($this->category, ['spirit', 'beer']) ? $this->notes1 : null,
+            'detailUrl' => $this->category == 'selection' ? $this->notes3 : null,
+            'mineralDrinkType' => $this->category == 'mineralDrink' ? $this->notes3 : null,
+            'bookEditor' => $this->category == 'book' ? $this->notes3 : null,
+            'spiritType' => in_array($this->category, ['spirit']) ? $this->spiritType() : null,
+        ];
+    }
+
+    /**
      * Get the image url for the product.
      */
     

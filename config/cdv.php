@@ -25,16 +25,16 @@ return [
 
     // ID des attributs dans Woocommerce
     'wc_attribute_ids' => [
-        'fillingLevelAttribute' => 7,
-        'grapeAttribute' => 8,
-        'townshipAttribute' => 9,
-        'cellarAttribute' => 10,
-        'yearAttribute' => 11,
-        'wineTypeAttribute' => 12,
-        'spiritTypeAttribute' => 13,
-        'proofAttribute' => 14,
-        'bookEditorAttribute' => 16,
-        'mineralDrinkTypeAttribute' => 17,
+        'fillingLevel' => 7,
+        'grape' => 8,
+        'township' => 9,
+        'cellar' => 10,
+        'year' => 11,
+        'wineType' => 12,
+        'spiritType' => 13,
+        'proof' => 14,
+        'bookEditor' => 16,
+        'mineralDrinkType' => 17,
     ],
 
     // Key d'une metadonnée sur un produit Woocommerce: Prix sur place

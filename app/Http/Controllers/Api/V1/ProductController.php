@@ -28,10 +28,18 @@ class ProductController extends Controller
     /**
      * Show the product by id raw.
      */
-    public function show($id)
+    public function getById($id)
     {
         return new ProductResource(Product::where('_tcposId', $id)->first());
         //return Product::where('_tcposId', $id)->first();
+    }
+
+    /**
+     * Show the product by code raw.
+     */
+    public function getByCode($id)
+    {
+        return new ProductResource(Product::where('_tcposCode', $id)->first());
     }
 
     /**
@@ -139,7 +147,7 @@ class ProductController extends Controller
             $productCreate->weight = $product->preparationWeight ?? 0;
             $productCreate->vatInPercent = data_get($product, 'vats.vatindex1', 'vats.vatindex2');
 
-            $productCreate->description = $product->description;
+            $productCreate->description = $product->wondDescription;
             $productCreate->articleOrder = $product->articleOrder;
             $productCreate->isAddition = $product->isAddition;
             $productCreate->measureUnitId = $product->measureUnitId;

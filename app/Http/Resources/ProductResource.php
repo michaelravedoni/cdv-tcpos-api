@@ -18,6 +18,7 @@ class ProductResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'description' => $this->description,
             'prices' => [
                 'takeAway' => [
                     'articleCode' => $this->_tcposCode,
@@ -48,18 +49,7 @@ class ProductResource extends JsonResource
                     'hash' => null,
                 ]
             ],
-            'attributes' => [
-                'year' => in_array($this->category, ['wine', 'cider']) ? $this->year() : null,
-                'wineType' => in_array($this->category, ['wine']) ? $this->wineType() : null,
-                'grape' => in_array($this->category, ['wine']) ? $this->grape() : null,
-                'cellar' => in_array($this->category, ['beer', 'spirit', 'wine', 'cider']) ? $this->cellar() : null,
-                'fillingLevel' => in_array($this->category, ['beer', 'spirit', 'wine', 'cider']) ? $this->fillingLevel() : null,
-                'township' => in_array($this->category, ['beer', 'spirit', 'wine', 'cider']) ? $this->township() : null,
-                'proof' => in_array($this->category, ['spirit', 'beer']) ? $this->notes1 : null,
-                'detailUrl' => $this->category == 'selection' ? $this->notes3 : null,
-                'mineralDrinkType' => $this->category == 'mineralDrink' ? $this->notes3 : null,
-                'bookEditor' => $this->category == 'book' ? $this->notes3 : null,
-            ],
+            'attributes' => $this->attributesArray(),
             'minQuantity' => $this->minQuantity,
             'maxQuantity' => $this->maxQuantity,
             'stockQty' => $this->stock(),

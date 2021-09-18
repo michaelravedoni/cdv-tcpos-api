@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\InfoController;
 use App\Http\Controllers\Sync\AttributeController as SyncAttributeController;
 use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
+use App\Http\Controllers\Sync\ProductController as SyncProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +31,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::get('/import/all', [ImportController::class, 'importAll'])->name('import.all');
+Route::get('/import/all', [ImportController::class, 'importTcposAll'])->name('import.all');
 Route::get('/import/products', [ProductController::class, 'importProducts'])->name('import.products');
 Route::get('/import/prices', [ProductController::class, 'importPrices'])->name('import.prices');
 Route::get('/import/products/images', [ProductController::class, 'importImages'])->name('import.products.images');
@@ -41,7 +42,8 @@ Route::get('/import/stocks', [StockController::class, 'importStocks'])->name('im
 Route::get('/products/raw', [ProductController::class, 'getProducts'])->name('products.raw');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/prices', [ProductController::class, 'indexPrices'])->name('products.prices.index');
-Route::get('/products/getById/{id}', [ProductController::class, 'show'])->name('products.getById');
+Route::get('/products/getById/{id}', [ProductController::class, 'getById'])->name('products.getById');
+Route::get('/products/getByCode/{id}', [ProductController::class, 'getByCode'])->name('products.getByCode');
 Route::get('/products/menu', [ProductController::class, 'indexByCategory'])->name('products.category');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');
 Route::get('/products/{id}/show', [ProductController::class, 'show'])->name('products.show');
@@ -66,9 +68,13 @@ Route::post('/orders', [OrderController::class, 'postOrders'])->name('orders.pos
 Route::get('/info', [InfoController::class, 'show'])->name('info');
 
 /* Woocommerce sync */
+Route::get('/wc/import/all', [ImportController::class, 'importWooAll'])->name('wc.import.all');
+
 Route::get('/wc/attributes', [SyncAttributeController::class, 'getWooAttributes'])->name('wc.attributes');
 Route::get('/wc/attributes/cellar', [SyncAttributeController::class, 'getWooCellarTerms'])->name('wc.attributes.cellar');
 Route::get('/wc/customers', [SyncCustomerController::class, 'getWooCustomers'])->name('wc.customers');
+Route::get('/wc/products', [SyncProductController::class, 'getWooProducts'])->name('wc.products');
 
 Route::get('/wc/sync/attributes', [SyncAttributeController::class, 'sync'])->name('wc.sync.attributes');
 Route::get('/wc/sync/customers', [SyncCustomerController::class, 'sync'])->name('wc.sync.customers');
+Route::get('/wc/sync/products', [SyncProductController::class, 'sync'])->name('wc.sync.products');
