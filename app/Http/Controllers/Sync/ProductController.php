@@ -84,7 +84,7 @@ class ProductController extends Controller
         // The loop: from tcpos to Woo
         foreach ($tcposResources as $tcposItem) {
             // For testing only a product
-            if ($tcposItem->_tcposId != 13482) {continue;}
+            if ($tcposItem->_tcposCode != 6508) {continue;}
 
             $match = Woo::where('resource', 'product')->where('_tcposCode', $tcposItem->_tcposCode)->first();
 
@@ -110,14 +110,14 @@ class ProductController extends Controller
             if ($this->isStockRuleCorrect($tcposItem)) {
                 // Update it
                 $data = $this->dataForWoo($tcposItem, $match);
-                Product::update($match->_wooId, $data);
-                SyncProductUpdate::dispatch($match->_wooId, $data);
+                //Product::update($match->_wooId, $data);
+                //SyncProductUpdate::dispatch($match->_wooId, $data);
                 $count_product_update += 1;
                 continue;
             } else {
                 // Delete it
                 //Product::delete($match->_wooId);
-                SyncProductDelete::dispatch($match->_wooId, $data);
+                SyncProductDelete::dispatch($match->_wooId);
                 $count_product_delete += 1;
                 continue;
             }
@@ -125,18 +125,16 @@ class ProductController extends Controller
 
         // The reverse loop: from Woo to tcpos
         foreach ($wooResources as $wooItem) {
-            
-            if (empty($wooItem->sku)) {
+            if (empty($wooItem->_wooId)) {
                 continue;
             }
 
-            $match = TcposProduct::where('_tcposCode', $wooItem->sku)->first();
+            $match = TcposProduct::where('_tcposCode', $wooItem->_tcposCode)->first();
 
             if (empty($match)) {
-                dd('yes');
                 // Delete it
                 //Product::delete($match->_wooId);
-                SyncProductDelete::dispatch($match->_wooId, $data);
+                SyncProductDelete::dispatch($wooItem->data->id);
                 $count_product_delete += 1;
                 continue;
             }
