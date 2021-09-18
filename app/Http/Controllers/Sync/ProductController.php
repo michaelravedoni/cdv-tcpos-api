@@ -110,7 +110,7 @@ class ProductController extends Controller
             if ($this->isStockRuleCorrect($tcposItem)) {
                 // Update it
                 $data = $this->dataForWoo($tcposItem, $match);
-                //Product::update($match->_wooId, $data);
+                Product::update($match->_wooId, $data);
                 SyncProductUpdate::dispatch($match->_wooId, $data);
                 $count_product_update += 1;
                 continue;
