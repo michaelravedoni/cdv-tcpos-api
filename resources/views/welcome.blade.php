@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Château de Villa - tcpos Woocommerce sync</title>
+    <title>Château de Villa - Woocommerce & TCPOS Sync</title>
 
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 
@@ -82,6 +82,10 @@
                 <div class="flex flex-wrap">
                     <div class="w-2/3">Dernière tâche d'arrière-fond</div>
                     <div class="w-1/3">{{ $lastJob->started_at->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
+                </div>
+                <div class="flex flex-wrap">
+                    <div class="w-2/3">Tâches à exécuter</div>
+                    <div class="w-1/3">{{ $remainingJobs }}</div>
                 </div>
                 <!--
                 <div class="flex flex-wrap">

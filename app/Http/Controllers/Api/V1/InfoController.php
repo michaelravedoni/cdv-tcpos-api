@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use romanzipp\QueueMonitor\Models\Monitor;
 use Spatie\Activitylog\Models\Activity;
@@ -19,7 +20,9 @@ class InfoController extends Controller
 
         $activities = Activity::orderBy('created_at', 'desc')->get();
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
-        //dd($lastJob->started_at->diffInMinutes(now()));
+        $remainingJobs = DB::table('jobs')->count();
+        //$remainingJobsProductUpdate = DB::table('jobs')->where('payload','like','%SyncProductUpdate"%')->count();
+
         if ($lastJob->started_at->diffInMinutes(now()) <= 1) {
             $jobsWorking = true;
         } else {
@@ -29,6 +32,7 @@ class InfoController extends Controller
         return view('welcome', [
             'activities' => $activities,
             'lastJob' => $lastJob,
+            'remainingJobs' => $remainingJobs,
             'jobsWorking' => $jobsWorking,
             'products_count' => Product::all()->count(),
             'products_where_minimal_quantity_under_six' => Product::whereHas('stockRelation', function (Builder $query) {
