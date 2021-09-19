@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use romanzipp\QueueMonitor\Models\Monitor;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Str;
 
 class InfoController extends Controller
 {
@@ -21,6 +24,20 @@ class InfoController extends Controller
         $activities = Activity::orderBy('created_at', 'desc')->get();
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
+
+        new \App\Console\Kernel(app(), new Dispatcher());
+        $schedule = app(Schedule::class);
+        $scheduled = collect($schedule->events());
+        $scheduledTcpos = $scheduled->filter(function ($item) {
+            return Str::contains($item->command, 'import:tcpos');
+        })->first()->nextRunDate();
+        $scheduledWoo = $scheduled->filter(function ($item) {
+            return Str::contains($item->command, 'import:woo');
+        })->first()->nextRunDate();
+        $scheduledSync = $scheduled->filter(function ($item) {
+            return Str::contains($item->command, 'sync_tcpos_woo');
+        })->first()->nextRunDate();
+
         //$remainingJobsProductUpdate = DB::table('jobs')->where('payload','like','%SyncProductUpdate"%')->count();
 
         if ($lastJob->started_at->diffInMinutes(now()) <= 1) {
@@ -34,6 +51,9 @@ class InfoController extends Controller
             'lastJob' => $lastJob,
             'remainingJobs' => $remainingJobs,
             'jobsWorking' => $jobsWorking,
+            'scheduledTcpos' => $scheduledTcpos,
+            'scheduledWoo' => $scheduledWoo,
+            'scheduledSync' => $scheduledSync,
             'products_count' => Product::all()->count(),
             'products_where_minimal_quantity_under_six' => Product::whereHas('stockRelation', function (Builder $query) {
                 $query->where('value', '<', 6);

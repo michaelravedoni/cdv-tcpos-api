@@ -28,6 +28,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('import:tcpos')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(1);
         $schedule->command('import:woo')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(5);
         $schedule->command('sync_tcpos_woo')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(15);
+
+
+        $schedule->command('activitylog:clean')->daily();
+
+        $schedule->call(function () {
+            DB::table('queue_monitor')->where('started_at', '<=', now()->subDay())->delete();
+        })->daily();
     }
 
     /**

@@ -31,11 +31,11 @@
                     <div class="w-1/3">{{ $products_count }}</div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Produits dont la quantité d'inventaire est < 6</div> <div class="w-1/3">
+                    <div class="w-2/3">Produits avec une quantité ⊖ à 6</div> <div class="w-1/3">
                             {{ $products_where_minimal_quantity_under_six }}</div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Produits dont la quantité d'inventaire est > 6</div>
+                    <div class="w-2/3">Produits avec une quantité ⊕ à 6</div>
                     <div class="w-1/3">{{ $products_where_minimal_quantity_below_equal_six }}</div>
                 </div>
             </div>
@@ -80,6 +80,24 @@
             <div class="w-1/3">
                 <h3 class="mb-1 font-bold text-blue-900">Synchronisation et importations</h3>
                 <div class="flex flex-wrap">
+                    <div class="w-2/3">Prochaine importation ⏬ de TCPOS</div>
+                    <div class="w-1/3">{{ $scheduledTcpos->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
+                </div>
+                <div class="flex flex-wrap">
+                    <div class="w-2/3">Prochaine importation ⏬ de Woocommerce</div>
+                    <div class="w-1/3">{{ $scheduledWoo->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
+                </div>
+                <div class="flex flex-wrap">
+                    <div class="w-2/3">Prochaine synchronisation 🔄</div>
+                    <div class="w-1/3">{{ $scheduledSync->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
+                </div>
+                <!--
+                <div class="flex flex-wrap">
+                    <div class="w-2/3">Dernière remontée de commande</div>
+                    <div class="w-1/3">?</div>
+                </div>
+                -->
+                <div class="flex flex-wrap">
                     <div class="w-2/3">Dernière tâche d'arrière-fond</div>
                     <div class="w-1/3">{{ $lastJob->started_at->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
                 </div>
@@ -87,24 +105,6 @@
                     <div class="w-2/3">Tâches à exécuter</div>
                     <div class="w-1/3">{{ $remainingJobs }}</div>
                 </div>
-                <!--
-                <div class="flex flex-wrap">
-                    <div class="w-2/3">Dernière synchronisation entre TCPOS et Woocommerce</div>
-                    <div class="w-1/3">?</div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3">Dernière importation de TCPOS</div>
-                    <div class="w-1/3">?</div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3">Dernière importation de Woocommerce</div>
-                    <div class="w-1/3">?</div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3">Dernière remontée de commande</div>
-                    <div class="w-1/3">?</div>
-                </div>
-                -->
                 <div class="flex flex-wrap my-4">@if($jobsWorking)<a
                         class="bg-red-800 hover:bg-red-700 text-white py-1 px-3 rounded" href="/jobs">Tâches
                         d'arrière-fond en cours d'exécution</a>@endif</div>
