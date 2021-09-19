@@ -62,7 +62,10 @@ echo 'Command: up'
 php artisan up
 
 # Start Queue
-php artisan queue:work
+# php artisan queue:work
+# pm2 start artisan --name cdv-tcpos-api-queue --interpreter php -- queue:work --daemon
+pm2 stop cdv-tcpos-api-queue
+pm2 start cdv-tcpos-api-queue
 
 # Start Cronless schedule
 php artisan schedule:run-cronless
