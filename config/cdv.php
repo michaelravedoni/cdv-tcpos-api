@@ -14,8 +14,9 @@ return [
     'default_customer_id' => 897,
     'default_shop_id' => 1,
     'default_price_level_id' => 2,
-    'default_image_type' => 'A',
+    'default_order_type' => 'delivery',
     'default_confirm_order_operation' => 'T',
+    'default_image_type' => 'A',
 
     'customer_min_cardum' => 10000,
     'customer_max_cardum' => 49000,

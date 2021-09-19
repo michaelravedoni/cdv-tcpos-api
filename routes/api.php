@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\V1\InfoController;
 use App\Http\Controllers\Sync\AttributeController as SyncAttributeController;
 use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
 use App\Http\Controllers\Sync\ProductController as SyncProductController;
+use App\Http\Controllers\Sync\OrderController as SyncOrderController;
+use App\Http\Controllers\Sync\SyncController as SyncController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,16 +67,19 @@ Route::post('/customers/{cardnum}/verification', [CustomerController::class, 've
 
 Route::post('/orders', [OrderController::class, 'postOrders'])->name('orders.post');
 
-Route::get('/info', [InfoController::class, 'show'])->name('info');
+Route::get('/info', [InfoController::class, 'api'])->name('info');
 
 /* Woocommerce sync */
 Route::get('/wc/import/all', [ImportController::class, 'importWooAll'])->name('wc.import.all');
 
 Route::get('/wc/attributes', [SyncAttributeController::class, 'getWooAttributes'])->name('wc.attributes');
 Route::get('/wc/attributes/cellar', [SyncAttributeController::class, 'getWooCellarTerms'])->name('wc.attributes.cellar');
-Route::get('/wc/customers', [SyncCustomerController::class, 'getWooCustomers'])->name('wc.customers');
+//Route::get('/wc/customers', [SyncCustomerController::class, 'getWooCustomers'])->name('wc.customers');
 Route::get('/wc/products', [SyncProductController::class, 'getWooProducts'])->name('wc.products');
+Route::get('/wc/orders', [SyncOrderController::class, 'getWooOrders'])->name('wc.orders');
 
 Route::get('/wc/sync/attributes', [SyncAttributeController::class, 'sync'])->name('wc.sync.attributes');
 Route::get('/wc/sync/customers', [SyncCustomerController::class, 'sync'])->name('wc.sync.customers');
 Route::get('/wc/sync/products', [SyncProductController::class, 'sync'])->name('wc.sync.products');
+Route::get('/wc/sync/orders', [SyncOrderController::class, 'sync'])->name('wc.sync.orders');
+Route::get('/wc/sync/all', [SyncController::class, 'all'])->name('wc.sync.all');

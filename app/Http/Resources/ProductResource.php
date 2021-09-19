@@ -39,16 +39,7 @@ class ProductResource extends JsonResource
                     'vatInPercent' => $this->vatInPercent,
                 ]
             ],
-            'pictures' => [
-                [
-                    'id' => $this->_tcposId,
-                    'images' => [
-                        'url' => $this->imageUrl(),
-                        'hash' => md5($this->imageHash),
-                    ],
-                    'hash' => null,
-                ]
-            ],
+            'pictures' => $this->pictures(),
             'attributes' => $this->attributesArray(),
             'minQuantity' => $this->minQuantity,
             'maxQuantity' => $this->maxQuantity,

@@ -159,13 +159,38 @@ class Product extends Model
     }
 
     /**
+     * Get the pictures for the product.
+     */
+    
+    public function pictures()
+    {
+        if (isset($this->imageHash)) {
+            return [
+                [
+                    'id' => $this->_tcposId,
+                    'images' => [
+                        'url' => $this->imageUrl(),
+                        'hash' => md5($this->imageHash),
+                    ],
+                    'hash' => md5($this->imageHash),
+                ]
+            ];
+        } else {
+            return [];
+        }
+    }
+    /**
      * Get the image url for the product.
      */
     
     public function imageUrl()
     {
-        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->_tcposId.'.jpg';
-        $url = Storage::disk('public')->url($path);
-        return $url;
+        if (isset($this->imageHash)) {
+            $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->_tcposId.'.jpg';
+            $url = Storage::disk('public')->url($path);
+            return $url;
+        } else {
+            return null;
+        }
     }
 }

@@ -27,8 +27,8 @@ class AttributeController extends Controller
      */
     public function getWooCellarTerms()
     {
-        $terms = Term::all(config('cdv.wc_attribute_ids.cellarAttribute'), ['per_page' => 100, 'page' => 1]);
-        $terms2 = Term::all(config('cdv.wc_attribute_ids.cellarAttribute'), ['per_page' => 100, 'page' => 2]);
+        $terms = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 1]);
+        $terms2 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 2]);
         return $terms->merge($terms2);
     }
 
@@ -74,7 +74,7 @@ class AttributeController extends Controller
                         ['key' => 'phone', 'value' => $tcposAttribute->notes3],
                     ],
                 ];
-                //Term::update(config('cdv.wc_attribute_ids.cellarAttribute'), $woo_cellar_term_id, $data);
+                //Term::update(config('cdv.wc_attribute_ids.cellar'), $woo_cellar_term_id, $data);
                 SyncAttributeTermUpdate::dispatch($woo_cellar_term_id, $data);
                 $count_term_update += 1;
             } else {
@@ -82,11 +82,12 @@ class AttributeController extends Controller
             }
         }
 
+        activity()->log('Sync: Attributes sync queued |  '.$count_term_update.' update and '.$count_term_not_found.' not found | See /jobs');
+
         return response()->json([
             'message' => 'Sync queued. See /jobs.',
             'count_term_update' => $count_term_update,
             'count_term_not_found' => $count_term_not_found,
-            'count_attribute_update' => $count_attribute_update,
         ]);
     }
 }

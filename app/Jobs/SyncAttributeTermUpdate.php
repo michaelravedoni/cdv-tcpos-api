@@ -41,6 +41,8 @@ class SyncAttributeTermUpdate implements ShouldQueue
     public function handle()
     {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-term
-        Term::update(config('cdv.wc_attribute_ids.cellarAttribute'), $this->id, $this->data);
+        Term::update(config('cdv.wc_attribute_ids.cellar'), $this->id, $this->data);
+
+        return 'Sync: Term updated in Woocommerce : '.$this->id;
     }
 }

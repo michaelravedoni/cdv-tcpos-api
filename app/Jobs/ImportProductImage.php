@@ -44,10 +44,16 @@ class ImportProductImage implements ShouldQueue
 
         $product = Product::where('_tcposId', $this->id)->first();
 
+        if (empty($data)) {
+            //No image found
+            $product->imageHash = null;
+            $product->save();
+            
+            activity()->log('Import: Product image not found in tcpos database : '.$this->id);
+        }
+
         if ($product->imageHash == md5($data)) {
-            return response()->json([
-                'message' => 'Image already saved',
-            ]);
+            activity()->log('Import: Product image already saved in the database and filesystem : '.$this->id);
         }
 
         $image = $data;
@@ -56,9 +62,9 @@ class ImportProductImage implements ShouldQueue
         $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
 
-        $product = Product::where('_tcposId', $this->id)->first();
         $product->imageHash = md5($data);
         $product->save();
 
+        activity()->log('Import: Product image imported in the database and filesystem from tcpos : '.$this->id);
     }
 }

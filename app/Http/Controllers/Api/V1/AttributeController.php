@@ -36,6 +36,7 @@ class AttributeController extends Controller
         $begin = microtime(true);
 
         Attribute::truncate();
+        activity()->log('Import: All attributes truncated from database');
 
         foreach ($this->getAttributes() as $key => $attributeRaw) {
 
@@ -51,12 +52,14 @@ class AttributeController extends Controller
             $attributeCreate->_tcposCode = $attribute->CODE;
             $attributeCreate->save();
 
-            if ($key == 2) {
+            /*if ($key == 2) {
                 $brake;
-            }
+            }*/
         }
         
         $end = microtime(true) - $begin;
+
+        activity()->withProperties(['duration' => $end])->log('Import: '.Attribute::all()->count().' attributes imported from tcpos database');
 
         return response()->json([
             'message' => 'imported',

@@ -17,17 +17,18 @@ class SyncCustomerUpdate implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use IsMonitored;
 
-    public $wooCustomer;
+    public $id;
+    public $data;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($wooCustomer)
+    public function __construct($id, $data)
     {
-        $this->wooCustomer = $wooCustomer;
-        $this->is = $wooCustomer->id;
+        $this->id = $id;
+        $this->data = $data;
     }
 
     /**
@@ -37,18 +38,9 @@ class SyncCustomerUpdate implements ShouldQueue
      */
     public function handle()
     {
-        $customer_controller = new \App\Http\Controllers\Api\V1\CustomerController;
-        $tcposCustomerFund = $customer_controller->getCustomerFunds(data_get($this->wooCustomer, 'card_number'));
-        $tcposCustomer = $customer_controller->getCustomer(data_get($this->wooCustomer, 'card_number'));
-        $tcposCustomerAccountType = data_get($tcposCustomer->original, 'accountType');
-        $data = [
-            'account_funds' => $tcposCustomerFund,
-            'meta_data' => [
-                config('cdv.wc_meta_customer_account_type') => $tcposCustomerAccountType,
-            ],
-        ];
-        
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-customer
-        //Customer::update($this->id, $data);
+        Customer::update($this->id, $this->data);
+
+        return 'Sync: Customer updated in Woocommerce : '.$this->id;
     }
 }

@@ -120,6 +120,8 @@ class ProductController extends Controller
             ImportProductPrice::dispatch($valueId);
         }
 
+        activity()->log('Import: Product prices imported in the database from tcpos');
+
         return response()->json([
             'message' => 'job launched. See /jobs',
         ]);
@@ -173,6 +175,8 @@ class ProductController extends Controller
         
         $end = microtime(true) - $begin;
 
+        activity()->withProperties(['duration' => $end])->log('Import: '.Product::all()->count().' products imported from tcpos database');
+
         return response()->json([
             'message' => 'imported',
             'time' => $end,
@@ -190,8 +194,17 @@ class ProductController extends Controller
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
-
         $product = Product::where('_tcposId', $id)->first();
+
+        if (empty($data)) {
+            //No image found
+            $product->imageHash = null;
+            $product->save();
+            
+            return response()->json([
+                'message' => 'Image not found in tcpos',
+            ]);
+        }
 
         if ($product->imageHash == md5($data)) {
             return response()->json([
@@ -226,6 +239,8 @@ class ProductController extends Controller
         foreach ($ids as $keyId => $valueId) {
             ImportProductImage::dispatch($valueId);
         }
+
+        activity()->log('Import: Begin import products images from tcpos database. See /jobs');
 
         return response()->json([
             'message' => 'job launched. See /jobs',

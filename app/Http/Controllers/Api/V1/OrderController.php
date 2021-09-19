@@ -13,7 +13,7 @@ class OrderController extends Controller
      */
     public function postOrders()
     {
-        return 'hi';
+        return 'Not implemented yet';
 
         /* 
         this.number = '';

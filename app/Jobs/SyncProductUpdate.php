@@ -40,5 +40,7 @@ class SyncProductUpdate implements ShouldQueue
     {   
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-product
         Product::update($this->id, $this->data);
+
+        return 'Sync: Product updated in Woocommerce : '.$this->id;
     }
 }
