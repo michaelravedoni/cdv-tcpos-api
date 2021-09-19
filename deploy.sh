@@ -68,6 +68,6 @@ pm2 stop cdv-tcpos-api-queue
 pm2 start cdv-tcpos-api-queue
 
 # Start Cronless schedule
-php artisan schedule:run-cronless
+# php artisan schedule:run-cronless
 
 echo '🚀 Deploy finished.'
