@@ -102,6 +102,8 @@ class CustomerController extends Controller
                 'account_funds' => $tcposCustomerFund,
                 'meta_data' => [$metaDataArray],
             ];
+
+            $customers_update[] = ['customer' => $wooCustomer];
             
             //Customer::update($customer_id, $data);
             SyncCustomerUpdate::dispatch($wooCustomer->id, $data);
@@ -116,6 +118,7 @@ class CustomerController extends Controller
             'count_customer_order_active' => $count_customer_order_active,
             'count_customer_no_card' => $count_customer_no_card,
             'customers_order_active' => $customers_order_active,
+            //'customers_update' => $customers_update,
         ]);
     }
 }
