@@ -76,6 +76,8 @@ class ImportProductPrice implements ShouldQueue
             $price->discountedprice = $priceData->discountedprice;
             $price->pricelevelid = $priceData->pricelevelid;
             $price->save();
+
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the database : '.$priceData->id);
         }
     }
 }

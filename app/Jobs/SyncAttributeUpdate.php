@@ -43,6 +43,6 @@ class SyncAttributeUpdate implements ShouldQueue
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-attribute
         Attribute::update($this->id, $this->data);
 
-        activity()->log('Attribute updated in Woocommerce : '.$this->id);
+        activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'attributes'])->log('Attribute updated in Woocommerce : '.$this->id);
     }
 }
