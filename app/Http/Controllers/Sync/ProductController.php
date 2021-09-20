@@ -72,8 +72,8 @@ class ProductController extends Controller
         $wooResources = Woo::where('resource', 'product')->get();
 
         if ($tcposResources->count() == 0) {
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'products'])->log('No product retrieved from API (got an empty array). Prevent to delete all the production...');
             return 'No product retrieved from API (got an empty array). Prevent to delete all the production...';
-            activity()->log('No product retrieved from API (got an empty array). Prevent to delete all the production...');
         }
 
         $count_product_create = 0;
@@ -142,7 +142,7 @@ class ProductController extends Controller
             }
         }
 
-        activity()->log('Sync: Products sync queued |  '.$count_product_update.' update, '.$count_product_create.' create, '.$count_product_delete.' delete, '.$count_product_untouched.' untouched | See /jobs');
+        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'products'])->log('Products sync queued |  '.$count_product_update.' update, '.$count_product_create.' create, '.$count_product_delete.' delete, '.$count_product_untouched.' untouched | See /jobs');
 
         return response()->json([
             'message' => 'Sync queued. See /jobs.',

@@ -41,6 +41,6 @@ class SyncCustomerUpdate implements ShouldQueue
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-customer
         Customer::update($this->id, $this->data);
 
-        return 'Sync: Customer updated in Woocommerce : '.$this->id;
+        activity()->log('Customer updated in Woocommerce : '.$this->id);
     }
 }

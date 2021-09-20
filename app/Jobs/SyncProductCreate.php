@@ -40,6 +40,6 @@ class SyncProductCreate implements ShouldQueue
         // https://codexshaper.github.io/docs/laravel-woocommerce/#create-product
         Product::create($this->data);
 
-        return 'Sync: Product created in Woocommerce';
+        activity()->log('Product created in Woocommerce : '.$this->id);
     }
 }

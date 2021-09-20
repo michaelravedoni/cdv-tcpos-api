@@ -80,29 +80,33 @@
             <div class="w-1/3">
                 <h3 class="mb-1 font-bold text-blue-900">Synchronisation et importations</h3>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Prochaine importation ⏬ de TCPOS</div>
+                    <div class="w-2/3" title="Prochaine importation TCPOS">➡ ⏬ TCPOS</div>
                     <div class="w-1/3">{{ $scheduledTcpos->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Prochaine importation ⏬ de Woocommerce</div>
+                    <div class="w-2/3" title="Prochaine importation Woocommerce">➡ ⏬ Woocommerce</div>
                     <div class="w-1/3">{{ $scheduledWoo->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Prochaine synchronisation 🔄</div>
+                    <div class="w-2/3" title="Prochaine synchronisation">➡ 🔄</div>
                     <div class="w-1/3">{{ $scheduledSync->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
                 </div>
-                <!--
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Dernière remontée de commande</div>
-                    <div class="w-1/3">?</div>
+                    <div class="w-2/3" title="Dernière mise à jour dans la base TCPOS">⬅ 🆙 TCPOS</div>
+                    <div class="w-1/3">{{ AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT') }}</div>
                 </div>
-                -->
+                {{--
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Dernière tâche d'arrière-fond</div>
+                    <div class="w-2/3">Dernière commande dans Woocommerce</div>
+                    <div class="w-1/3">{{ AppHelper::getLastWooOrderUpdate()->timezone('Europe/Zurich')->locale('fr_ch')->isoFormat('L LT') }}</div>
+                </div>
+                --}}
+                <div class="flex flex-wrap">
+                    <div class="w-2/3" title="Dernière tâche d'arrière-fond">⬅ tâche d'arrière-fond</div>
                     <div class="w-1/3">{{ $lastJob->started_at->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Tâches à exécuter</div>
+                    <div class="w-2/3">Tâches restantes à exécuter</div>
                     <div class="w-1/3">{{ $remainingJobs }}</div>
                 </div>
                 <div class="flex flex-wrap my-4">@if($jobsWorking)<a
@@ -145,18 +149,21 @@
                 <thead class="bg-gray-200">
 
                     <tr>
+                        <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
+                            Groupe</th>
+                        <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
+                            Ressource</th>
+                        <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
+                            Type</th>
                         <th
                             class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
                             Message</th>
                         <th
                             class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Details</th>
+                            Durée</th>
                         <th
                             class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Duration</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Started</th>
+                            Date</th>
                     </tr>
 
                 </thead>
@@ -164,12 +171,38 @@
                 <tbody class="bg-white">
 
                     @forelse($activities as $activity)
+                    @php
+                        $level = $activity->getExtraProperty('level');
+                        $colorText = null;
+                        $colorBg = null;
+                        if ($level == 'start') {
+                            $colorBg = 'bg-green-100';
+                            $colorText = 'text-green-900';
+                        } elseif ($level == 'end') {
+                            $colorBg = 'bg-green-100';
+                            $colorText = 'text-green-900';
+                        } elseif ($level == 'error') {
+                            $colorBg = 'bg-red-600';
+                            $colorText = 'text-white';
+                        } elseif ($level == 'warning') {
+                            $colorBg = 'bg-yellow-600';
+                            $colorText = 'text-white';
+                        } elseif ($level == 'info') {
+                            $colorBg = 'bg-blue-50';
+                            $colorText = 'text-blue-900';
+                        } elseif ($level == 'job') {
+                            $colorBg = 'bg-yellow-100';
+                            $colorText = 'text-yellow-900';
+                        }
+                    @endphp
 
-                    <tr class="font-sm leading-relaxed">
+                    <tr class="font-sm leading-relaxed {{ $colorText }} {{ $colorBg }}">
+                        <td class="px-4">{{ $activity->getExtraProperty('group') }}</td>
+                        <td class="px-4">{{ $activity->getExtraProperty('resource') }}</td>
+                        <td class="px-4">{{ $level }}</td>
                         <td class="px-4">{{ $activity->description }}</td>
-                        <td>{{ $activity->getExtraProperty('customProperty') }}</td>
                         <td>{{ $activity->getExtraProperty('duration') ? number_format($activity->getExtraProperty('duration'), 2).' secondes' : null }}</td>
-                        <td>{{ $activity->created_at->locale('fr_CH')->timezone('Europe/Zurich')->isoFormat('LL LT') }}</td>
+                        <td>{{ $activity->created_at->locale('fr_CH')->timezone('Europe/Zurich')->isoFormat('L LT') }}</td>
                     </tr>
 
                     @empty

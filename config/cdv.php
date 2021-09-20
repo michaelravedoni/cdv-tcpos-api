@@ -18,6 +18,16 @@ return [
     'default_confirm_order_operation' => 'T',
     'default_image_type' => 'A',
 
+    // Moyens de paiement
+    'payment_methods' => [
+        'PayEngine3Cw_CreditCard' => ['type' => 'creditCard', 'note' => 'Woocommerce PayEngine3Cw_CreditCard (Carte de crédit / Postcard)'],
+        'bacs' => ['type' => 'cash', 'note' => 'Woocommerce bacs (Paiement anticipé sur facture ou par virement bancaire)'],
+        'accountfunds' => ['type' => 'customerCard', 'note' => 'Woocommerce accountfunds (Carte de membre)'],
+
+        'creditCard' => ['type' => 'creditCard', 'note' => 'woocommerce creditCard'],
+        'twint' => ['type' => 'creditCard', 'note' => 'woocommerce twint'],
+    ],
+
     'customer_min_cardum' => 10000,
     'customer_max_cardum' => 49000,
 

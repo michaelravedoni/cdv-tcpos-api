@@ -120,7 +120,7 @@ class ProductController extends Controller
             ImportProductPrice::dispatch($valueId);
         }
 
-        activity()->log('Import: Product prices imported in the database from tcpos');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'prices'])->log('Import products prices from tcpos database. See /jobs');
 
         return response()->json([
             'message' => 'job launched. See /jobs',
@@ -135,6 +135,9 @@ class ProductController extends Controller
         $begin = microtime(true);
 
         Product::truncate();
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'products'])->log('Products deleted from local database');
+
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'products'])->log('Import products from tcpos database');
 
         foreach ($this->getProducts() as $key => $productRaw) {
 
@@ -175,7 +178,7 @@ class ProductController extends Controller
         
         $end = microtime(true) - $begin;
 
-        activity()->withProperties(['duration' => $end])->log('Import: '.Product::all()->count().' products imported from tcpos database');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from tcpos database');
 
         return response()->json([
             'message' => 'imported',
@@ -240,7 +243,7 @@ class ProductController extends Controller
             ImportProductImage::dispatch($valueId);
         }
 
-        activity()->log('Import: Begin import products images from tcpos database. See /jobs');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'images'])->log('Import products images from tcpos database. See /jobs');
 
         return response()->json([
             'message' => 'job launched. See /jobs',

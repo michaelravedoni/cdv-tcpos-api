@@ -89,10 +89,13 @@ class CustomerController extends Controller
     {
         $verificationInput = $request->input('verificationFields');
         $value = data_get($verificationInput, '0.value');
+        
+        //return response()->json(data_get($this->getCustomer($cardnum), 'zip'));
+
         if ($value == data_get($this->getCustomer($cardnum), 'zip')) {
             return response()->json(true, 200);
         }
-        return response()->json('Verification fields are incorrect', 401);
+        return response()->json(['code' => '401', 'message' => 'Verification field value zip is incorrect'], 401);
         
     }
 }

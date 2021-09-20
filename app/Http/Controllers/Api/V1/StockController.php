@@ -38,7 +38,7 @@ class StockController extends Controller
             ImportProductStock::dispatch($valueId);
         }
 
-        activity()->log('Import: Begin import products stocks from tcpos database. See /jobs');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'stocks'])->log('Start import products stocks from tcpos database. See /jobs');
 
         return response()->json([
             'message' => 'job launched. See /jobs',

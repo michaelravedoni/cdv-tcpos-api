@@ -110,7 +110,7 @@ class CustomerController extends Controller
             $count_customer_update += 1;
         }
 
-        activity()->log('Sync: Customers sync queued |  '.$count_customer_update.' update, '.$count_customer_order_active.' with an active order and '.$count_customer_no_card.' without card | See /jobs');
+        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'customers'])->log('Customers sync queued |  '.$count_customer_update.' update, '.$count_customer_order_active.' with an active order and '.$count_customer_no_card.' without card | See /jobs');
 
         return response()->json([
             'message' => 'Sync queued. See /jobs.',

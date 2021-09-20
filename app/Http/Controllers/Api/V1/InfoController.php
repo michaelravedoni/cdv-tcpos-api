@@ -12,6 +12,8 @@ use Spatie\Activitylog\Models\Activity;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Str;
+use anlutro\LaravelSettings\Facade as Setting;
+use AppHelper;
 
 class InfoController extends Controller
 {
@@ -38,6 +40,10 @@ class InfoController extends Controller
             return Str::contains($item->command, 'sync_tcpos_woo');
         })->first()->nextRunDate();
 
+        //$lastTcposUpdate = AppHelper::getLastTcposUpdate();
+        //dd($lastTcposUpdate);
+        //$lastWooOrderUpdate = AppHelper::getLastWooOrderUpdate() ?? '1900-01-01';
+
         //$remainingJobsProductUpdate = DB::table('jobs')->where('payload','like','%SyncProductUpdate"%')->count();
 
         if ($lastJob->started_at->diffInMinutes(now()) <= 1) {
@@ -50,6 +56,7 @@ class InfoController extends Controller
             'activities' => $activities,
             'lastJob' => $lastJob,
             'remainingJobs' => $remainingJobs,
+            //'lastTcposUpdate' => $lastTcposUpdate,
             'jobsWorking' => $jobsWorking,
             'scheduledTcpos' => $scheduledTcpos,
             'scheduledWoo' => $scheduledWoo,

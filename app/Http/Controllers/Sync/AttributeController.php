@@ -82,7 +82,7 @@ class AttributeController extends Controller
             }
         }
 
-        activity()->log('Sync: Attributes sync queued |  '.$count_term_update.' update and '.$count_term_not_found.' not found | See /jobs');
+        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'attributes'])->log('Attributes sync queued |  '.$count_term_update.' update and '.$count_term_not_found.' not found | See /jobs');
 
         return response()->json([
             'message' => 'Sync queued. See /jobs.',

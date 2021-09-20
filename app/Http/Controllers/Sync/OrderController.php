@@ -86,6 +86,22 @@ class OrderController extends Controller
     }
 
     /**
+     * Create payment data for TCPOS.
+     */
+    public function createPaymentTcposData($wooOrder)
+    {
+        $paymentConfig = data_get(config('cdv.payment_methods'), data_get($wooOrder, 'payment_method'));
+        $paymentData = [
+            'payments' => [
+                'paymentType' => data_get($paymentConfig, 'type'),
+                'paymentNotes' => data_get($paymentConfig, 'note'),
+                'paymentAmount' => data_get($wooOrder, 'total'),
+            ]
+        ];
+        dd($paymentData);
+    }
+
+    /**
      * Create tcpos order.
      */
     public function createTcposOrder($wooOrder)
@@ -101,35 +117,56 @@ class OrderController extends Controller
                     ]
                 ];
         }
-        foreach ($wooOrder->shipping_lines as $item) {
-            $items[] = [
-                'article' => [
-                    'id' => data_get($item, 'tcpos_id'),
-                    'price' => data_get($item, 'total'),
-                    'priceLevelId' => config('cdv.default_price_level_id'),
-                    ]
-                ];
-        }
+
+        $stringShippingAddress = $wooOrder->shipping->first_name.' '.$wooOrder->shipping->last_name.' | '.$wooOrder->shipping->address_1.', '.$wooOrder->shipping->postcode.' '.$wooOrder->shipping->city.' '.$wooOrder->shipping->country;
 
         $data = [
-            'date' => $wooOrder->date_created,
-            'customerId' => config('cdv.default_customer_id'),
-            'shopId' => config('cdv.default_shop_id'),
-            'orderType' => config('cdv.default_order_type'),
-            'priceLevelId' => config('cdv.default_price_level_id'),
-            'total' => $wooOrder->total,
-            'itemList' => $items,
+            'data' => [
+                'date' => now()->addDay()->toDateTimeLocalString(),
+                'customerId' => config('cdv.default_customer_id'),
+                'shopId' => config('cdv.default_shop_id'),
+                'orderType' => config('cdv.default_order_type'),
+                'priceLevelId' => config('cdv.default_price_level_id'),
+                'total' => $wooOrder->total,
+                'transactionCausalId' => $wooOrder->id,
+                'transactionComment' => 'Commande Woocommerce #'.$wooOrder->id.' à livrer chez '.$stringShippingAddress,
+                'itemList' => $items,
+            ]
         ];
-        $dataLine = '"data": {
-                "date": '.$wooOrder->date_created.',
-                "customerId": '.config('cdv.default_customer_id').',
-                "shopId": '.config('cdv.default_shop_id').',
-                "orderType": '.config('cdv.default_order_type').',
-                "priceLevelId": '.config('cdv.default_price_level_id').',
-                "total": '.$wooOrder->total.',
-                "itemList": '.json_encode($items).',
-            }';
-        $response = Http::get(env('TCPOS_API_WOND_URL').'/createOrder?data='.$dataLine);
-        dd($response->json());
+        
+        // Générer un token pour TCPOS
+        $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
+        $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
+
+        // S'il y a a un token: créer la commande dans TCPOS
+        if ($token) {
+            $requestOrder = Http::get(env('TCPOS_API_WOND_URL').'/calculateOrder?token='.urlencode($token).'&data='.json_encode($data));
+            $dataOrder = $requestOrder->json();
+            $dataOrderResponse = data_get($dataOrder, 'calculateOrder.result');
+
+            // S'il y a une erreur dans la création de la commande
+            if ($dataOrderResponse != 'OK') {
+                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order could not be transmitted correctly to TCPOS WOND');
+                return 'Error: The order could not be transmitted correctly to TCPOS WOND';
+            }
+
+            // S'il n'y a pas d'erreur dans la création de la commande: confirmer la commande dans TCPOS
+            $requestOrderConfirm = Http::get(env('TCPOS_API_WOND_URL').'/confirmOrder', [
+                'token' => $token,
+                'shopId' => config('cdv.default_shop_id'),
+                'guid' => null,
+                'operation' => config('cdv.default_confirm_order_operation'),
+                'payments' => $this->createPaymentTcposData(),
+            ]);
+            $dataOrderConfirm = $requestOrderConfirm->json();
+            $dataOrderConfirmResponse = data_get($dataOrderConfirm, 'confirmOrder.result');
+
+            // S'il y a une erreur dans la création de la commande
+            if ($dataOrderConfirmResponse != 'OK') {
+                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Error: The order could not be confirmed correctly to TCPOS WOND');
+                return 'Error: The order could not be confirmed correctly to TCPOS WOND';
+            }
+            dd($dataOrderConfirm);
+        }
     }
 }
