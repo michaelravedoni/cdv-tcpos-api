@@ -92,7 +92,7 @@ class CustomerController extends Controller
         if ($value == data_get($this->getCustomer($cardnum), 'zip')) {
             return $this->getCustomer($cardnum);
         }
-        return response()->json('Verification fields are incorrect');
+        return response()->json('Verification fields are incorrect', 401);
         
     }
 }
