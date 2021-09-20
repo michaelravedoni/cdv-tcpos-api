@@ -40,16 +40,18 @@ Route::get('/import/products/images', [ProductController::class, 'importImages']
 Route::get('/import/products/images/{id}', [ProductController::class, 'importImage'])->name('import.products.image');
 Route::get('/import/attributes', [AttributeController::class, 'importAttributes'])->name('import.attributes');
 Route::get('/import/stocks', [StockController::class, 'importStocks'])->name('import.attributes');
+Route::get('/import/need/tcpos', [ImportController::class, 'needImportFromTcpos'])->name('import.need.tcpos');
+Route::get('/import/need/woo/orders', [ImportController::class, 'needOrdersImportFromWoo'])->name('import.need.woo.orders');
 
 Route::get('/products/raw', [ProductController::class, 'getProducts'])->name('products.raw');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/prices', [ProductController::class, 'indexPrices'])->name('products.prices.index');
 Route::get('/products/getById/{id}', [ProductController::class, 'getById'])->name('products.getById');
 Route::get('/products/getByCode/{id}', [ProductController::class, 'getByCode'])->name('products.getByCode');
-Route::get('/products/menu', [ProductController::class, 'indexByCategory'])->name('products.category');
+Route::get('/products/menu', [ProductController::class, 'indexByCategory'])->name('products.category')->middleware('cache.headers:public;max_age=3600');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');
 Route::get('/products/{id}/show', [ProductController::class, 'show'])->name('products.show');
-Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category');
+Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category')->middleware('cache.headers:public;max_age=3600');
 
 Route::get('/attributes/raw', [AttributeController::class, 'getAttributes'])->name('attributes.raw');
 Route::get('/attributes', [AttributeController::class, 'index'])->name('attributes.index');
