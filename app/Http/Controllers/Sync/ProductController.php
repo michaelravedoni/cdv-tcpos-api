@@ -235,8 +235,13 @@ class ProductController extends Controller
                 activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
             }
         } else {
-            //There is no tcpos image or no wooProduct
+            //There is no tcpos image
             $images = [];
+        }
+        //There is no wooProduct: so create a product and if an image exists, add it
+        if (empty($wooProduct) && $tcposProduct->imageUrl() != null) {
+            $images = [['name' => $tcposProduct->imageHash, 'src' => $dist_image_url]];
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
         }
 
         return [
