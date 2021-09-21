@@ -117,7 +117,7 @@ class CustomerController extends Controller
             'count_customer_update' => $count_customer_update,
             'count_customer_order_active' => $count_customer_order_active,
             'count_customer_no_card' => $count_customer_no_card,
-            'customers_order_active' => $customers_order_active,
+            //'customers_order_active' => $customers_order_active,
             //'customers_update' => $customers_update,
         ]);
     }
