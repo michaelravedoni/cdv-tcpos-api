@@ -8,6 +8,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Woo;
 use Codexshaper\WooCommerce\Facades\Product;
 use App\Models\Product as TcposProduct;
+use App\Models\ProductImage as TcposProductImage;
 use App\Jobs\SyncProductUpdate;
 use App\Jobs\SyncProductCreate;
 use App\Jobs\SyncProductDelete;
@@ -214,24 +215,26 @@ class ProductController extends Controller
                 'options' => [$option],
             ];
         }
+        $productImage = TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
         $dist_image_url = env('TCPOS_PRODUCTS_IMAGES_BASE_URL').$tcposProduct->_tcposId.'.jpg';
         //instead of $tcposProduct->imageUrl()
-        if (isset($wooProduct) && $tcposProduct->imageUrl() != null) {
+        if (isset($wooProduct) && $productImage->hash != null) {
             //There is a tcpos image and a wooProduct
             if (data_get($wooProduct->data, 'images.0.name') != null) {
                 //There is an existing image.
-                if (data_get($wooProduct->data, 'images.0.name') != $tcposProduct->imageHash) {
+                if (data_get($wooProduct->data, 'images.0.name') != $productImage->hash) {
                     //There is an existing image but not match the tcpos hash one : upload
-                    $images = [['name' => $tcposProduct->imageHash, 'src' => $dist_image_url]];
+                    $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
                     activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') image with : '. $dist_image_url);
                 } else {
                     //There is an existing image that match the tcpos hash one : keep it
                     $images = $wooProduct->data->images;
+                    //activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') without upddating the image');
                 }
             }
             if (data_get($wooProduct->data, 'images.0.name') == null) {
                 //There is no existing image : upload
-                $images = [['name' => $tcposProduct->imageHash, 'src' => $dist_image_url]];
+                $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
                 activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
             }
         } else {
@@ -239,8 +242,8 @@ class ProductController extends Controller
             $images = [];
         }
         //There is no wooProduct: so create a product and if an image exists, add it
-        if (empty($wooProduct) && $tcposProduct->imageUrl() != null) {
-            $images = [['name' => $tcposProduct->imageHash, 'src' => $dist_image_url]];
+        if (empty($wooProduct) && $productImage->hash != null) {
+            $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
             activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
         }
 

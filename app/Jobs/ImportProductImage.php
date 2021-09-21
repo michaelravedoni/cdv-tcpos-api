@@ -13,6 +13,7 @@ use romanzipp\QueueMonitor\Traits\IsMonitored;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
+use App\Models\ProductImage;
 
 class ImportProductImage implements ShouldQueue
 {
@@ -42,18 +43,22 @@ class ImportProductImage implements ShouldQueue
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
-        $product = Product::where('_tcposId', $this->id)->first();
+        $productImage = ProductImage::where('_tcpos_product_id', $this->id)->first();
+        if (empty($productImage)) {
+            $productImage = new ProductImage;
+            $productImage->_tcpos_product_id = $this->id;
+        }
 
         if (empty($data)) {
             //No image found
-            $product->imageHash = null;
-            $product->save();
+            $productImage->hash = null;
+            $productImage->save();
             
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in tcpos database | tcposId:'.$this->id);
             return;
         }
 
-        if ($product->imageHash == md5($data)) {
+        if ($productImage->hash == md5($data)) {
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the database and filesystem | tcposId:'.$this->id);
             return;
         }
@@ -64,8 +69,8 @@ class ImportProductImage implements ShouldQueue
         $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
 
-        $product->imageHash = md5($data);
-        $product->save();
+        $productImage->hash = md5($data);
+        $productImage->save();
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image imported in the database and filesystem from tcpos | tcposId:'.$this->id);
     }

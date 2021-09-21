@@ -17,7 +17,7 @@ class Product extends Model
      */
     protected $guarded = ['id'];
 
-    protected $with = ['pricesRelations', 'stockRelation', 'attributeRelationCellar', 'attributeRelationGrape', 'attributeRelationFillingLevel', 'attributeRelationTownship'];
+    protected $with = ['pricesRelations', 'imageRelation', 'stockRelation', 'attributeRelationCellar', 'attributeRelationGrape', 'attributeRelationFillingLevel', 'attributeRelationTownship'];
 
     /**
      * Get the prices for the product.
@@ -31,6 +31,14 @@ class Product extends Model
      * Get the stock for the product.
      */
     public function stockRelation()
+    {
+        return $this->hasOne(Stock::class, '_tcpos_product_id', '_tcposId');
+    }
+    
+    /**
+     * Get the image for the product.
+     */
+    public function imageRelation()
     {
         return $this->hasOne(Stock::class, '_tcpos_product_id', '_tcposId');
     }

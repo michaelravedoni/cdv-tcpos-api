@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Price;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\File;
@@ -170,10 +171,6 @@ class ProductController extends Controller
             $productCreate->_tcposId = $product->id;
             $productCreate->_tcposCode = $product->code;
             $productCreate->save();
-
-            if ($key == 2) {
-                $brake;
-            }
         }
         
         $end = microtime(true) - $begin;
@@ -197,19 +194,23 @@ class ProductController extends Controller
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
-        $product = Product::where('_tcposId', $id)->first();
+        $productImage = ProductImage::where('_tcpos_product_id', $id)->first();
+        if (empty($productImage)) {
+            $productImage = new ProductImage;
+            $productImage->_tcpos_product_id = $id;
+        }
 
         if (empty($data)) {
             //No image found
-            $product->imageHash = null;
-            $product->save();
+            $productImage->hash = null;
+            $productImage->save();
             
             return response()->json([
                 'message' => 'Image not found in tcpos',
             ]);
         }
 
-        if ($product->imageHash == md5($data)) {
+        if ($productImage->hash == md5($data)) {
             return response()->json([
                 'message' => 'Image already saved',
             ]);
@@ -221,8 +222,8 @@ class ProductController extends Controller
         $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
 
-        $product->imageHash = md5($data);
-        $product->save();
+        $productImage->hash = md5($data);
+        $productImage->save();
 
         $url = Storage::disk('public')->url($path);
 
