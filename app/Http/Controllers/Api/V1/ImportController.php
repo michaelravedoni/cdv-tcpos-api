@@ -26,7 +26,9 @@ class ImportController extends Controller
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'all'])->log('Import all from tcpos database');
 
-        if (!$this->needImportFromTcpos()) {
+        $force = request()->input('force', false);
+
+        if (!appHelper::needImportFromTcpos() && !$force) {
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'all'])->log('No need to import data from tcpos. Last tcpos database update : '.Setting::get('lastTcposUpdate'));
             return response()->json([
                 'message' => 'No need to import data from tcpos. Last tcpos database update : '.Setting::get('lastTcposUpdate'),
@@ -41,13 +43,15 @@ class ImportController extends Controller
         $attribute_controller_return = $attribute_controller->importAttributes();
         $stock_controller_return = $stock_controller->importStocks();
         $product_controller_prices_return = $product_controller->importPrices();
-        $product_controller_images_return = $product_controller->importImages();
+        //$product_controller_images_return = $product_controller->importImages();
 
         $end = microtime(true) - $begin;
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'all'])->log('All imported from tcpos database | See /jobs for all importations');
 
-        Setting::get('lastTcposImport', now()->toDateTimeLocalString());
+        // Set last TCPOS database update in settings
+        Setting::set('lastTcposUpdate', AppHelper::getLastTcposUpdate());
+        Setting::save();
 
         return response()->json([
             'message' => 'Tcpos Import launched. Wait and see /jobs',
@@ -57,7 +61,7 @@ class ImportController extends Controller
                 'attributes' => $attribute_controller_return->original,
                 'stocks' => $stock_controller_return->original,
                 'prices' => $product_controller_prices_return->original,
-                'images' => $product_controller_images_return->original,
+                //'images' => $product_controller_images_return->original,
             ],
         ]);
     }

@@ -3,23 +3,23 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Http\Controllers\Sync\SyncController;
+use App\Http\Controllers\Sync\OrderController;
 
-class SyncTcposWoo extends Command
+class SyncTcposWooOrder extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'sync:tcpos_woo';
+    protected $signature = 'sync:tcpos_woo_order';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync between tcpos and woo';
+    protected $description = 'Sync orders between tcpos and woo';
 
     /**
      * Create a new command instance.
@@ -39,8 +39,8 @@ class SyncTcposWoo extends Command
     public function handle()
     {
         $this->line('Synchronisation lauched');
-        $syncController = new SyncController;
-        $syncController->all();
+        $orderController = new OrderController;
+        $orderController->sync();
         $this->info('Synchronisation done. There are queued jobs launched.');
     }
 }

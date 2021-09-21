@@ -36,4 +36,44 @@ class AppHelper
         $firstOrderTimestamp = data_get($firstOrder, 'date_modified');
         return \Carbon\Carbon::parse($firstOrderTimestamp);
     }
+
+    /**
+     * Check last tcpos database update and check if need import.
+     */
+    public static function needImportFromTcpos()
+    {
+        $tcposTimestamp = AppHelper::getLastTcposUpdate()->toDateTimeLocalString();
+        $localTimestamp = Setting::get('lastTcposUpdate', null);
+
+        if ($tcposTimestamp <= $localTimestamp) {
+            return false;
+        }
+        if ($tcposTimestamp > $localTimestamp) {
+            return true;
+        }
+
+    }
+
+    /**
+     * Check last woo database orders update and check if need import.
+     */
+    public static function needOrdersImportFromWoo()
+    {
+        $localTimestamp = Setting::get('lastWooUpdate', null);
+        if (isset($localTimestamp)) {
+            $orders = Order::all(['after' => $localTimestamp]);
+            $ordersCount = $orders->count();
+            if ($ordersCount > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            $firstOrder = Order::all()->first();
+            $firstOrderTimestamp = data_get($firstOrder, 'date_modified');
+            Setting::set('lastWooUpdate', $firstOrderTimestamp);
+            Setting::save();
+            return true;
+        }
+    }
 }

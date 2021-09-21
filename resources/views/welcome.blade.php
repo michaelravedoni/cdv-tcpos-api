@@ -92,27 +92,27 @@
             </div>
             <div class="w-full lg:w-1/3">
                 <h3 class="mb-1 font-bold text-neutral">Synchronisation et importations</h3>
-                <div tabindex="0" class="collapse w-full">
+                <div tabindex="0" class="collapse w-full mb-2">
                     <div class="text-base font-normal">
                         Prochains événements programmés <i class="bi bi-caret-down-fill"></i>
                     </div>
                     <div class="collapse-content">
                         <div class="flex flex-wrap">
                             <div class="w-1/2"><span class="tooltip tooltip-right"
-                                    data-tip="Prochaine importation TCPOS">➡ ⏬ TCPOS</span></div>
+                                    data-tip="Prochaine importation Woocommerce"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-download"></i> Woocommerce</span></div>
+                            <div class="w-1/2">
+                                {{ $scheduledWoo->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
+                        </div>
+                        <div class="flex flex-wrap">
+                            <div class="w-1/2"><span class="tooltip tooltip-right"
+                                    data-tip="Prochaine importation TCPOS"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-download"></i> TCPOS</span></div>
                             <div class="w-1/2">
                                 {{ $scheduledTcpos->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}
                             </div>
                         </div>
                         <div class="flex flex-wrap">
                             <div class="w-1/2"><span class="tooltip tooltip-right"
-                                    data-tip="Prochaine importation Woocommerce">➡ ⏬ Woocommerce</span></div>
-                            <div class="w-1/2">
-                                {{ $scheduledWoo->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
-                        </div>
-                        <div class="flex flex-wrap">
-                            <div class="w-1/2"><span class="tooltip tooltip-right"
-                                    data-tip="Prochaine synchronisation">➡ 🔄 Synchro</span></div>
+                                    data-tip="Prochaine synchronisation"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-arrow-repeat"></i> Synchro</span></div>
                             <div class="w-1/2">
                                 {{ $scheduledSync->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}
                             </div>
@@ -121,7 +121,7 @@
                 </div>
                 <div class="flex flex-wrap">
                     <div class="w-2/3"><span class="tooltip tooltip-right"
-                            data-tip="Dernière mise à jour dans la base TCPOS">⬅ 🆙 TCPOS</span></div>
+                            data-tip="Dernière mise à jour dans la base TCPOS"><i class="bi bi-arrow-left-square"></i> <i class="bi bi-upload"></i> TCPOS</span></div>
                     <div class="w-1/3">
                         <span class="tooltip" data-tip="{{ AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT') }}">
                             {{ now()->locale('fr_ch')->longRelativeToNowDiffForHumans(AppHelper::getLastTcposUpdate()) }}
@@ -129,8 +129,17 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3"><span class="tooltip tooltip-right" data-tip="Dernière tâche d'arrière-fond">⬅
-                            tâche d'arrière-fond</span></div>
+                    <div class="w-2/3"><span class="tooltip tooltip-right"
+                            data-tip="Besoin d'importer la base de données TCPOS ?"><i class="bi bi-question-circle"></i> <i class="bi bi-download"></i> TCPOS</span></div>
+                    <div class="w-1/3">
+                        <span class="tooltip" data-tip="{{ $lastTcposUpdate }}">
+                            {!! $needImportFromTcpos ? '<i class="bi bi-exclamation-circle"></i>' : '<i class="bi bi-check-circle"></i>' !!}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap">
+                    <div class="w-2/3"><span class="tooltip tooltip-right" data-tip="Date de la dernière tâche d'arrière-fond exécutée (job)"><i class="bi bi-arrow-left-square"></i>
+                    <i class="bi bi-card-checklist"></i></span></div>
                     <div class="w-1/3">
                         <span class="tooltip" data-tip="{{ $lastJob->started_at->locale('fr_ch')->isoFormat('L LT') }}">
                             {{ $lastJob->started_at->locale('fr_ch')->timezone('Europe/Zurich')->longRelativeToNowDiffForHumans() }}
@@ -138,8 +147,8 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Tâches restantes à exécuter</div>
-                    <div class="w-1/3">{{ $remainingJobs }}</div>
+                    <div class="w-2/3"><span class="tooltip tooltip-right" data-tip="Nombre de zâches restantes à exécuter (jobs)"><i class="bi bi-hash"></i> <i class="bi bi-card-checklist"></i></div>
+                    <div class="w-1/3">{{ $remainingJobs }}</span></div>
                 </div>
                 <div class="flex flex-wrap my-4">
                     @if($jobsWorking)
@@ -158,17 +167,15 @@
                     </div>
                     <div class="mb-4">
                         <ul>
-                            <li><a class="link link-accent" href="/api/import/all">1. Tout
-                            importer de TCPOS (~10 min.)</a></li>
-                            <li><a class="link link-accent" href="/api/wc/import/all">2.
-                            Tout importer de Woocommerce (2 min.)</a></li>
-                            <li><a class="link link-accent" href="/api/sync/all">3.
-                            Synchroniser (~25 min.)</a></li>
+                            <li><a class="link link-accent" href="/api/wc/import/all?force=1">1. Forcer l'importation depuis Woocommerce  | ~2 min.</a></li>
+                            <li><a class="link link-accent" href="/api/import/all?force=1">2. Forcer l'importation depuis TCPOS (sauf images) | ~15 min.</a></li>
+                            <li><a class="link link-accent" href="/api/sync/all?force=1">3. Forcer la synchronisation | ~25 min.</a></li>
                         </ul>
                     </div>
                     <div class="mb-4">
-                        <a class="btn btn-outline btn-neutral btn-xs" href="/api/sync/orders">Synchroniser les commandes (~1
+                        <a class="btn btn-outline btn-neutral btn-sm block" href="/api/sync/orders">Synchroniser les commandes manuellement (~1
                             min.)</a>
+                        <a class="btn btn-outline btn-neutral btn-sm block mt-2" href="/api/import/products/images">Importer les images depuis TCPOS (~10 min.)</a>
                     </div>
                 </div>
             </div>
