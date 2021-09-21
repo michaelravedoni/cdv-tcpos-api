@@ -86,7 +86,7 @@ class ProductController extends Controller
         // The loop: from tcpos to Woo
         foreach ($tcposResources as $tcposItem) {
             // For testing only a product
-            if ($tcposItem->_tcposCode != 6578) {continue;}
+            //if ($tcposItem->_tcposCode != 6578) {continue;}
 
             $match = Woo::where('resource', 'product')->where('_tcposCode', $tcposItem->_tcposCode)->first();
 
@@ -223,7 +223,7 @@ class ProductController extends Controller
                 if (data_get($wooProduct->data, 'images.0.name') != $tcposProduct->imageHash) {
                     //There is an existing image but not match the tcpos hash one : upload
                     $images = [['name' => $tcposProduct->imageHash, 'src' => $dist_image_url]];
-                    activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Product image URL : '. $dist_image_url);
+                    activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') image with : '. $dist_image_url);
                 } else {
                     //There is an existing image that match the tcpos hash one : keep it
                     $images = $wooProduct->data->images;
@@ -232,7 +232,7 @@ class ProductController extends Controller
             if (data_get($wooProduct->data, 'images.0.name') == null) {
                 //There is no existing image : upload
                 $images = [['name' => $tcposProduct->imageHash, 'src' => $dist_image_url]];
-                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Product image URL : '. $dist_image_url);
+                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
             }
         } else {
             //There is no tcpos image or no wooProduct
