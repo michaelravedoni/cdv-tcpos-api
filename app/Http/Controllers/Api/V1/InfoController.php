@@ -22,8 +22,9 @@ class InfoController extends Controller
      */
     public function show()
     {
+        $activitiesLimit = request()->input('limit', 500);
 
-        $activities = Activity::orderBy('created_at', 'desc')->get();
+        $activities = Activity::orderBy('created_at', 'desc')->limit($activitiesLimit)->get();
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
 
@@ -52,12 +53,12 @@ class InfoController extends Controller
         $products_where_minimal_quantity_under_six = Product::whereHas('stockRelation', function (Builder $query) {
             $query->where('value', '<', 6);
         })->count();
-        $products_where_minimal_quantity_below_equal_six = Product::whereHas('stockRelation', function (Builder $query) {
-            $query->where('value', '>=', 6);
-        })->count();
+
+        $products_count = Product::all()->count();
 
         return view('welcome', [
             'activities' => $activities,
+            'activitiesLimit' => $activitiesLimit,
             'lastJob' => $lastJob,
             'remainingJobs' => $remainingJobs,
             'lastTcposUpdate' => $lastTcposUpdate,
@@ -66,10 +67,8 @@ class InfoController extends Controller
             'scheduledTcpos' => $scheduledTcpos,
             'scheduledWoo' => $scheduledWoo,
             'scheduledSync' => $scheduledSync,
-            'products_count' => Product::all()->count(),
+            'products_count' => $products_count,
             'products_where_minimal_quantity_under_six' => $products_where_minimal_quantity_under_six,
-            'products_where_minimal_quantity_below_equal_six' => $products_where_minimal_quantity_under_six,
-            'products_where_minimal_quantity_below_equal_six' => $products_where_minimal_quantity_below_equal_six,
             'count_wine' => Product::where('category', 'wine')->count(),
             'spirit' => Product::where('category', 'spirit')->count(),
             'cider' => Product::where('category', 'cider')->count(),
@@ -79,28 +78,6 @@ class InfoController extends Controller
             'book' => Product::where('category', 'book')->count(),
             'selection' => Product::where('category', 'selection')->count(),
             'none' => Product::where('category', 'none')->count(),
-        ]);
-
-        return response()->json([
-            'message' => 'Informations',
-            'products_count' => Product::all()->count(),
-            'products_where_minimal_quantity_under_six' => Product::whereHas('stockRelation', function (Builder $query) {
-                $query->where('value', '<', 6);
-            })->count(),
-            'products_where_minimal_quantity_below_equal_six' => Product::whereHas('stockRelation', function (Builder $query) {
-                $query->where('value', '>=', 6);
-            })->count(),
-            'count_by_category' => [
-                'count_wine' => Product::where('category', 'wine')->count(),
-                'spirit' => Product::where('category', 'spirit')->count(),
-                'cider' => Product::where('category', 'cider')->count(),
-                'wineSet' => Product::where('category', 'wineSet')->count(),
-                'mineralDrink' => Product::where('category', 'mineralDrink')->count(),
-                'beer' => Product::where('category', 'beer')->count(),
-                'book' => Product::where('category', 'book')->count(),
-                'selection' => Product::where('category', 'selection')->count(),
-                'none' => Product::where('category', 'none')->count(),
-            ],
         ]);
     }
     /**

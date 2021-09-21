@@ -41,10 +41,6 @@
                         {{ $products_where_minimal_quantity_under_six }}</div>
                 </div>
                 <div class="flex flex-wrap">
-                    <div class="w-2/3">Produits avec une quantité ⊕ à 6</div>
-                    <div class="w-1/3">{{ $products_where_minimal_quantity_below_equal_six }}</div>
-                </div>
-                <div class="flex flex-wrap">
                     <div tabindex="0" class="collapse w-full">
                         <div class="text-base font-normal p-0 m-0">
                             Produits par type <i class="bi bi-caret-down-fill"></i>
@@ -133,7 +129,7 @@
                             data-tip="Besoin d'importer la base de données TCPOS ?"><i class="bi bi-question-circle"></i> <i class="bi bi-download"></i> TCPOS</span></div>
                     <div class="w-1/3">
                         <span class="tooltip" data-tip="{{ $lastTcposUpdate }}">
-                            {!! $needImportFromTcpos ? '<i class="bi bi-exclamation-circle"></i>' : '<i class="bi bi-check-circle"></i>' !!}
+                            {!! $needImportFromTcpos ? '<i class="bi bi-exclamation-circle"></i> Oui' : '<i class="bi bi-check-circle"></i>' !!}
                         </span>
                     </div>
                 </div>
@@ -186,7 +182,16 @@
         <h2 class="mb-4 text-2xl font-bold text-neutral">
             Logs
         </h2>
+        
+        <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="window.location.href = '?limit='+this.value">
+            <option value="500" @if($activitiesLimit == 500) selected @endif>500</option>
+            <option value="1000" @if($activitiesLimit == 1000) selected @endif>1000</option>
+            <option value="2000" @if($activitiesLimit == 2000) selected @endif>2000</option>
+            <option value="5000" @if($activitiesLimit == 5000) selected @endif>5000</option>
+        </select>
+
         <div class="overflow-x-auto shadow-lg">
+
             <table class="w-full rounded whitespace-no-wrap">
                 <thead class="bg-gray-200">
                     <tr>
