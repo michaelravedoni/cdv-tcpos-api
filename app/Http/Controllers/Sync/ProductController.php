@@ -215,7 +215,6 @@ class ProductController extends Controller
             ];
         }
         $dist_image_url = env('TCPOS_PRODUCTS_IMAGES_BASE_URL').$tcposProduct->_tcposId.'.jpg';
-        dd($dist_image_url);
         //instead of $tcposProduct->imageUrl()
         if (isset($wooProduct) && $tcposProduct->imageUrl() != null) {
             //There is a tcpos image and a wooProduct
