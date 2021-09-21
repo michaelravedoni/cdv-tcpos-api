@@ -137,8 +137,8 @@
                     <div class="w-2/3"><span class="tooltip tooltip-right" data-tip="Date de la dernière tâche d'arrière-fond exécutée (job)"><i class="bi bi-arrow-left-square"></i>
                     <i class="bi bi-card-checklist"></i></span></div>
                     <div class="w-1/3">
-                        <span class="tooltip" data-tip="{{ $lastJobDatetime->isoFormat('L LT') }}">
-                            {{ $lastJobDatetime->longRelativeToNowDiffForHumans() }}
+                        <span class="tooltip" data-tip="{{ $lastJobDatetime ? $lastJobDatetime->isoFormat('L LT') : null }}">
+                            {{ $lastJobDatetime ? $lastJobDatetime->longRelativeToNowDiffForHumans() : null }}
                         </span>
                     </div>
                 </div>
