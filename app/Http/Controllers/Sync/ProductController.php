@@ -136,7 +136,7 @@ class ProductController extends Controller
             if (empty($match)) {
                 // Delete it
                 //Product::delete($match->_wooId);
-                SyncProductDelete::dispatch($wooItem->data->id);
+                SyncProductDelete::dispatch($wooItem->_wooId);
                 $count_product_delete += 1;
                 continue;
             }
