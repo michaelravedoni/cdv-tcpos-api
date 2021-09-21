@@ -15,7 +15,7 @@
 
 <body class="font-sans p-6 bg-base-200">
 
-    <button type="button" class="absolute top-0 right-0 m-4 btn btn-primary" title="Rafraîchissement automatique" onclick="location.reload();" id="reloadbtn"><i class="bi bi-arrow-repeat mr-3"></i>20</button>
+    <button type="button" class="absolute top-0 right-0 m-4 btn btn-primary" title="Rafraîchissement automatique" onclick="location.reload();" id="reloadbtn"><i class="bi bi-arrow-repeat mr-3"></i>60</button>
 
     <h1 class="text-5xl text-neutral font-bold">
         Dashboard
@@ -259,7 +259,7 @@
     </div>
 </body>
 <script>
-    var reload = 20;
+    var reload = 60;
     var rld = setInterval(function(){
         if(reload===0) {
             document.querySelector('#reloadbtn').innerHTML = '<i class="bi bi-arrow-repeat mr-3"></i>…';
