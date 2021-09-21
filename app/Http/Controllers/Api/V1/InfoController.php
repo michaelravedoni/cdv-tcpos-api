@@ -43,6 +43,7 @@ class InfoController extends Controller
 
         $lastTcposUpdate = AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT');
         $needImportFromTcpos = AppHelper::needImportFromTcpos();
+        $lastJobDatetime = $lastJob ? $lastJob->started_at->locale('fr_ch')->timezone('Europe/Zurich') : now();
 
         if (isset($lastJob) && $lastJob->started_at->diffInMinutes(now()) <= 1) {
             $jobsWorking = true;
@@ -59,7 +60,7 @@ class InfoController extends Controller
         return view('welcome', [
             'activities' => $activities,
             'activitiesLimit' => $activitiesLimit,
-            'lastJob' => $lastJob,
+            'lastJobDatetime' => $lastJobDatetime,
             'remainingJobs' => $remainingJobs,
             'lastTcposUpdate' => $lastTcposUpdate,
             'needImportFromTcpos' => $needImportFromTcpos,
