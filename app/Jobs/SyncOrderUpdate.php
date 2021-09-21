@@ -41,6 +41,6 @@ class SyncOrderUpdate implements ShouldQueue
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-order
         Order::update($this->id, $this->data);
 
-        activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order updated in Woocommerce : '.$this->id);
+        activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order updated in Woocommerce  | WooId:'.$this->id);
     }
 }

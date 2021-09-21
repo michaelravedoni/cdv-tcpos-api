@@ -49,12 +49,12 @@ class ImportProductImage implements ShouldQueue
             $product->imageHash = null;
             $product->save();
             
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in tcpos database : '.$this->id);
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in tcpos database | tcposId:'.$this->id);
             return;
         }
 
         if ($product->imageHash == md5($data)) {
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the database and filesystem : '.$this->id);
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the database and filesystem | tcposId:'.$this->id);
             return;
         }
 
@@ -67,6 +67,6 @@ class ImportProductImage implements ShouldQueue
         $product->imageHash = md5($data);
         $product->save();
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image imported in the database and filesystem from tcpos : '.$this->id);
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image imported in the database and filesystem from tcpos | tcposId:'.$this->id);
     }
 }

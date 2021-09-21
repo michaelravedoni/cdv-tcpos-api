@@ -49,6 +49,6 @@ class ImportProductStock implements ShouldQueue
         $stock->_tcpos_product_id = $this->id;
         $stock->save();
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'stocks'])->log('Product stock imported in the database : '.$this->id);
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'stocks'])->log('Product stock imported in the database | tcposId:'.$this->id);
     }
 }
