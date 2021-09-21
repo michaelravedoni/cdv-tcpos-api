@@ -164,7 +164,7 @@
                     <div class="mb-4">
                         <ul>
                             <li><a class="link link-accent" href="/api/wc/import/all?force=1">1. Forcer l'importation depuis Woocommerce  | ~2 min.</a></li>
-                            <li><a class="link link-accent" href="/api/import/all?force=1">2. Forcer l'importation depuis TCPOS (sauf images) | ~15 min.</a></li>
+                            <li><a class="link link-accent" href="/api/import/all?force=1">2. Forcer l'importation depuis TCPOS | ~15 min.</a></li>
                             <li><a class="link link-accent" href="/api/sync/all?force=1">3. Forcer la synchronisation | ~25 min.</a></li>
                         </ul>
                     </div>

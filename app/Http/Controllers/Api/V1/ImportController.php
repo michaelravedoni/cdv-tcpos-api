@@ -43,7 +43,7 @@ class ImportController extends Controller
         $attribute_controller_return = $attribute_controller->importAttributes();
         $stock_controller_return = $stock_controller->importStocks();
         $product_controller_prices_return = $product_controller->importPrices();
-        //$product_controller_images_return = $product_controller->importImages();
+        $product_controller_images_return = $product_controller->importImages();
 
         $end = microtime(true) - $begin;
 
@@ -61,7 +61,7 @@ class ImportController extends Controller
                 'attributes' => $attribute_controller_return->original,
                 'stocks' => $stock_controller_return->original,
                 'prices' => $product_controller_prices_return->original,
-                //'images' => $product_controller_images_return->original,
+                'images' => $product_controller_images_return->original,
             ],
         ]);
     }
