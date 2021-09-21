@@ -44,7 +44,7 @@ class InfoController extends Controller
         $lastTcposUpdate = AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT');
         $needImportFromTcpos = AppHelper::needImportFromTcpos();
 
-        if ($lastJob->started_at->diffInMinutes(now()) <= 1) {
+        if (isset($lastJob) && $lastJob->started_at->diffInMinutes(now()) <= 1) {
             $jobsWorking = true;
         } else {
             $jobsWorking = false;
