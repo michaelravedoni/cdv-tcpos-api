@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('import:woo')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(1);
-        $schedule->command('import:tcpos')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(5);
+        $schedule->command('import:tcpos')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(2);
         $schedule->command('sync:tcpos_woo')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(25);
         $schedule->command('sync:tcpos_woo_order')->timezone('Europe/Zurich')->between('6:00', '19:00')->everyThirtyMinutes();
 
