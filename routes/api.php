@@ -28,11 +28,9 @@ use App\Http\Controllers\Sync\SyncController as SyncController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/info', [InfoController::class, 'api'])->name('info');
 
-
+/* TCPOS */
 Route::get('/import/all', [ImportController::class, 'importTcposAll'])->name('import.all');
 Route::get('/import/products', [ProductController::class, 'importProducts'])->name('import.products');
 Route::get('/import/prices', [ProductController::class, 'importPrices'])->name('import.prices');
@@ -50,14 +48,13 @@ Route::get('/products/getById/{id}', [ProductController::class, 'getById'])->nam
 Route::get('/products/getByCode/{id}', [ProductController::class, 'getByCode'])->name('products.getByCode');
 Route::get('/products/menu', [ProductController::class, 'indexByCategory'])->name('products.category')->middleware('cache.headers:public;max_age=3600');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');
-Route::get('/products/{id}/show', [ProductController::class, 'show'])->name('products.show');
 Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category')->middleware('cache.headers:public;max_age=3600');
 
 Route::get('/attributes/raw', [AttributeController::class, 'getAttributes'])->name('attributes.raw');
 Route::get('/attributes', [AttributeController::class, 'index'])->name('attributes.index');
-Route::get('/attributes/{id}/show', [AttributeController::class, 'show'])->name('attributes.show');
+Route::get('/attributes/{id}', [AttributeController::class, 'show'])->name('attributes.show');
 
-Route::get('/stocks/{id}/show', [StockController::class, 'getStock'])->name('stocks.show');
+Route::get('/stocks/{id}', [StockController::class, 'getStock'])->name('stocks.show');
 
 Route::get('/vouchers', [VoucherController::class, 'getVouchers'])->name('vouchers.index');
 Route::get('/vouchers/{id}', [VoucherController::class, 'getVoucher'])->name('vouchers.show');
@@ -69,9 +66,7 @@ Route::post('/customers/{cardnum}/verification', [CustomerController::class, 've
 
 Route::post('/orders', [OrderController::class, 'postOrders'])->name('orders.post');
 
-Route::get('/info', [InfoController::class, 'api'])->name('info');
-
-/* Woocommerce sync */
+/* Woocommerce */
 Route::get('/wc/import/all', [ImportController::class, 'importWooAll'])->name('wc.import.all');
 
 Route::get('/wc/attributes', [SyncAttributeController::class, 'getWooAttributes'])->name('wc.attributes');
@@ -80,8 +75,9 @@ Route::get('/wc/attributes/cellar', [SyncAttributeController::class, 'getWooCell
 Route::get('/wc/products', [SyncProductController::class, 'getWooProducts'])->name('wc.products');
 Route::get('/wc/orders', [SyncOrderController::class, 'getWooOrders'])->name('wc.orders');
 
-Route::get('/wc/sync/attributes', [SyncAttributeController::class, 'sync'])->name('wc.sync.attributes');
-Route::get('/wc/sync/customers', [SyncCustomerController::class, 'sync'])->name('wc.sync.customers');
-Route::get('/wc/sync/products', [SyncProductController::class, 'sync'])->name('wc.sync.products');
-Route::get('/wc/sync/orders', [SyncOrderController::class, 'sync'])->name('wc.sync.orders');
-Route::get('/wc/sync/all', [SyncController::class, 'all'])->name('wc.sync.all');
+/* Sync */
+Route::get('/sync/attributes', [SyncAttributeController::class, 'sync'])->name('wc.sync.attributes');
+Route::get('/sync/customers', [SyncCustomerController::class, 'sync'])->name('wc.sync.customers');
+Route::get('/sync/products', [SyncProductController::class, 'sync'])->name('wc.sync.products');
+Route::get('/sync/orders', [SyncOrderController::class, 'sync'])->name('wc.sync.orders');
+Route::get('/sync/all', [SyncController::class, 'all'])->name('wc.sync.all');
