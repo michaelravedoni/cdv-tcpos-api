@@ -12,12 +12,8 @@ class CustomerController extends Controller
     /**
      * Get customer.
      */
-    public function getCustomer(Request $request, $cardnum)
+    public function getCustomer($cardnum)
     {
-        if (!$request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
-            return response()->json(['message' => 'Access refused']);
-        }
-
         $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
         $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
         
@@ -76,7 +72,7 @@ class CustomerController extends Controller
         if (!$request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
             return response()->json(['message' => 'Access refused']);
         }
-        return $this->getCustomer($request, $cardnum);
+        return $this->getCustomer($cardnum);
     }
 
     /* OBSOLETE */
@@ -106,13 +102,11 @@ class CustomerController extends Controller
     {
         $verificationInput = $request->input('verificationFields');
         $value = data_get($verificationInput, '0.value');
-        
-        //return response()->json(data_get($this->getCustomer($cardnum), 'zip'));
 
-        if ($value == data_get($this->getCustomer($request, $cardnum), 'zip')) {
+        if ($value == data_get($this->getCustomer($cardnum), 'original.address.zipcode')) {
             return response()->json(true, 200);
         }
-        return response()->json(['code' => '401', 'message' => 'Verification field value zip is incorrect'], 401);
+        return response()->json(['code' => '401', 'message' => 'Verification field value zipcode is incorrect'], 401);
         
     }
 }
