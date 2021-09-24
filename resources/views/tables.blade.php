@@ -28,6 +28,9 @@
                             tcposCode (UGS)</th>
                         <th
                             class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
+                            Categorie</th>
+                        <th
+                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
                             Prix</th>
                         <th
                             class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
@@ -51,10 +54,11 @@
                     <tr class="font-sm leading-relaxed {{ $product->needToUpdate() ? 'bg-green-100' : '' }}">
                         <td class="px-4">{{ $product->_tcposId }}</td>
                         <td class="px-4">{{ $product->_tcposCode }}</td>
-                        <td class="px-4">@foreach($product->pricesRelations as $price) {{ $price->pricelevelid }}:{{ $price->sync_action }} @endforeach</td>
+                        <td class="px-4">{{ $product->category }}</td>
+                        <td class="px-4">@foreach($product->pricesRelations as $price) {{ config('cdv.tcpos_price_level_id')[$price->pricelevelid]['name'] }} {!! $price->sync_action == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!} @endforeach</td>
                         <td class="px-4">@isset($product->imageRelation->hash)<a target="_blank" href="{{ $product->imageUrl() }}">URL</a>@else No image @endif {!! $product->sync_action == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}</td>
                         <td>{{ $product->stock() }}</td>
-                        <td>{!! $product->isStockRuleCorrect() ? '<i class="bi bi-check-circle text-green-600"></i>' : '<i class="bi bi-x-circle text-red-600"></i> or not managed' !!}</td>
+                        <td>@if($product->isStockRuleCorrect())<i class="bi bi-check-circle text-green-600"></i>@else<i class="bi bi-x-circle text-red-600"></i> or not managed @endif</td>
                         <td>{!! $product->needToUpdate() ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}</td>
                     </tr>
                     @empty

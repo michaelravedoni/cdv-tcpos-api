@@ -118,6 +118,25 @@ return [
             'manage_stock' => false,
             //'min_stock_quantity' => 3,
         ]
-    ]
+    ],
+
+    // Price level ID
+    'tcpos_price_level_id' => [
+        '2' => [
+            'name' => 'takeAway',
+            'code' => 2,
+            'id' => 2,
+        ],
+        '6' => [
+            'name' => 'onSite',
+            'code' => 5,
+            'id' => 6,
+        ],
+        '14' => [
+            'name' => 'online',
+            'code' => 13,
+            'id' => 14,
+        ],
+    ],
 
 ];
