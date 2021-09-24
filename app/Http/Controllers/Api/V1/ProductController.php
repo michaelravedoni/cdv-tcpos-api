@@ -213,7 +213,7 @@ class ProductController extends Controller
         }
 
         // Delete products not in the list
-        $countLocalProductsToDeleteProduct::whereNotIn('id', $updateOrNoneLocalProductsIds)->get()->count();
+        $countLocalProductsToDelete = Product::whereNotIn('id', $updateOrNoneLocalProductsIds)->get()->count();
         $localProductsToDelete = Product::whereNotIn('id', $updateOrNoneLocalProductsIds)->delete();
         
         $end = microtime(true) - $begin;
