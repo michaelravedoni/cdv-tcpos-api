@@ -17,7 +17,7 @@ class CreateStocksTable extends Migration
             $table->id();
             $table->string('value');
             $table->integer('_tcpos_product_id')->nullable();
-            $table->string('sync_action');
+            $table->string('sync_action')->nullable();
             $table->timestamps();
         });
     }

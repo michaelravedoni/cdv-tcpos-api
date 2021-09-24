@@ -20,6 +20,7 @@ class CreateAttributesTable extends Migration
             $table->string('notes2');
             $table->string('notes3');
             $table->json('notes');
+            $table->string('sync_action')->nullable();
             $table->integer('_tcposId')->nullable();
             $table->string('_tcposCode')->nullable();
             $table->timestamps();
