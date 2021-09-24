@@ -52,7 +52,7 @@
                         <td class="px-4">{{ $product->_tcposId }}</td>
                         <td class="px-4">{{ $product->_tcposCode }}</td>
                         <td class="px-4">@foreach($product->pricesRelations as $price) {{ $price->pricelevelid }}:{{ $price->sync_action }} @endforeach</td>
-                        <td class="px-4"><a target="_blank" href="{{ $product->imageUrl() }}">URL</a> {{ $product->sync_action }}</td>
+                        <td class="px-4">@if($product->hash)<a target="_blank" href="{{ $product->imageUrl() }}">URL</a>@else No image @endif {!! $product->sync_action == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}</td>
                         <td>{{ $product->stock() }}</td>
                         <td>{!! $product->isStockRuleCorrect() ? '<i class="bi bi-check-circle text-green-600"></i>' : '<i class="bi bi-x-circle text-red-600"></i> or not managed' !!}</td>
                         <td>{!! $product->needToUpdate() ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}</td>

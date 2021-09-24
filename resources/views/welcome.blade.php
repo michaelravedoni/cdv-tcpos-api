@@ -160,6 +160,8 @@
                             Jobs</a>
                         <a class="btn btn-neutral btn-sm" href="/logs">Voir les
                             Logs</a>
+                        <a class="btn btn-neutral btn-sm" href="/tables">Voir la
+                            tables</a>
                     </div>
                     <div class="mb-4">
                         <ul>
