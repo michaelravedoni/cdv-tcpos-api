@@ -218,7 +218,7 @@ class ProductController extends Controller
         
         $end = microtime(true) - $begin;
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from tcpos database | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDeleteProduct.' deleted.');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from tcpos database | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDelete.' deleted.');
 
         return response()->json([
             'message' => 'imported',
