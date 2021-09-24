@@ -15,7 +15,7 @@ class CreateProductImagesTable extends Migration
     {
         Schema::create('product_images', function (Blueprint $table) {
             $table->id();
-            $table->string('hash');
+            $table->string('hash')->nullable();
             $table->integer('_tcpos_product_id')->nullable();
             $table->string('sync_action')->nullable();
             $table->timestamps();
