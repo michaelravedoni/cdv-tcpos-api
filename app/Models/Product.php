@@ -40,7 +40,7 @@ class Product extends Model
      */
     public function imageRelation()
     {
-        return $this->hasOne(Stock::class, '_tcpos_product_id', '_tcposId');
+        return $this->hasOne(ProductImage::class, '_tcpos_product_id', '_tcposId');
     }
 
     /**
