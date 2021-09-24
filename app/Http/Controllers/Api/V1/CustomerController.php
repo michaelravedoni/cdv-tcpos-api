@@ -53,15 +53,12 @@ class CustomerController extends Controller
         }
     }
 
-    /* OBSOLETE */
     /**
      * Get the funds customer by card number.
      */
     public function getCustomerFunds($cardnum)
     {
-        $response = Http::withOptions(['verify' => false,])->get(env('TCPOS_API_CDV_URL').'/getcustomersolde/cardnum/'.$cardnum)->json();
-        $data = data_get($response, 'SOLDE');;
-        return $data;
+        return data_get($this->getCustomer($cardnum), 'original.accountFunds');
     }
 
     /**
@@ -75,7 +72,6 @@ class CustomerController extends Controller
         return $this->getCustomer($cardnum);
     }
 
-    /* OBSOLETE */
     /**
      * Get the funds customer by card number.
      */
