@@ -111,7 +111,7 @@ class ProductController extends Controller
      */
     public function importPrices($ids = null)
     {
-        Price::truncate();
+        //Price::truncate();
 
         if ($ids == null) {
             $ids = Product::all()->pluck('_tcposId')->all();
@@ -134,9 +134,6 @@ class ProductController extends Controller
     public function importProducts()
     {
         $begin = microtime(true);
-
-        //Product::truncate();
-        //activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'products'])->log('Products deleted from local database');
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'products'])->log('Import products from tcpos database');
 
@@ -185,7 +182,7 @@ class ProductController extends Controller
                 $productCreate->weight = $product->preparationWeight ?? 0;
                 $productCreate->vatInPercent = data_get($product, 'vats.vatindex1', 'vats.vatindex2');
 
-                $productCreate->sync_action = 'create';
+                $productCreate->sync_action = 'update';
                 $productCreate->hash = $tcposProductHash;
 
                 $productCreate->description = $product->wondDescription;

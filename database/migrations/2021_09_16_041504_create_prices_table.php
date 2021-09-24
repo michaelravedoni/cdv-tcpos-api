@@ -19,6 +19,7 @@ class CreatePricesTable extends Migration
             $table->float('price')->nullable();
             $table->float('discountedprice')->nullable();
             $table->string('pricelevelid')->nullable();
+            $table->string('sync_action')->nullable();
             $table->timestamps();
         });
     }

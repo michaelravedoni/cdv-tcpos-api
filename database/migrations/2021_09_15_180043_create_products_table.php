@@ -21,7 +21,8 @@ class CreateProductsTable extends Migration
             $table->string('category')->nullable();
             $table->string('weight')->nullable();
             $table->float('vatInPercent')->nullable();
-            $table->string('imageHash')->nullable();
+            $table->string('hash')->nullable();
+            $table->string('sync_action')->nullable();
 
             $table->string('description')->nullable();
             $table->integer('isAddition')->nullable();

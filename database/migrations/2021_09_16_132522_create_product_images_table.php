@@ -17,6 +17,7 @@ class CreateProductImagesTable extends Migration
             $table->id();
             $table->string('hash');
             $table->integer('_tcpos_product_id')->nullable();
+            $table->string('sync_action');
             $table->timestamps();
         });
     }

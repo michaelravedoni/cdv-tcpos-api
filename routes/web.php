@@ -20,6 +20,7 @@ Route::get('/', function () {
 });
 */
 Route::get('/', [InfoController::class, 'show'])->name('info');
+Route::get('/tables', [InfoController::class, 'tables'])->name('tables');
 
 Route::prefix('jobs')->group(function () {
     Route::queueMonitor();

@@ -187,6 +187,7 @@ class Product extends Model
             return [];
         }
     }
+
     /**
      * Get the image url for the product.
      */
@@ -199,6 +200,61 @@ class Product extends Model
             return $url;
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Check if need to update.
+     */
+    
+    public function needToUpdate()
+    {
+        // Check if product price has update
+        $prices = $this->pricesRelations;
+        $priceToUpdate = false;
+        foreach ($prices as $price) {
+            $priceToUpdate = $price->sync_action == 'update' ? true : false;
+            if ($priceToUpdate == true) {
+                break;
+            }
+        }
+
+        // Check if product stock has update
+        // TO DO
+
+        // Check if product image has update
+        $imageToUpdate = data_get($this->imageRelation, 'sync_action') == 'update' ? true : false;
+
+        // Check if product has update
+        $productToUpdate = $this->sync_action == 'update' ? true : false;
+
+        // If product, product price, product image or stock price has update
+        if ($productToUpdate || $priceToUpdate || $imageToUpdate) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * isStockRuleCorrect.
+     */
+    public function isStockRuleCorrect()
+    {
+        $category = $this->category;
+        $categoryRule = data_get(config('cdv.categories'), $category);
+        
+        // Category not found in config
+        if (empty($categoryRule)) {
+            return false;
+        }
+        // Rule set in config do not manage stock
+        if (!data_get($categoryRule, 'manage_stock')) {
+            return 'not-managed';
+        }
+        // Product stock quantity is superior as the minimal set in config
+        if ($this->stock() >= data_get($categoryRule, 'min_stock_quantity')) {
+            return true;
         }
     }
 }

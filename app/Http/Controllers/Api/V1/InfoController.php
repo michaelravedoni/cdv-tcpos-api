@@ -23,8 +23,18 @@ class InfoController extends Controller
     public function show()
     {
         $activitiesLimit = request()->input('limit', 500);
+        $showLogsLevelInfo = request()->input('show-info', false);
 
-        $activities = Activity::orderBy('created_at', 'desc')->limit($activitiesLimit)->get();
+        $activities = Activity::orderBy('created_at', 'desc')->get();
+        if (!$showLogsLevelInfo) {
+            $filteredActivities = $activities->filter(function ($value, $key) {
+                return data_get($value->properties, 'level') != 'info';
+            });
+            $activities = $filteredActivities->splice(0, $activitiesLimit)->all();
+        } else {
+            $activities = $activities->splice(0, $activitiesLimit);
+        }
+
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
 
@@ -60,6 +70,7 @@ class InfoController extends Controller
         return view('welcome', [
             'activities' => $activities,
             'activitiesLimit' => $activitiesLimit,
+            'showLogsLevelInfo' => $showLogsLevelInfo,
             'lastJobDatetime' => $lastJobDatetime,
             'remainingJobs' => $remainingJobs,
             'lastTcposUpdate' => $lastTcposUpdate,
@@ -81,6 +92,17 @@ class InfoController extends Controller
             'none' => Product::where('category', 'none')->count(),
         ]);
     }
+
+    /**
+     * Show Tables.
+     */
+    public function tables()
+    {
+        return view('tables', [
+            'products' => \App\Models\Product::all(),
+        ]);
+    }
+
     /**
      * Show API Informations.
      */

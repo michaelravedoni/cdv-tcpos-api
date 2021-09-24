@@ -182,13 +182,20 @@
         <h2 class="mb-4 text-2xl font-bold text-neutral">
             Logs
         </h2>
-        
-        <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="window.location.href = '?limit='+this.value">
-            <option value="500" @if($activitiesLimit == 500) selected @endif>500</option>
-            <option value="1000" @if($activitiesLimit == 1000) selected @endif>1000</option>
-            <option value="2000" @if($activitiesLimit == 2000) selected @endif>2000</option>
-            <option value="5000" @if($activitiesLimit == 5000) selected @endif>5000</option>
-        </select>
+
+        <div class="grid grid-cols-6 gap-4">
+            <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="window.location.href = '?limit='+this.value">
+                <option value="500" @if($activitiesLimit == 500) selected @endif>500</option>
+                <option value="1000" @if($activitiesLimit == 1000) selected @endif>1000</option>
+                <option value="2000" @if($activitiesLimit == 2000) selected @endif>2000</option>
+                <option value="5000" @if($activitiesLimit == 5000) selected @endif>5000</option>
+            </select>
+
+            <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="window.location.href = '?show-info='+this.value">
+                <option value="1" @if($showLogsLevelInfo == 1) selected @endif>Afficher les logs "info"</option>
+                <option value="0" @if($showLogsLevelInfo == 0) selected @endif>Ne pas afficher les logs "info"</option>
+            </select>
+        </div>
 
         <div class="overflow-x-auto shadow-lg">
 

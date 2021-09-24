@@ -68,16 +68,44 @@ class ImportProductPrice implements ShouldQueue
         //$data = data_get($response, 'getPrice.data.itemList.0.article');
         $data = data_get($response, 'getPrice.data.itemList');
 
-        foreach ($data as $key => $value) {
-            $priceData = (object) data_get($value, 'article');
-            $price = new Price;
-            $price->_tcpos_product_id = $priceData->id;
-            $price->price = $priceData->price;
-            $price->discountedprice = $priceData->discountedprice;
-            $price->pricelevelid = $priceData->pricelevelid;
-            $price->save();
+        foreach ($data as $value) {
 
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the database | tcposId:'.$priceData->id);
+            $localPrice = Price::where('_tcpos_product_id', data_get($value, 'article.id'))->where('pricelevelid', data_get($value, 'article.pricelevelid'))->first();
+
+            // If a price in database exists
+            if (isset($localPrice)) {
+
+                $tcposPrice = (object) data_get($value, 'article');
+
+                // If the hash is the same as one in the database
+                if ($localPrice->price == $tcposPrice->price) {
+                    $localPrice->sync_action = 'none';
+                    $localPrice->save();
+
+                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price untouched in the database | tcposId:'.$tcposPrice->id);
+
+                } else {
+                    $localPrice->price = $tcposPrice->price;
+                    $localPrice->discountedprice = $tcposPrice->discountedprice;
+                    $localPrice->sync_action = 'update';
+                    $localPrice->save();
+
+                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price updated in the database | tcposId:'.$tcposPrice->id);
+                }
+
+            } else {
+                // If the price not exists in database: create it
+                $tcposPrice = (object) data_get($value, 'article');
+                $price = new Price;
+                $price->_tcpos_product_id = $tcposPrice->id;
+                $price->price = $tcposPrice->price;
+                $price->discountedprice = $tcposPrice->discountedprice;
+                $price->pricelevelid = $tcposPrice->pricelevelid;
+                $price->sync_action = 'update';
+                $price->save();
+
+                activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the database | tcposId:'.$tcposPrice->id);
+            }
         }
     }
 }

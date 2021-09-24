@@ -95,7 +95,7 @@ class ProductController extends Controller
             if (empty($match)) {
                 $count_product_not_found += 1;
                 // Check stock quantity
-                if ($this->isStockRuleCorrect($tcposItem)) {
+                if ($tcposItem->isStockRuleCorrect()) {
                     // Create it
                     $data = $this->dataForWoo($tcposItem, $match);
                     //Product::create($data);
@@ -110,13 +110,18 @@ class ProductController extends Controller
             $count_product_found += 1;
 
             // Check stock quantity
-            if ($this->isStockRuleCorrect($tcposItem)) {
-                // Update it
-                $data = $this->dataForWoo($tcposItem, $match);
-                //Product::update($match->_wooId, $data);
-                SyncProductUpdate::dispatch($match->_wooId, $data);
-                $count_product_update += 1;
-                continue;
+            if ($tcposItem->isStockRuleCorrect()) {
+                // Check if local database has update sync_action for the product to avoid update for nothing
+                if ($tcposItem->needToUpdate()) {
+                    // Update it
+                    $data = $this->dataForWoo($tcposItem, $match);
+                    //Product::update($match->_wooId, $data);
+                    SyncProductUpdate::dispatch($match->_wooId, $data);
+                    $count_product_update += 1;
+                    continue;
+                } else {
+                    $count_product_untouched += 1;
+                }
             } else {
                 // Delete it
                 //Product::delete($match->_wooId);
@@ -158,6 +163,7 @@ class ProductController extends Controller
         ]);
     }
 
+    /* OBSOLETE TO DELETE */
     /**
      * isStockRuleCorrect.
      */

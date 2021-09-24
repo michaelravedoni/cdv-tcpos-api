@@ -43,26 +43,35 @@ class ImportProductImage implements ShouldQueue
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
+        // Get product image in local database
         $productImage = ProductImage::where('_tcpos_product_id', $this->id)->first();
+
+        // If not exists in local database: create one 
         if (empty($productImage)) {
             $productImage = new ProductImage;
             $productImage->_tcpos_product_id = $this->id;
         }
 
+        // If no image exists in tcpos: reset hash and label no sync action
         if (empty($data)) {
             //No image found
             $productImage->hash = null;
+            $productImage->sync_action = 'none';
             $productImage->save();
             
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in tcpos database | tcposId:'.$this->id);
             return;
         }
 
+        // If the image hash is the same in tcpos ans local database: do nothing and label no sync action
         if ($productImage->hash == md5($data)) {
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the database and filesystem | tcposId:'.$this->id);
+            $productImage->sync_action = 'none';
+            $productImage->save();
             return;
         }
 
+        // If the image hash is not the same in tcpos ans local database: import image, set hash and label sync action as update
         $image = $data;
         $image = str_replace(' ', '+', $image);
         $imageDecode = base64_decode($image);
@@ -70,6 +79,7 @@ class ImportProductImage implements ShouldQueue
         Storage::disk('public')->put($path, $imageDecode);
 
         $productImage->hash = md5($data);
+        $productImage->sync_action = 'update';
         $productImage->save();
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image imported in the database and filesystem from tcpos | tcposId:'.$this->id);
