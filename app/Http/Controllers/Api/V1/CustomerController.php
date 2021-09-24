@@ -5,42 +5,59 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use AppHelper;
 
 class CustomerController extends Controller
 {
     /**
      * Get customer.
      */
-    public function getCustomer($cardnum)
+    public function getCustomer(Request $request, $cardnum)
     {
-        $response = Http::withOptions(['verify' => false,])->get(env('TCPOS_API_CDV_URL').'/getCustomerDetails/card/'.$cardnum)->json();
-        $data = data_get($response, 'USER');
-        return response()->json([
-            'firstName' => data_get($data, 'FIRST_NAME') ?? data_get(explode(" ", data_get($data, 'DESCRIPTION')), '0'),
-            'lastName' => data_get($data, 'NAME') ?? data_get(explode(" ", data_get($data, 'DESCRIPTION')), '1'),
-            'email' => data_get($data, 'EMAIL'),
-            'phone' => data_get($data, 'PHONE'),
-            'title' => data_get($data, 'TITLE'),
-            'address' => [
-                'firstName' => data_get($data, 'FIRST_NAME') ?? data_get(explode(" ", data_get($data, 'DESCRIPTION')), '0'),
-                'lastName' => data_get($data, 'NAME') ?? data_get(explode(" ", data_get($data, 'DESCRIPTION')), '1'),
-                'company' => data_get($data, 'NOTES1'),
-                'url' => data_get($data, 'URL'),
-                'address' => [data_get($data, 'STREET')],
-                'city' => data_get($data, 'CITY'),
-                'zipcode' => data_get($data, 'ZIP_CODE'),
-                'country' => data_get($data, 'NATION'),
-            ],
-            'accountFunds' => $this->getCustomerFunds($cardnum),
-            'accountType' => in_array(data_get($data, 'COMPANY_ID'), [2, 3]) ? 'chatelin' : 'customer',
-            'prepayBalanceCash' => data_get($data, 'PREPAY_BALANCE_CASH'),
-            'validFrom' => data_get($data, 'VALID_FROM'),
-            '_tcposId' => data_get($data, 'ID'),
-            '_tcposCardnumber' => data_get($data, 'CARD_NUM'),
-            'raw' => $data,
-        ]);
+        if (!$request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
+            return response()->json(['message' => 'Access refused']);
+        }
+
+        $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
+        $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
+        
+        $responseSearchCustomer = Http::get(env('TCPOS_API_WOND_URL').'/searchCustomerByData?cardNum='.$cardnum.'&token='.urlencode($token))->json();
+        $idSearchCustomer = data_get($responseSearchCustomer, 'searchCustomerByData.id');
+        if (isset($idSearchCustomer)) {
+            $responseGetCustomer = Http::get(env('TCPOS_API_WOND_URL').'/getCustomer?email&id='.$idSearchCustomer.'&token='.urlencode($token))->json();
+            $data = data_get($responseGetCustomer, 'getCustomer.customer');
+
+            return response()->json([
+                'firstName' => data_get($data, 'firstName') ?? data_get(explode(" ", data_get($data, 'description')), '1'),
+                'lastName' => data_get($data, 'lastName') ?? data_get(explode(" ", data_get($data, 'description')), '0'),
+                'email' => data_get($data, 'email'),
+                'phone' => data_get($data, 'phone'),
+                'title' => data_get($data, 'title'),
+                'address' => [
+                    'firstName' => data_get($data, 'firstName') ?? data_get(explode(" ", data_get($data, 'description')), '1'),
+                    'lastName' => data_get($data, 'lastName') ?? data_get(explode(" ", data_get($data, 'description')), '0'),
+                    'company' => data_get($data, 'notes1'),
+                    'url' => data_get($data, 'url'),
+                    'address' => [data_get($data, 'street')],
+                    'city' => data_get($data, 'city'),
+                    'zipcode' => data_get($data, 'zipCode'),
+                    'country' => data_get($data, 'country', data_get($data, 'state')),
+                ],
+                'cardnum' => data_get($data, 'cardNum'),
+                'cardType' => data_get($data, 'cardType'),
+                'accountFunds' => data_get($data, 'prepayBalanceCash'),
+                'prepayBalanceCash' => data_get($data, 'prepayBalanceCash'),
+                'accountType' => in_array(data_get($data, 'COMPANY_ID'), [2, 3]) ? 'chatelin' : 'customer',
+                'validFrom' => data_get($data, 'validFrom'),
+                'validTo' => data_get($data, 'validTo'),
+                '_tcposId' => data_get($data, 'ID'),
+                '_tcposCardnumber' => data_get($data, 'CARD_NUM'),
+                //'raw' => $data,
+            ]);
+        }
     }
 
+    /* OBSOLETE */
     /**
      * Get the funds customer by card number.
      */
@@ -59,10 +76,10 @@ class CustomerController extends Controller
         if (!$request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
             return response()->json(['message' => 'Access refused']);
         }
-
-        return $this->getCustomer($cardnum);
+        return $this->getCustomer($request, $cardnum);
     }
 
+    /* OBSOLETE */
     /**
      * Get the funds customer by card number.
      */
@@ -92,7 +109,7 @@ class CustomerController extends Controller
         
         //return response()->json(data_get($this->getCustomer($cardnum), 'zip'));
 
-        if ($value == data_get($this->getCustomer($cardnum), 'zip')) {
+        if ($value == data_get($this->getCustomer($request, $cardnum), 'zip')) {
             return response()->json(true, 200);
         }
         return response()->json(['code' => '401', 'message' => 'Verification field value zip is incorrect'], 401);

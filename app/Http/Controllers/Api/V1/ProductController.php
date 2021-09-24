@@ -135,52 +135,97 @@ class ProductController extends Controller
     {
         $begin = microtime(true);
 
-        Product::truncate();
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'products'])->log('Products deleted from local database');
+        //Product::truncate();
+        //activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'products'])->log('Products deleted from local database');
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'products'])->log('Import products from tcpos database');
 
-        foreach ($this->getProducts() as $key => $productRaw) {
+        $localProducts = $this->index();
+        $tcposProducts = $this->getProducts();
+        $updateOrNoneLocalProductsIds = [];
+        $countToUpdateProducts = 0;
+        $countToCreateProducts = 0;
+        $countToNoneProducts = 0;
 
-            $product = (object) $productRaw;
+        foreach ($tcposProducts as $tcposProduct) {
+            $tcposProductHash = md5(json_encode($tcposProduct));
+            $localProduct = Product::where('_tcposId', data_get($tcposProduct, 'id'))->first();
 
-            $productCreate = new Product;
-            $productCreate->name = $product->description;
-            $productCreate->category = $this->getProductCategory($product->notes2);
-            $productCreate->minQuantity = config('cdv.default_product_min_quantity');
-            $productCreate->maxQuantity = $product->articleOrder ?? config('cdv.default_product_max_quantity');
+            // If a product in database exists
+            if (isset($localProduct)) {
 
-            $productCreate->weight = $product->preparationWeight ?? 0;
-            $productCreate->vatInPercent = data_get($product, 'vats.vatindex1', 'vats.vatindex2');
+                // Store the id on an array
+                $updateOrNoneLocalProductsIds[] = $localProduct->id;
 
-            $productCreate->description = $product->wondDescription;
-            $productCreate->articleOrder = $product->articleOrder;
-            $productCreate->isAddition = $product->isAddition;
-            $productCreate->measureUnitId = $product->measureUnitId;
-            $productCreate->printoutNotes = $product->printoutNotes;
-            $productCreate->notes1 = $product->notes1;
-            $productCreate->notes2 = $product->notes2;
-            $productCreate->notes3 = $product->notes3;
-            $productCreate->groupAId = $product->groupAId;
-            $productCreate->groupBId = $product->groupBId;
-            $productCreate->groupCId = $product->groupCId;
-            $productCreate->groupDId = $product->groupDId;
-            $productCreate->groupEId = $product->groupEId;
-            $productCreate->groupFId = $product->groupFId;
+                // If the hash is the same as one in the database
+                if ($tcposProductHash == $localProduct->hash) {
+                    $localProduct->sync_action = 'none';
+                    $localProduct->save();
 
-            $productCreate->_tcposId = $product->id;
-            $productCreate->_tcposCode = $product->code;
-            $productCreate->save();
+                    // Increment the counter
+                    $countToNoneProducts += 1;
+                } else {
+                    $localProduct->sync_action = 'update';
+                    $localProduct->hash = $tcposProductHash;
+                    $localProduct->save();
+
+                    // Increment the counter
+                    $countToUpdateProducts += 1;
+                }
+            } else {
+                // If the product not exists in database: create it
+                $product = (object) $tcposProduct;
+
+                $productCreate = new Product;
+                $productCreate->name = $product->description;
+                $productCreate->category = $this->getProductCategory($product->notes2);
+                $productCreate->minQuantity = config('cdv.default_product_min_quantity');
+                $productCreate->maxQuantity = $product->articleOrder ?? config('cdv.default_product_max_quantity');
+
+                $productCreate->weight = $product->preparationWeight ?? 0;
+                $productCreate->vatInPercent = data_get($product, 'vats.vatindex1', 'vats.vatindex2');
+
+                $productCreate->sync_action = 'create';
+                $productCreate->hash = $tcposProductHash;
+
+                $productCreate->description = $product->wondDescription;
+                $productCreate->articleOrder = $product->articleOrder;
+                $productCreate->isAddition = $product->isAddition;
+                $productCreate->measureUnitId = $product->measureUnitId;
+                $productCreate->printoutNotes = $product->printoutNotes;
+                $productCreate->notes1 = $product->notes1;
+                $productCreate->notes2 = $product->notes2;
+                $productCreate->notes3 = $product->notes3;
+                $productCreate->groupAId = $product->groupAId;
+                $productCreate->groupBId = $product->groupBId;
+                $productCreate->groupCId = $product->groupCId;
+                $productCreate->groupDId = $product->groupDId;
+                $productCreate->groupEId = $product->groupEId;
+                $productCreate->groupFId = $product->groupFId;
+
+                $productCreate->_tcposId = $product->id;
+                $productCreate->_tcposCode = $product->code;
+                $productCreate->save();
+
+                // Store the id on an array
+                $updateOrNoneLocalProductsIds[] = $productCreate->id;
+
+                // Increment the counter
+                $countToCreateProducts += 1;
+            }
         }
+
+        // Delete products not in the list
+        $countLocalProductsToDeleteProduct::whereNotIn('id', $updateOrNoneLocalProductsIds)->get()->count();
+        $localProductsToDelete = Product::whereNotIn('id', $updateOrNoneLocalProductsIds)->delete();
         
         $end = microtime(true) - $begin;
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from tcpos database');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from tcpos database | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDeleteProduct.' deleted.');
 
         return response()->json([
             'message' => 'imported',
             'time' => $end,
-            'count' => Product::all()->count(),
         ]);
     }
 

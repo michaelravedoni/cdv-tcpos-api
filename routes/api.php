@@ -59,7 +59,8 @@ Route::get('/stocks/{id}', [StockController::class, 'getStock'])->name('stocks.s
 Route::get('/vouchers', [VoucherController::class, 'getVouchers'])->name('vouchers.index');
 Route::get('/vouchers/{id}', [VoucherController::class, 'getVoucher'])->name('vouchers.show');
 
-Route::get('/customers/{cardnum}', [CustomerController::class, 'getCustomerByCardnum'])->name('customers.show');
+Route::get('/customers/{cardnum}', [CustomerController::class, 'getCustomer'])->name('customers.show');
+Route::get('/customers/byCardNum/{cardnum}', [CustomerController::class, 'getCustomerByCardnum'])->name('customers.byCardNum');
 Route::get('/customers/{cardnum}/funds', [CustomerController::class, 'getCustomerFundsByCardnumber'])->name('customers.funds');
 Route::get('/customers/{cardnum}/verification', [CustomerController::class, 'getCustomerVerificationField'])->name('customers.verification');
 Route::post('/customers/{cardnum}/verification', [CustomerController::class, 'verifyCustomer'])->name('customers.verification.post');
