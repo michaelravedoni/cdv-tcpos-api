@@ -41,7 +41,7 @@ class OrderController extends Controller
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does not use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
-            if (empty($valueWooOrderIdMetaData) && $this->getVoucherCode($wooOrder) != 'chatelin') {
+            if (empty($valueWooOrderIdMetaData) && !$this->doesOrderUseVoucher($wooOrder)) {
                 // Create order in TCPOS
                 $this->createTcposOrder($wooOrder);
                 $count_order_create += 1;
@@ -49,7 +49,7 @@ class OrderController extends Controller
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does use voucher (bon cadeau) in the process
-            elseif (empty($valueWooOrderIdMetaData) && $this->getVoucherCode($wooOrder) == 'chatelin') {
+            elseif (empty($valueWooOrderIdMetaData) && $this->doesOrderUseVoucher($wooOrder)) {
                 // Nothing
                 $count_order_manual += 1;
             } else {
@@ -76,6 +76,21 @@ class OrderController extends Controller
     {
         foreach ($wooOrder->coupon_lines as $coupon) {
             return data_get($coupon, 'code', false);
+        }
+    }
+
+    /**
+     * Does the order use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)  
+     */
+    public function doesOrderUseVoucher($wooOrder)
+    {
+        $code = $this->getVoucherCode($wooOrder);
+        if ($code == 'chatelin') {
+            return false;
+        } else if (empty($code) || !$code) {
+            return false;
+        } else {
+            return true;
         }
     }
 
