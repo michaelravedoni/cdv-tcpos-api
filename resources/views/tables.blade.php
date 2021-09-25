@@ -14,68 +14,109 @@
 </head>
 
 <body class="">
-
-        <div class="overflow-x-auto shadow-lg">
-
-            <table class="w-full rounded whitespace-no-wrap">
-                <thead class="bg-gray-200">
-                    <tr>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            tcposId</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            tcposCode (UGS)</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Categorie</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Prix</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Image</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Stock</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Règle de stock passé</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            À jour ?</th>
-                    </tr>
-                </thead>
-                <tbody class="">
-                    @forelse($products as $product)
-                    @php
-                    @endphp
-
-                    <tr class="font-sm leading-relaxed {{ $product->needToUpdate() ? 'bg-green-100' : '' }}">
-                        <td class="px-4">{{ $product->_tcposId }}</td>
-                        <td class="px-4">{{ $product->_tcposCode }}</td>
-                        <td class="px-4">{{ $product->category }}</td>
-                        <td class="px-4">@foreach($product->pricesRelations as $price) {{ config('cdv.tcpos_price_level_id')[$price->pricelevelid]['name'] }} {!! $price->sync_action == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!} @endforeach</td>
-                        <td class="px-4">@isset($product->imageRelation->hash)<a target="_blank" href="{{ $product->imageUrl() }}">URL</a>@else No image @endif {!! $product->sync_action == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}</td>
-                        <td>{{ $product->stock() }}</td>
-                        <td>@if($product->isStockRuleCorrect())<i class="bi bi-check-circle text-green-600"></i>@else<i class="bi bi-x-circle text-red-600"></i> or not managed @endif</td>
-                        <td>{!! $product->needToUpdate() ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="100" class="">
-                            <div class="my-6">
-                                <div class="text-center">
-                                    <div class="text-gray-500 text-lg">
-                                        No products
-                                    </div>
+    <div class="overflow-x-auto shadow-lg">
+        <h2 class="ml-4 my-4 text-xl font-bold text-neutral">5 dernières commandes</h2>
+        <table class="w-full rounded whitespace-no-wrap">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Woo ID</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Status</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                    {{ config('cdv.wc_meta_tcpos_order_id') }}</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                    Date</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        À jour ?</th>
+                </tr>
+            </thead>
+            <tbody class="">
+                @forelse($orders as $order)
+                @php
+                $tcposOrderId = data_get($order->meta_data, array_search(config('cdv.wc_meta_tcpos_order_id'), array_column($order->meta_data, 'key')).'.value');
+                @endphp
+                <tr class="font-sm leading-relaxed">
+                    <td class="px-4"><a class="link link-accent" href="https://chateaudevilla.ch/wp-admin/post.php?post={{ $order->id }}&action=edit" target="_blank">{{ $order->id }}</a></td>
+                    <td class="px-4">{{ $order->status }}</td>
+                    <td class="px-4">{{ $tcposOrderId }}</td>
+                    <td class="px-4">{{ \Carbon\Carbon::parse($order->date_created)->locale('fr_ch')->isoFormat('L LT') }}</td>
+                    <td>{!! $tcposOrderId ? '<i class="bi bi-check-square text-green-600"></i>' : '<i class="bi bi-exclamation-square text-red-600"></i>' !!}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="100" class="">
+                        <div class="my-6">
+                            <div class="text-center">
+                                <div class="text-gray-500 text-lg">
+                                    No Order
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <h2 class="ml-4 my-4 text-xl font-bold text-neutral">Tous les produits</h2>
+        <table class="w-full rounded whitespace-no-wrap">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        tcposId</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        tcposCode (UGS)</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Categorie</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Prix</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Image</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Stock</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Règle de stock passé</th>
+                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        À jour ?</th>
+                </tr>
+            </thead>
+            <tbody class="">
+                @forelse($products as $product)
+                <tr class="font-sm leading-relaxed {{ $product->needToUpdate() ? 'bg-green-100' : '' }}">
+                    <td class="px-4">{{ $product->_tcposId }}</td>
+                    <td class="px-4">{{ $product->_tcposCode }}</td>
+                    <td class="px-4">{{ $product->category }}</td>
+                    <td class="px-4">@foreach($product->pricesRelations as $price)
+                        {{ config('cdv.tcpos_price_level_id')[$price->pricelevelid]['name'] }} {!! $price->sync_action
+                        == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>'
+                        !!} @endforeach</td>
+                    <td class="px-4">@isset($product->imageRelation->hash)<a class="link link-accent" target="_blank"
+                            href="{{ $product->imageUrl() }}">URL</a>@else No image @endif {!! $product->sync_action ==
+                        'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}
+                    </td>
+                    <td>{{ $product->stock() }}</td>
+                    <td>@if($product->isStockRuleCorrect())<i class="bi bi-check-circle text-green-600"></i>@else<i
+                            class="bi bi-x-circle text-red-600"></i> or not managed @endif</td>
+                    <td>{!! $product->needToUpdate() ? '<i class="bi bi-exclamation-square"></i>' : '<i
+                            class="bi bi-check-square"></i>' !!}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="100" class="">
+                        <div class="my-6">
+                            <div class="text-center">
+                                <div class="text-gray-500 text-lg">
+                                    No products
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </body>
+
 </html>

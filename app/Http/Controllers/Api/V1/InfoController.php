@@ -14,6 +14,7 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Str;
 use anlutro\LaravelSettings\Facade as Setting;
 use AppHelper;
+use Codexshaper\WooCommerce\Facades\Order;
 
 class InfoController extends Controller
 {
@@ -100,6 +101,7 @@ class InfoController extends Controller
     {
         return view('tables', [
             'products' => \App\Models\Product::all(),
+            'orders' => Order::all(['per_page' => 5, 'page' => 1]),
         ]);
     }
 
