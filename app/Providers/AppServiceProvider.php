@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
             // $event->connectionName
             // $event->job
             // $event->exception
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'error', 'resource' => 'job'])->log($event->job.' | '.$event->exception);
+            activity()->withProperties(['group' => 'jobs', 'level' => 'error', 'resource' => 'job'])->log($event->job.' | '.$event->exception);
         });
     }
 }

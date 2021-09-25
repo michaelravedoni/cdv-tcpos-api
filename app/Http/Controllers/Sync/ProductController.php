@@ -148,7 +148,7 @@ class ProductController extends Controller
             }
         }
 
-        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'products'])->log('Products sync queued |  '.$count_product_update.' to update, '.$count_product_create.' to create, '.$count_product_delete.' ro delete, '.$count_product_untouched.' to untouch');
+        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'products'])->log('Products sync queued |  '.$count_product_update.' to update, '.$count_product_create.' to create, '.$count_product_delete.' to delete, '.$count_product_untouched.' to untouch');
 
         return response()->json([
             'message' => 'Sync queued. See /jobs.',
