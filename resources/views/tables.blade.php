@@ -34,7 +34,7 @@
             <tbody class="">
                 @forelse($orders as $order)
                 @php
-                $tcposOrderId = data_get($order->meta_data, array_search(config('cdv.wc_meta_tcpos_order_id'), array_column($order->meta_data, 'key')).'.value');
+                $tcposOrderId = AppHelper::getMetadataValueFromKey($order->meta_data, config('cdv.wc_meta_tcpos_order_id'));
                 @endphp
                 <tr class="font-sm leading-relaxed">
                     <td class="px-4"><a class="link link-accent" href="https://chateaudevilla.ch/wp-admin/post.php?post={{ $order->id }}&action=edit" target="_blank">{{ $order->id }}</a></td>

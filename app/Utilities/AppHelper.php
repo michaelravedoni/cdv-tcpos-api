@@ -76,4 +76,12 @@ class AppHelper
             return true;
         }
     }
+
+    /**
+     * Get Metadata value from Woo resource
+     */
+    public static function getMetadataValueFromKey($metadataArray, $key)
+    {
+        return data_get($metadataArray, array_search($key, array_column($metadataArray, 'key')).'.value');
+    }
 }
