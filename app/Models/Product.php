@@ -220,7 +220,7 @@ class Product extends Model
         }
 
         // Check if product stock has update
-        // TO DO
+        $stockToUpdate = data_get($this->stockRelation, 'sync_action') == 'update' ? true : false;
 
         // Check if product image has update
         $imageToUpdate = data_get($this->imageRelation, 'sync_action') == 'update' ? true : false;
@@ -229,7 +229,7 @@ class Product extends Model
         $productToUpdate = $this->sync_action == 'update' ? true : false;
 
         // If product, product price, product image or stock price has update
-        if ($productToUpdate || $priceToUpdate || $imageToUpdate) {
+        if ($productToUpdate || $stockToUpdate || $priceToUpdate || $imageToUpdate) {
             return true;
         } else {
             return false;

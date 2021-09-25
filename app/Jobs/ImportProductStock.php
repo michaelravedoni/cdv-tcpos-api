@@ -50,12 +50,38 @@ class ImportProductStock implements ShouldQueue
         $response = $req->json();
         $data = data_get($response, 'STOCK');
 
-        $stockData = $data;
-        $stock = new Stock;
-        $stock->value = $stockData;
-        $stock->_tcpos_product_id = $this->id;
-        $stock->save();
+        // Get product image in local database
+        $localStock = Stock::where('_tcpos_product_id', $this->id)->first();
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'stocks'])->log('Product stock imported in the local database | tcposId:'.$this->id);
+        $stockData = $data;
+
+        // If a stock in database exists
+        if (isset($localStock)) {
+
+            // If the stock is the same as one in the database
+            if ($localStock->value == $stockData) {
+                $localStock->sync_action = 'none';
+                $localStock->save();
+
+                activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'stocks'])->log('Product stock untouched in the local database | tcposId:'.$this->id);
+
+            } else {
+                $localStock->value = $stockData;
+                $localStock->sync_action = 'update';
+                $localStock->save();
+
+                activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'stocks'])->log('Product stock updated in the local database | tcposId:'.$this->id);
+            }
+
+        } else {
+            // If the stock not exists in database: create it
+            $stock = new Stock;
+            $stock->value = $stockData;
+            $stock->_tcpos_product_id = $this->id;
+            $stock->sync_action = 'update';
+            $stock->save();
+
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'stocks'])->log('Product stock imported in the local database | tcposId:'.$this->id);
+        }
     }
 }
