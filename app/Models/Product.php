@@ -250,7 +250,7 @@ class Product extends Model
         }
         // Rule set in config do not manage stock
         if (!data_get($categoryRule, 'manage_stock')) {
-            return 'not-managed';
+            return true;
         }
         // Product stock quantity is superior as the minimal set in config
         if ($this->stock() >= data_get($categoryRule, 'min_stock_quantity')) {
