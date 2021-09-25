@@ -257,4 +257,20 @@ class Product extends Model
             return true;
         }
     }
+
+    /**
+     * isStockManaged.
+     */
+    public function isStockManaged()
+    {
+        $category = $this->category;
+        $categoryRule = data_get(config('cdv.categories'), $category);
+
+        // Rule set in config do not manage stock
+        if (!data_get($categoryRule, 'manage_stock')) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

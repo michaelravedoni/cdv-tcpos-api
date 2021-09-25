@@ -92,12 +92,14 @@
                         == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>'
                         !!} @endforeach</td>
                     <td class="px-4">@isset($product->imageRelation->hash)<a class="link link-accent" target="_blank"
-                            href="{{ $product->imageUrl() }}">URL</a>@else No image @endif {!! $product->sync_action ==
+                            href="{{ $product->imageUrl() }}">URL</a>@else No image @endif {!! data_get($product->imageRelation, 'sync_action') ==
                         'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>' !!}
                     </td>
-                    <td>{{ $product->stock() }}</td>
-                    <td>@if($product->isStockRuleCorrect())<i class="bi bi-check-circle text-green-600"></i>@else<i
-                            class="bi bi-x-circle text-red-600"></i> or not managed @endif</td>
+                    <td>{{ $product->stock() }} {!! data_get($product->stockRelation, 'sync_action')
+                        == 'update' ? '<i class="bi bi-exclamation-square"></i>' : '<i class="bi bi-check-square"></i>'
+                        !!}</td>
+                    <td>@if($product->isStockManaged())@if($product->isStockRuleCorrect())<i class="bi bi-check-circle text-green-600"></i>@else<i
+                            class="bi bi-x-circle text-red-600"></i>@endif @else not managed @endif</td>
                     <td>{!! $product->needToUpdate() ? '<i class="bi bi-exclamation-square"></i>' : '<i
                             class="bi bi-check-square"></i>' !!}</td>
                 </tr>
