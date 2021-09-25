@@ -59,13 +59,13 @@ class ImportProductImage implements ShouldQueue
             $productImage->sync_action = 'none';
             $productImage->save();
             
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in tcpos database | tcposId:'.$this->id);
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in TCPOS database | tcposId:'.$this->id);
             return;
         }
 
         // If the image hash is the same in tcpos ans local database: do nothing and label no sync action
         if ($productImage->hash == md5($data)) {
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the database and filesystem | tcposId:'.$this->id);
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the local database and local filesystem | tcposId:'.$this->id);
             $productImage->sync_action = 'none';
             $productImage->save();
             return;

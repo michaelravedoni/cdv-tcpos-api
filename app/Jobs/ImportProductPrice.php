@@ -82,7 +82,7 @@ class ImportProductPrice implements ShouldQueue
                     $localPrice->sync_action = 'none';
                     $localPrice->save();
 
-                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price untouched in the database | tcposId:'.$tcposPrice->id);
+                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price untouched in the local database | tcposId:'.$tcposPrice->id);
 
                 } else {
                     $localPrice->price = $tcposPrice->price;
@@ -90,7 +90,7 @@ class ImportProductPrice implements ShouldQueue
                     $localPrice->sync_action = 'update';
                     $localPrice->save();
 
-                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price updated in the database | tcposId:'.$tcposPrice->id);
+                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price updated in the local database | tcposId:'.$tcposPrice->id);
                 }
 
             } else {
@@ -104,7 +104,7 @@ class ImportProductPrice implements ShouldQueue
                 $price->sync_action = 'update';
                 $price->save();
 
-                activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the database | tcposId:'.$tcposPrice->id);
+                activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the local database | tcposId:'.$tcposPrice->id);
             }
         }
     }

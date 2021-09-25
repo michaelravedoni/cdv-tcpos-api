@@ -24,7 +24,7 @@ class ImportController extends Controller
     {
         $begin = microtime(true);
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'all'])->log('Import all from tcpos database');
+        activity()->withProperties(['group' => 'import-woo', 'level' => 'start', 'resource' => 'all'])->log('---- Import from TCPOS ----');
 
         $force = request()->input('force', false);
 
@@ -46,8 +46,6 @@ class ImportController extends Controller
         $product_controller_images_return = $product_controller->importImages();
 
         $end = microtime(true) - $begin;
-
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'all'])->log('All imported from tcpos database | See /jobs for all importations');
 
         // Set last TCPOS database update in settings
         Setting::set('lastTcposUpdate', AppHelper::getLastTcposUpdate());
@@ -73,7 +71,7 @@ class ImportController extends Controller
     {
         $begin = microtime(true);
 
-        activity()->withProperties(['group' => 'import-woo', 'level' => 'start', 'resource' => 'all'])->log('Import all from Woocommerce database');
+        activity()->withProperties(['group' => 'import-woo', 'level' => 'start', 'resource' => 'all'])->log('---- Import from Woocommerce ----');
 
         $sync_product_controller = new SyncProductController;
         $sync_customer_controller = new SyncCustomerController;
@@ -81,8 +79,6 @@ class ImportController extends Controller
         $sync_customer_controller_return = $sync_customer_controller->importWooCustomers();
 
         $end = microtime(true) - $begin;
-
-        activity()->withProperties(['group' => 'import-woo', 'level' => 'end', 'resource' => 'all'])->log('All imported from Woocommerce database');
         
         return response()->json([
             'message' => 'Woo Import launched. Wait and see /jobs',

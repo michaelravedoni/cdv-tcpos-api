@@ -135,8 +135,6 @@ class ProductController extends Controller
     {
         $begin = microtime(true);
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'products'])->log('Import products from tcpos database');
-
         $localProducts = $this->index();
         $tcposProducts = $this->getProducts();
         $updateOrNoneLocalProductsIds = [];
@@ -218,7 +216,7 @@ class ProductController extends Controller
         
         $end = microtime(true) - $begin;
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from tcpos database | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDelete.' deleted.');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from TCPOS | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDelete.' deleted.');
 
         return response()->json([
             'message' => 'imported',
@@ -286,7 +284,7 @@ class ProductController extends Controller
             ImportProductImage::dispatch($valueId);
         }
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'images'])->log('Import products images from tcpos database. See /jobs');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'job', 'resource' => 'images'])->log('Products images import from TCPOS queued');
 
         return response()->json([
             'message' => 'job launched. See /jobs',

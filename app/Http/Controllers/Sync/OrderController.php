@@ -107,7 +107,7 @@ class OrderController extends Controller
                 ]
             ];
             //$paymentData = [];
-            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order payment #'.$wooOrder->id.' has no payment. A fake one has benn created for testing purpose.');
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order payment #'.$wooOrder->id.' has no payment. A fake one has been created for testing purpose.');
         }
         return $paymentData;
     }
@@ -156,7 +156,7 @@ class OrderController extends Controller
 
             // S'il y a une erreur dans la création de la commande
             if ($dataOrderResponse != 'OK') {
-                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'createOrder.message'));
+                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'createOrder.message'));
                 return 'Error: The order could not be transmitted correctly to TCPOS WOND';
             }
 
@@ -173,10 +173,10 @@ class OrderController extends Controller
 
             // S'il y a une erreur dans la confirmation de la commande
             if ($dataOrderConfirmResponse != 'OK') {
-                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Error: The order could not be confirmed correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'confirmOrder.message'));
+                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Error: The order #'.$wooOrder->id.' could not be confirmed correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'confirmOrder.message'));
                 return 'Error: The order could not be confirmed correctly to TCPOS WOND';
             }
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order created in TCPOS WOND');
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' created in TCPOS WOND');
 
             // S'il y a une erreur dans la confirmation de la commande : mettons un id sur la commande de Woocommerce
             $wooUpdateOrderData = [
@@ -186,7 +186,7 @@ class OrderController extends Controller
             ];
             // Order::update($this->id, $this->data);
             SyncOrderUpdate::dispatch($wooOrder->id, $wooUpdateOrderData);
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order dispatched. See /jobs');
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' dispatched');
         } else {
             activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Token could not be created.');
         }

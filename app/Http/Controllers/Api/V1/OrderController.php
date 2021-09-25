@@ -13,28 +13,6 @@ class OrderController extends Controller
      */
     public function postOrders()
     {
-        return 'Not implemented yet';
-
-        /* 
-        this.number = '';
-    this.orderKey = '';
-    this.totalPrice = 0.0;
-
-
-    this.items = [];
-    this.shippingItems = [];
-    this.customer = {};
-    this.payments = [];
-
-
-    this.refunds = [];
-    this.currency = '';
-
-    this.billingAddress = {};
-    this.shippingAddress = {};
-
-    this._tcposId = 0;
-    this._wooCommerceId = 0;
-        */
+        return 'Not used.';
     }
 }

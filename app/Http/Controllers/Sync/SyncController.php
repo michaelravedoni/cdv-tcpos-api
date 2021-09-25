@@ -18,7 +18,7 @@ class SyncController extends Controller
     {
         $begin = microtime(true);
 
-        activity()->withProperties(['group' => 'sync', 'level' => 'start', 'resource' => 'all'])->log('Sync all');
+        activity()->withProperties(['group' => 'sync', 'level' => 'start', 'resource' => 'all'])->log('---- Sync all between TCPOS & Woocommerce ----');
 
         $product_controller = new ProductController;
         $attribute_controller = new AttributeController;
@@ -29,8 +29,6 @@ class SyncController extends Controller
         $customercontroller_return = $customercontroller->sync();
 
         $end = microtime(true) - $begin;
-
-        activity()->withProperties(['group' => 'sync', 'level' => 'end', 'resource' => 'all'])->log('Sync done | See /jobs for all sync jobs');
 
         return response()->json([
             'message' => 'Sync launched. Wait and see /jobs',
