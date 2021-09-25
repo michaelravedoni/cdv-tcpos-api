@@ -50,7 +50,7 @@ class ImportProductStock implements ShouldQueue
         $response = $req->json();
         $data = data_get($response, 'STOCK');
 
-        // Get product image in local database
+        // Get product stock in local database
         $localStock = Stock::where('_tcpos_product_id', $this->id)->first();
 
         $stockData = $data;

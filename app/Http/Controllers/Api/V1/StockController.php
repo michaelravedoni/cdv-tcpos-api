@@ -30,7 +30,7 @@ class StockController extends Controller
     public function importStocks()
     {
 
-        Stock::truncate();
+        //Stock::truncate();
 
         $ids = Product::all()->pluck('_tcposId')->all();
 
