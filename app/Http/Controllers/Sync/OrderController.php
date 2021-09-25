@@ -186,7 +186,7 @@ class OrderController extends Controller
             ];
             // Order::update($this->id, $this->data);
             SyncOrderUpdate::dispatch($wooOrder->id, $wooUpdateOrderData);
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' dispatched');
+            activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' dispatched to queue');
         } else {
             activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Token could not be created.');
         }
