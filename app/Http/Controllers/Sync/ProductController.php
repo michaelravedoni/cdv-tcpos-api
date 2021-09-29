@@ -222,8 +222,7 @@ class ProductController extends Controller
             ];
         }
         $productImage = TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
-        $dist_image_url = env('TCPOS_PRODUCTS_IMAGES_BASE_URL').$tcposProduct->_tcposId.'.jpg';
-        //instead of $tcposProduct->imageUrl()
+        $dist_image_url = $tcposProduct->imageUrl();
         if (isset($wooProduct) && $productImage->hash != null) {
             //There is a tcpos image and a wooProduct
             if (data_get($wooProduct->data, 'images.0.name') != null) {
@@ -250,7 +249,7 @@ class ProductController extends Controller
         //There is no wooProduct: so create a product and if an image exists, add it
         if (empty($wooProduct) && $productImage->hash != null) {
             $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will create the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
         }
 
         return [
