@@ -15,7 +15,7 @@ class CreateStocksTable extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->string('value');
+            $table->string('value')->nullable();
             $table->integer('_tcpos_product_id')->nullable();
             $table->string('sync_action')->nullable();
             $table->timestamps();
