@@ -173,7 +173,6 @@
                     <div class="mb-4">
                         <a class="btn btn-outline btn-neutral btn-sm block" href="/api/sync/orders">Synchroniser les commandes manuellement (~1
                             min.)</a>
-                        <a class="btn btn-outline btn-neutral btn-sm block mt-2" href="/api/import/products/images">Importer les images depuis TCPOS (~10 min.)</a>
                     </div>
                 </div>
             </div>
