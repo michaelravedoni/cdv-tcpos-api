@@ -75,6 +75,7 @@ class TcposController extends Controller
             $articleCreate = new Article;
             $articleCreate->name = $article->DESCRIPTION;
             $articleCreate->category = $articleCreate->setArticleCategory(data_get($article, 'NOTES-2'));
+            $articleCreate->priceLevelCodes = data_get($article, 'PRICELEVELS.PRICELEVEL');
             //$articleCreate->minQuantity = config('cdv.default_product_min_quantity');
             //$articleCreate->maxQuantity = $article->articleOrder ?? config('cdv.default_product_max_quantity');
 
@@ -102,35 +103,31 @@ class TcposController extends Controller
             $articleCreate->save();
         }
     }
-    
+
     /**
      * Show wine menu.
      */
     public function showWineMenu()
     {
         $articles = [];
-        foreach (Article::where('category', 'wine')->where('_tcposCode', '<', '200000')->get() as $article) {
+        foreach (Article::where('category', 'wine')->where('_tcposCode', '<', 200000)->get() as $article) {
             $articles[] = [
                 'name' => $article->name,
                 'description' => data_get($article->tcposProduct, 'description'),
-                'test' => null,
                 'prices' => [
                     'takeAway' => [
-                        //'articleCode' => $article->_tcposCode,
                         'priceLevelCode' => 2,
-                        'price' => data_get($article->tcposProduct, 'pricesRelations.0.price'),
+                        'price' => data_get($article->tcposProduct, 'pricesRelations.0.price', data_get($article->priceLevelCodes, '0.PRICE')),
                         //'vatInPercent' => $article->vatInPercent,
                     ],
                     'onSite' => [
-                        //'articleCode' => $article->_tcposCode,
                         'priceLevelCode' => 5,
-                        'price' => data_get($article->tcposProduct, 'pricesRelations.1.price'),
+                        'price' => data_get($article->tcposProduct, 'pricesRelations.1.price', data_get($article->priceLevelCodes, '1.PRICE')),
                         //'vatInPercent' => $article->vatInPercent,
                     ],
                     'online' => [
-                        //'articleCode' => $article->_tcposCode,
                         'priceLevelCode' => 13,
-                        'price' => data_get($article->tcposProduct, 'pricesRelations.2.price'),
+                        'price' => data_get($article->tcposProduct, 'pricesRelations.2.price', data_get($article->priceLevelCodes, '2.PRICE')),
                         //'vatInPercent' => $article->vatInPercent,
                     ]
                 ],

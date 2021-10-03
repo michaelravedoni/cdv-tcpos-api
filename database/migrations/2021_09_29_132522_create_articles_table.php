@@ -16,18 +16,13 @@ class CreatearticlesTable extends Migration
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            //$table->string('minQuantity')->nullable();
-            //$table->string('maxQuantity')->nullable();
             $table->string('category')->nullable();
-            //$table->string('weight')->nullable();
+            $table->json('priceLevelCodes')->nullable();
             //$table->float('vatInPercent')->nullable();
             $table->string('hash')->nullable();
             $table->string('sync_action')->nullable();
 
             $table->string('description')->nullable();
-            //$table->integer('isAddition')->nullable();
-            //$table->integer('articleOrder')->nullable();
-            //$table->string('measureUnitId')->nullable();
             $table->string('printoutNotes')->nullable();
             $table->string('notes1')->nullable();
             $table->string('notes2')->nullable();

@@ -20,6 +20,15 @@ class Article extends Model
     protected $with = ['attributeRelationCellar', 'attributeRelationGrape', 'attributeRelationFillingLevel', 'attributeRelationTownship'];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'priceLevelCodes' => 'object',
+    ];
+
+    /**
      * Get the TCPOS product for the article.
      */
     public function tcposProduct()
