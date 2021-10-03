@@ -73,12 +73,14 @@
                         Prix</th>
                     <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
                         Image</th>
-                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                    <th class="py-3 font-medium text-left text-xs text-gray-600 uppercase">
                         Stock</th>
-                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                    <th class="py-3 font-medium text-left text-xs text-gray-600 uppercase">
                         Règle de stock passé</th>
-                    <th class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                    <th class="py-3 font-medium text-left text-xs text-gray-600 uppercase">
                         À jour ?</th>
+                    <th class="py-3 font-medium text-left text-xs text-gray-600 uppercase">
+                        Actions</th>
                 </tr>
             </thead>
             <tbody class="">
@@ -102,6 +104,13 @@
                             class="bi bi-x-circle text-red-600"></i>@endif @else not managed @endif</td>
                     <td>{!! $product->needToUpdate() ? '<i class="bi bi-exclamation-square"></i>' : '<i
                             class="bi bi-check-square"></i>' !!}</td>
+                    <td>
+                        <form method="POST" action="{{ route('tables.products.force.update', ['id' => $product->id]) }}">
+                            <input type="hidden" name="id" value="{{ $product->id }}">
+                            {!! csrf_field() !!}
+                            <button type="submit" class="link-neutral" title="Forcer la mise à jour du produit"><i class="bi bi-arrow-repeat"></i></button>
+                        </form>
+                    </td>
                 </tr>
                 @empty
                 <tr>

@@ -52,7 +52,7 @@ class ProductController extends Controller
         $data = data_get($response, 'getArticles.articleList');
         return $data;
     }
-    
+
     /**
      * Filter products by category.
      */
@@ -60,7 +60,7 @@ class ProductController extends Controller
     {
         return ProductResource::collection(Product::where('category', $category)->get());
     }
-    
+
     /**
      * Get product price.
      */
@@ -213,7 +213,7 @@ class ProductController extends Controller
         // Delete products not in the list
         $countLocalProductsToDelete = Product::whereNotIn('id', $updateOrNoneLocalProductsIds)->get()->count();
         $localProductsToDelete = Product::whereNotIn('id', $updateOrNoneLocalProductsIds)->delete();
-        
+
         $end = microtime(true) - $begin;
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from TCPOS | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDelete.' deleted.');
@@ -243,14 +243,17 @@ class ProductController extends Controller
         if (empty($data)) {
             //No image found
             $productImage->hash = null;
+            $productImage->sync_action = 'none';
             $productImage->save();
-            
+
             return response()->json([
                 'message' => 'Image not found in tcpos',
             ]);
         }
 
         if ($productImage->hash == md5($data)) {
+            $productImage->sync_action = 'none';
+            $productImage->save();
             return response()->json([
                 'message' => 'Image already saved',
             ]);
@@ -263,13 +266,11 @@ class ProductController extends Controller
         Storage::disk('public')->put($path, $imageDecode);
 
         $productImage->hash = md5($data);
+        $productImage->sync_action = 'update';
         $productImage->save();
-
-        $url = Storage::disk('public')->url($path);
 
         return response()->json([
             'message' => 'Image saved',
-            'url' => $url,
         ]);
     }
 

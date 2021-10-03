@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\InfoController;
+use App\Http\Controllers\ViewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,8 +19,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 */
-Route::get('/', [InfoController::class, 'show'])->name('info');
-Route::get('/tables', [InfoController::class, 'tables'])->name('tables');
+Route::get('/', [ViewController::class, 'show'])->name('info');
+Route::get('/tables', [ViewController::class, 'tables'])->name('tables');
+Route::post('/tables/products/{id}/force-update', [ViewController::class, 'forceUpdateProduct'])->name('tables.products.force.update');
 
 Route::prefix('jobs')->group(function () {
     Route::queueMonitor();

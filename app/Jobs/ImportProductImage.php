@@ -53,7 +53,7 @@ class ImportProductImage implements ShouldQueue
         // Get product image in local database
         $productImage = ProductImage::where('_tcpos_product_id', $this->id)->first();
 
-        // If not exists in local database: create one 
+        // If not exists in local database: create one
         if (empty($productImage)) {
             $productImage = new ProductImage;
             $productImage->_tcpos_product_id = $this->id;
@@ -65,7 +65,7 @@ class ImportProductImage implements ShouldQueue
             $productImage->hash = null;
             $productImage->sync_action = 'none';
             $productImage->save();
-            
+
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in TCPOS database | tcposId:'.$this->id);
             return;
         }
