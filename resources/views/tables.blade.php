@@ -87,7 +87,7 @@
                 @forelse($products as $product)
                 <tr class="font-sm leading-relaxed {{ $product->needToUpdate() ? 'bg-green-100' : '' }}">
                     <td class="px-4">{{ $product->_tcposId }}</td>
-                    <td class="px-4">{{ $product->_tcposCode }}</td>
+                    <td class="px-4"><a class="link link-accent" target="_blank" href="https://chateaudevilla.ch/wp-admin/edit.php?s={{ $product->_tcposCode }}&post_status=all&post_type=product">{{ $product->_tcposCode }}</a></td>
                     <td class="px-4">{{ $product->category }}</td>
                     <td class="px-4">@foreach($product->pricesRelations as $price)
                         {{ config('cdv.tcpos_price_level_id')[$price->pricelevelid]['name'] }} {!! $price->sync_action
