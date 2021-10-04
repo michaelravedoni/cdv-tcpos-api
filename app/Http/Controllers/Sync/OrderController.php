@@ -45,7 +45,7 @@ class OrderController extends Controller
                 // Create order in TCPOS
                 $this->createTcposOrder($wooOrder);
                 $count_order_create += 1;
-            }     
+            }
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does use voucher (bon cadeau) in the process
@@ -80,7 +80,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Does the order use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)  
+     * Does the order use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
      */
     public function doesOrderUseVoucher($wooOrder)
     {
@@ -132,6 +132,7 @@ class OrderController extends Controller
      */
     public function createTcposOrder($wooOrder)
     {
+        // Créer les produits
         $items = [];
         foreach ($wooOrder->line_items as $item) {
             $items[] = [
@@ -139,6 +140,18 @@ class OrderController extends Controller
                     'id' => data_get($item, 'tcpos_id'),
                     'quantity' => data_get($item, 'quantity'),
                     'price' => data_get($item, 'price'),
+                    'priceLevelId' => config('cdv.default_price_level_id'),
+                    ]
+                ];
+        }
+
+        // Ajouter le produit frais de port s'il existe et est plus grand que 0
+        if (isset($wooOrder->shipping_total) && $wooOrder->shipping_total > 0) {
+            $items[] = [
+                'article' => [
+                    'id' => config('cdv.tcpos_default_shipping_item_id'),
+                    'quantity' => 1,
+                    'price' => $wooOrder->shipping_total,
                     'priceLevelId' => config('cdv.default_price_level_id'),
                     ]
                 ];
@@ -158,7 +171,7 @@ class OrderController extends Controller
                 'itemList' => $items,
             ]
         ];
-        
+
         // Générer un token pour TCPOS
         $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
         $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
@@ -171,7 +184,7 @@ class OrderController extends Controller
 
             // S'il y a une erreur dans la création de la commande
             if ($dataOrderResponse != 'OK') {
-                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'createOrder.message'));
+                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrderResponse, 'createOrder.message'));
                 return 'Error: The order could not be transmitted correctly to TCPOS WOND';
             }
 
