@@ -43,14 +43,15 @@ class OrderController extends Controller
             // - Does not use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
             if (empty($valueWooOrderIdMetaData) && !$this->doesOrderUseVoucher($wooOrder)) {
                 // Create order in TCPOS
-                $this->createTcposOrder($wooOrder);
+                $this->createTcposOrder($wooOrder, 'default');
                 $count_order_create += 1;
             }
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does use voucher (bon cadeau) in the process
             elseif (empty($valueWooOrderIdMetaData) && $this->doesOrderUseVoucher($wooOrder)) {
-                // Nothing
+                // Create order in TCPOS with voucher type
+                $this->createTcposOrder($wooOrder, 'voucher');
                 $count_order_manual += 1;
             } else {
                 // Nothing
@@ -70,28 +71,24 @@ class OrderController extends Controller
     }
 
     /**
-     * Get order voucher code.
-     */
-    public function getVoucherCode($wooOrder)
-    {
-        foreach ($wooOrder->coupon_lines as $coupon) {
-            return data_get($coupon, 'code', false);
-        }
-    }
-
-    /**
      * Does the order use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
      */
     public function doesOrderUseVoucher($wooOrder)
     {
-        $code = $this->getVoucherCode($wooOrder);
-        if ($code == 'chatelin') {
-            return false;
-        } else if (empty($code) || !$code) {
-            return false;
-        } else {
-            return true;
+        $codesArray = [];
+        foreach ($wooOrder->coupon_lines as $coupon) {
+            $codesArray[] = data_get($coupon, 'code');
         }
+
+        foreach ($codesArray as $code) {
+            // Si un nombre à 16 chiffres: true
+            if (preg_match('/^\d{16}$/', $code)) {
+                return true;
+            } else {
+                continue;
+            }
+        }
+        return false;
     }
 
     /**
@@ -130,8 +127,11 @@ class OrderController extends Controller
     /**
      * Create tcpos order.
      */
-    public function createTcposOrder($wooOrder)
+    public function createTcposOrder($wooOrder, $type = 'default')
     {
+        // Assigner l'opéraiton par défaut: Si type est defaut mettre opération TCPOS par défaut sinon 'S' (save)
+        $operation = $type == 'default' ? config('cdv.default_confirm_order_operation') : 'S';
+
         // Créer les produits
         $items = [];
         foreach ($wooOrder->line_items as $item) {
@@ -157,7 +157,11 @@ class OrderController extends Controller
                 ];
         }
 
+        // Créer la ligne d'adresse pour le commentaire de commande TCPOS
         $stringShippingAddress = $wooOrder->shipping->first_name.' '.$wooOrder->shipping->last_name.' | '.$wooOrder->shipping->address_1.', '.$wooOrder->shipping->postcode.' '.$wooOrder->shipping->city.' '.$wooOrder->shipping->country;
+        // Créer la ligne de commentaire liée au bon cadeau, s'il y a un bon cadeau
+        $couponCodes = implode(' - ', array_column($wooOrder->coupon_lines, 'code'));
+        $stringVoucherComment = $type == 'voucher' ? '. Utilisation du bon cadeau #'.$couponCodes.' pour un rabais total (tous rabais confondus) de '.$wooOrder->discount_total.'.' : null;
 
         $data = [
             'data' => [
@@ -167,7 +171,7 @@ class OrderController extends Controller
                 'orderType' => config('cdv.default_order_type'),
                 'priceLevelId' => config('cdv.default_price_level_id'),
                 'total' => $wooOrder->total,
-                'transactionComment' => 'Commande Woocommerce #'.$wooOrder->id.' à livrer chez '.$stringShippingAddress,
+                'transactionComment' => 'Commande Woocommerce #'.$wooOrder->id.' à livrer chez '.$stringShippingAddress.$stringVoucherComment,
                 'itemList' => $items,
             ]
         ];
@@ -193,7 +197,7 @@ class OrderController extends Controller
                 'token' => $token,
                 'shopId' => config('cdv.default_shop_id'),
                 'guid' => data_get($dataOrder, 'createOrder.data.guid'), // Get guid from the previous request
-                'operation' => config('cdv.default_confirm_order_operation'),
+                'operation' => $operation,
                 'payments' => json_encode($this->createPaymentTcposData($wooOrder)),
             ]);
             $dataOrderConfirm = $requestOrderConfirm->json();
