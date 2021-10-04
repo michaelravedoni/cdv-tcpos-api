@@ -47,14 +47,13 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/products/prices', [ProductController::class, 'indexPrices'])->name('products.prices.index');
 Route::get('/products/getById/{id}', [ProductController::class, 'getById'])->name('products.getById');
 Route::get('/products/getByCode/{id}', [ProductController::class, 'getByCode'])->name('products.getByCode');
-//Route::get('/products/menu', [ProductController::class, 'indexByCategory'])->name('products.category')->middleware('cache.headers:public;max_age=3600');
 Route::get('/products/{id}/price', [ProductController::class, 'getPrice'])->name('products.show.price');
-Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category')->middleware('cache.headers:public;max_age=3600');
+Route::get('/products/{category}', [ProductController::class, 'indexByCategory'])->name('products.category');
 
 Route::get('/tcpos/raw', [TcposController::class, 'getDB'])->name('tcpos.raw');
 Route::get('/tcpos/articles/raw', [TcposController::class, 'getArticles'])->name('tcpos.articles.raw');
 Route::get('/tcpos/import/articles', [TcposController::class, 'importArticles'])->name('tcpos.import.articles');
-Route::get('/tcpos/articles/wine', [TcposController::class, 'showWineMenu'])->name('tcpos.articles-wine');
+Route::get('/tcpos/articles/wine', [TcposController::class, 'showWineMenu'])->name('tcpos.articles-wine')->middleware('cache.headers:public;max_age=3600');
 
 Route::get('/attributes/raw', [AttributeController::class, 'getAttributes'])->name('attributes.raw');
 Route::get('/attributes', [AttributeController::class, 'index'])->name('attributes.index');
