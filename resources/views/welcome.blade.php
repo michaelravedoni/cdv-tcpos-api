@@ -257,7 +257,7 @@
                         <td class="px-4">{{ $activity->description }}</td>
                         <td>{{ $activity->getExtraProperty('duration') ? number_format($activity->getExtraProperty('duration'), 2).' secondes' : null }}
                         </td>
-                        <td>{{ $activity->created_at->locale('fr_CH')->timezone('Europe/Zurich')->isoFormat('L LT') }}
+                        <td class="min-w-max">{{ $activity->created_at->locale('fr_CH')->timezone('Europe/Zurich')->isoFormat('L LT') }}
                         </td>
                     </tr>
                     @empty
