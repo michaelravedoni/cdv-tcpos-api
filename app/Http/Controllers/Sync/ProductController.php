@@ -171,7 +171,7 @@ class ProductController extends Controller
     {
         $category = $tcposProduct->category;
         $categoryRule = data_get(config('cdv.categories'), $category);
-        
+
         // Category not found in config
         if (empty($categoryRule)) {
             return false;
@@ -207,6 +207,7 @@ class ProductController extends Controller
      */
     public function dataForWoo($tcposProduct, $wooProduct = null)
     {
+        // Attributes
         $attributes = [];
         foreach (config('cdv.wc_attribute_ids') as $key => $value) {
             $option = data_get($tcposProduct->attributesArray(), $key.'.name', data_get($tcposProduct->attributesArray(), $key)) ?? null;
@@ -221,38 +222,9 @@ class ProductController extends Controller
                 'options' => [$option],
             ];
         }
-        $productImage = TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
-        $dist_image_url = $tcposProduct->imageUrl();
-        if (isset($wooProduct) && $productImage->hash != null) {
-            //There is a tcpos image and a wooProduct
-            if (data_get($wooProduct->data, 'images.0.name') != null) {
-                //There is an existing image.
-                if (data_get($wooProduct->data, 'images.0.name') != $productImage->hash) {
-                    //There is an existing image but not match the tcpos hash one : upload
-                    $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-                    activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') image with : '. $dist_image_url);
-                } else {
-                    //There is an existing image that match the tcpos hash one : keep it
-                    $images = $wooProduct->data->images;
-                    //activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') without upddating the image');
-                }
-            }
-            if (data_get($wooProduct->data, 'images.0.name') == null) {
-                //There is no existing image : upload
-                $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
-            }
-        } else {
-            //There is no tcpos image
-            $images = [];
-        }
-        //There is no wooProduct: so create a product and if an image exists, add it
-        if (empty($wooProduct) && $productImage->hash != null) {
-            $images = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will create the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
-        }
 
-        return [
+        // Data
+        $data = [
             'name' => $tcposProduct->name,
             'description' => $tcposProduct->description,
             'sku' => (string) $tcposProduct->_tcposCode,
@@ -263,7 +235,7 @@ class ProductController extends Controller
             'manage_stock' => $this->isStockManaged($tcposProduct),
             'attributes' => $attributes,
             'categories' => [['id' => data_get(config('cdv.categories'), $tcposProduct->category.'.category_id')]],
-            'images' => $images,
+            //'images' => $images,
             'meta_data' => [
                 ['key' => config('cdv.wc_meta_tcpos_id'), 'value' => $tcposProduct->_tcposId],
                 ['key' => config('cdv.wc_meta_minimum_allowed_quantity'), 'value' => $tcposProduct->minQuantity],
@@ -271,5 +243,39 @@ class ProductController extends Controller
                 ['key' => config('cdv.wc_meta_on_site_price'), 'value' => data_get($tcposProduct->pricesRelations, '1.price')],
             ],
         ];
+
+        // Images
+        $productImage = TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
+        $dist_image_url = $tcposProduct->imageUrl();
+        if (isset($wooProduct) && $productImage->hash != null) {
+            //There is a tcpos image and a wooProduct
+            if (data_get($wooProduct->data, 'images.0.name') != null) {
+                //There is an existing image.
+                if (data_get($wooProduct->data, 'images.0.name') != $productImage->hash) {
+                    //There is an existing image but not match the tcpos hash one : upload
+                    $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
+                    activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') image with : '. $dist_image_url);
+                } else {
+                    //There is an existing image that match the tcpos hash one : keep it
+                    //$data['images'] = $wooProduct->data->images;
+                    //activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') without upddating the image');
+                }
+            }
+            if (data_get($wooProduct->data, 'images.0.name') == null) {
+                //There is no existing image : upload
+                $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
+                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
+            }
+        } else {
+            //There is no tcpos image
+            $data['images'] = [];
+        }
+        //There is no wooProduct: so create a product and if an image exists, add it
+        if (empty($wooProduct) && $productImage->hash != null) {
+            $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will create the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
+        }
+
+        return $data;
     }
 }
