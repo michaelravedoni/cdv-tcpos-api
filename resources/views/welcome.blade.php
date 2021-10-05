@@ -251,7 +251,7 @@
                     @endphp
 
                     <tr class="font-sm leading-relaxed {{ $colorText }} {{ $colorBg }}">
-                        <td class="px-4">{{ $activity->getExtraProperty('group') }}</td>
+                        <td class="px-4 min-w-max">{{ $activity->getExtraProperty('group') }}</td>
                         <td class="px-4">{{ $activity->getExtraProperty('resource') }}</td>
                         <td class="px-4">{{ $level }}</td>
                         <td class="px-4">{{ $activity->description }}</td>
