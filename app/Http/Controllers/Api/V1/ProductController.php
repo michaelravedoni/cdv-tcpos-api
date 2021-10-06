@@ -173,7 +173,7 @@ class ProductController extends Controller
 
                 $productCreate = new Product;
                 $productCreate->name = $product->description;
-                $productCreate->category = $this->getProductCategory($product->notes2);
+                $productCreate->category = $this->getProductCategory($product->notes2, $product->notes3);
                 $productCreate->minQuantity = config('cdv.default_product_min_quantity');
                 $productCreate->maxQuantity = $product->articleOrder ?? config('cdv.default_product_max_quantity');
 
@@ -295,7 +295,7 @@ class ProductController extends Controller
     /**
      * Set product category.
      */
-    public function getProductCategory($notes2)
+    public function getProductCategory($notes2, $notes3)
     {
         if (in_array($notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
             return "wine";
@@ -303,11 +303,11 @@ class ProductController extends Controller
         if (in_array($notes2, ['Service du vin'])) {
             return "wineSet";
         }
-        if (in_array($notes2, ['Bière', 'Bières et Cidres'])) {
-            return "beer";
-        }
         if (in_array($notes2, ['Bières et Cidres', '– Cidre'])) {
             return "cider";
+        }
+        if (in_array($notes2, ['Bière', 'Bières et Cidres']) && in_array($notes3, ['Bière'])) {
+            return "beer";
         }
         if (in_array($notes2, ['Alcools'])) {
             return "spirit";
