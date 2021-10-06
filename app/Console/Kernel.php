@@ -26,10 +26,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('import:woo')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(1);
-        $schedule->command('import:tcpos')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(2);
-        $schedule->command('sync:tcpos_woo')->timezone('Europe/Zurich')->between('6:00', '19:00')->hourlyAt(25);
-        $schedule->command('sync:tcpos_woo_order')->timezone('Europe/Zurich')->between('6:00', '19:00')->everyThirtyMinutes();
+        $schedule->command('import:woo')->timezone('Europe/Zurich')->between('6:00', '21:00')->hourlyAt(1);
+        $schedule->command('import:tcpos')->timezone('Europe/Zurich')->between('6:00', '21:00')->hourlyAt(2);
+        $schedule->command('sync:tcpos_woo')->timezone('Europe/Zurich')->between('6:00', '21:00')->hourlyAt(25);
+        $schedule->command('sync:tcpos_woo_order')->timezone('Europe/Zurich')->between('6:00', '21:00')->everyThirtyMinutes();
 
 
         $schedule->command('activitylog:clean')->daily();
