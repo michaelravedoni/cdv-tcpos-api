@@ -163,6 +163,9 @@ class OrderController extends Controller
         $couponCodes = implode(' - ', array_column($wooOrder->coupon_lines, 'code'));
         $stringVoucherComment = $type == 'voucher' ? '. Utilisation du bon cadeau #'.$couponCodes.' pour un rabais total (tous rabais confondus) de '.$wooOrder->discount_total.'.' : null;
 
+        // Définir le total. S'il y a une carte cadeau : mettre le total + le total des rabais. Sinon: mettre le total.
+        $total = $type == 'voucher' ? $wooOrder->discount_total + $wooOrder->total : $wooOrder->total;
+
         $data = [
             'data' => [
                 'date' => now()->addDay()->toDateTimeLocalString(),
@@ -170,7 +173,7 @@ class OrderController extends Controller
                 'shopId' => config('cdv.default_shop_id'),
                 'orderType' => config('cdv.default_order_type'),
                 'priceLevelId' => config('cdv.default_price_level_id'),
-                'total' => $wooOrder->total,
+                'total' => $total,
                 'transactionComment' => 'Commande Woocommerce #'.$wooOrder->id.' à livrer chez '.$stringShippingAddress.$stringVoucherComment,
                 'itemList' => $items,
             ]
