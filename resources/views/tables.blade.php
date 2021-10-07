@@ -6,6 +6,7 @@
 
     <title>Château de Villa - Woocommerce & TCPOS Sync | Tables</title>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <meta name="robots" content="noindex, nofollow">
 
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.0/dist/full.css" rel="stylesheet" type="text/css" />
