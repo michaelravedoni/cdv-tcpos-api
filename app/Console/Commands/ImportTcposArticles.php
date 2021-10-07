@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Http\Controllers\Api\V1\TcposController;
 
-class ImportTcpos extends Command
+class ImportTcposArticles extends Command
 {
     /**
      * The name and signature of the console command.
