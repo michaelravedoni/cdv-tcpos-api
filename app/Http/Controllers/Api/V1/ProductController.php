@@ -303,11 +303,11 @@ class ProductController extends Controller
         if (in_array($notes2, ['Service du vin'])) {
             return "wineSet";
         }
-        if (in_array($notes2, ['Bières et Cidres', '– Cidre'])) {
-            return "cider";
-        }
-        if (in_array($notes2, ['Bière', 'Bières et Cidres']) && in_array($notes3, ['Bière'])) {
+        if (in_array($notes2, ['Bières et Cidres']) && in_array($notes3, ['Bière'])) {
             return "beer";
+        }
+        if (in_array($notes2, ['Bières et Cidres'])) {
+            return "cider";
         }
         if (in_array($notes2, ['Alcools'])) {
             return "spirit";
