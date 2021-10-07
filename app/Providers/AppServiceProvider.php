@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
             // $event->connectionName
             // $event->job
             // $event->exception
-            activity()->withProperties(['group' => 'jobs', 'level' => 'error', 'resource' => 'job'])->log($event->job.' | '.$event->exception);
+            activity()->withProperties(['group' => 'jobs', 'level' => 'error', 'resource' => 'job'])->log(json_encode($event->job).' | '.json_encode($event->exception));
         });
     }
 }
