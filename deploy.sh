@@ -69,6 +69,6 @@ pm2 start cdv-tcpos-api-queue
 
 # Start Cronless schedule
 # php artisan schedule:run-cronless
-# * * * * * cd /home/clients/abda405130f6f7f8f70e2862877dd1d4/sites/ravedoni/test/cdv/cdv-tcpos-api && php artisan schedule:run >> /dev/null 2>&1
+# * * * * * cd /home/clients/3c5d3b2a90da0ecefab095faf2bc2fd1/sites/cdv/cdv-tcpos-api && php artisan schedule:run >> /dev/null 2>&1
 
 echo '🚀 Deploy finished.'
