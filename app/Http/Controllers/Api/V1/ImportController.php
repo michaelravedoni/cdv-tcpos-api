@@ -79,7 +79,7 @@ class ImportController extends Controller
         $sync_customer_controller_return = $sync_customer_controller->importWooCustomers();
 
         $end = microtime(true) - $begin;
-        
+
         return response()->json([
             'message' => 'Woo Import launched. Wait and see /jobs',
             'time' => $end,
