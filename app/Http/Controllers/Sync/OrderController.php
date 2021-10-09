@@ -164,7 +164,7 @@ class OrderController extends Controller
         $stringVoucherComment = $type == 'voucher' ? '. Utilisation du bon cadeau #'.$couponCodes.' pour un rabais total (tous rabais confondus) de '.$wooOrder->discount_total.'.' : null;
 
         // Définir le total. S'il y a une carte cadeau : mettre le total + le total des rabais. Sinon: mettre le total.
-        $total = $type == 'voucher' ? $wooOrder->discount_total + $wooOrder->total : $wooOrder->total;
+        $total = $type == 'voucher' ? (float) $wooOrder->discount_total + (float) $wooOrder->total : (float) $wooOrder->total;
 
         $requestOrderData = [
             'data' => [
