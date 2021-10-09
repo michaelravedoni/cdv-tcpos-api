@@ -31,8 +31,10 @@ return [
     'customer_min_cardum' => 10000,
     'customer_max_cardum' => 49000,
 
-    // ID d'un produit "Frais de port" définit dans TCPOS, a utiliser pour traduire les frais de ports de la commande en... produit (#TCPOS-BestValue #CobolConvention1983)
+    // ID d'un produit "Frais de port" définit dans TCPOS, a utiliser pour traduire les frais de ports de la commande en produit
     'tcpos_default_shipping_item_id' => 11334,
+    // ID d'un produit "Carte cadeau" définit dans TCPOS, a utiliser pour traduire l carte cadeau de la commande en produit
+    'tcpos_default_discounts_item_id' => 11334,
 
     // ID des attributs dans Woocommerce
     'wc_attribute_ids' => [
@@ -49,8 +51,8 @@ return [
     ],
 
     // Key d'une metadonnée sur un produit Woocommerce: Prix sur place
-    // Key d'une metadonnée sur un utilisateur Woocommerce: 
-    // Key d'une metadonnée sur un utilisateur Woocommerce: 
+    // Key d'une metadonnée sur un utilisateur Woocommerce:
+    // Key d'une metadonnée sur un utilisateur Woocommerce:
     // Key d'une metadonnée sur un produit Woocommerce: quantité minimum d'un produit que l'utilisateur du shop peut acheter dans une commande
     // Key d'une metadonnée sur un produit Woocommerce: quantité maximum d'un produit que l'utilisateur du shop peut acheter dans une commande
     // Key d'une metadonnée sur une commande Woocommerce: le GUID d'une commande crée dans TCPOS

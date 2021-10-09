@@ -141,8 +141,8 @@ class OrderController extends Controller
                     'quantity' => data_get($item, 'quantity'),
                     'price' => data_get($item, 'price'),
                     'priceLevelId' => config('cdv.default_price_level_id'),
-                    ]
-                ];
+                ]
+            ];
         }
 
         // Ajouter le produit frais de port s'il existe et est plus grand que 0
@@ -153,8 +153,20 @@ class OrderController extends Controller
                     'quantity' => 1,
                     'price' => $wooOrder->shipping_total,
                     'priceLevelId' => config('cdv.default_price_level_id'),
-                    ]
-                ];
+                ]
+            ];
+        }
+
+        // Ajouter les discounts s'il y a une carte cadeau
+        if ($type == 'voucher') {
+            $items[] = [
+                'article' => [
+                    'id' => config('cdv.tcpos_default_discounts_item_id'),
+                    'quantity' => 1,
+                    'price' => $wooOrder->discount_total,
+                    'priceLevelId' => config('cdv.default_price_level_id'),
+                ]
+            ];
         }
 
         // Créer la ligne d'adresse pour le commentaire de commande TCPOS
@@ -164,7 +176,7 @@ class OrderController extends Controller
         $stringVoucherComment = $type == 'voucher' ? '. Utilisation du bon cadeau #'.$couponCodes.' pour un rabais total (tous rabais confondus) de '.$wooOrder->discount_total.'.' : null;
 
         // Définir le total. S'il y a une carte cadeau : mettre le total + le total des rabais. Sinon: mettre le total.
-        $total = $type == 'voucher' ? (float) $wooOrder->discount_total + (float) $wooOrder->total : (float) $wooOrder->total;
+        //$total = $type == 'voucher' ? (float) $wooOrder->discount_total + (float) $wooOrder->total : (float) $wooOrder->total;
 
         $requestOrderData = [
             'data' => [
@@ -173,7 +185,7 @@ class OrderController extends Controller
                 'shopId' => config('cdv.default_shop_id'),
                 'orderType' => config('cdv.default_order_type'),
                 'priceLevelId' => config('cdv.default_price_level_id'),
-                'total' => $total,
+                //'total' => $total,
                 'transactionComment' => 'Commande Woocommerce #'.$wooOrder->id.' à livrer chez '.$stringShippingAddress.$stringVoucherComment,
                 'itemList' => $items,
             ]
