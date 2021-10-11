@@ -23,9 +23,9 @@ return [
         'PayEngine3Cw_CreditCard' => ['type' => 'creditCard', 'note' => 'Woocommerce PayEngine3Cw_CreditCard (Carte de crédit / Postcard)'],
         'bacs' => ['type' => 'cash', 'note' => 'Woocommerce bacs (Paiement anticipé sur facture ou par virement bancaire)'],
         'accountfunds' => ['type' => 'customerCard', 'note' => 'Woocommerce accountfunds (Carte de membre)'],
+        'TwintCw_Twint' => ['type' => 'creditCard', 'note' => 'Woocommerce Twint'],
 
-        'creditCard' => ['type' => 'creditCard', 'note' => 'woocommerce creditCard'],
-        'twint' => ['type' => 'creditCard', 'note' => 'woocommerce twint'],
+        'creditCard' => ['type' => 'creditCard', 'note' => 'Woocommerce creditCard'],
     ],
 
     'customer_min_cardum' => 10000,
