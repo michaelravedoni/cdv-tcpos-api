@@ -92,6 +92,49 @@ class OrderController extends Controller
     }
 
     /**
+     * Does the customer is member (chatelin)
+     */
+    public function doesOrderCustomerIsMember($wooOrder)
+    {
+        $codesArray = [];
+        foreach ($wooOrder->coupon_lines as $coupon) {
+            $codesArray[] = data_get($coupon, 'code');
+        }
+
+        foreach ($codesArray as $code) {
+            // Si égale à chatelin: true
+            if ($code == 'chatelin') {
+                return true;
+            } else {
+                continue;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get customer TCPSO ID
+     */
+    public function getTcposCustomerId($wooOrder)
+    {
+        $WooCustomerId = data_get($wooOrder, 'customer_id');
+        $wooCustomer = Customer::find($WooCustomerId);
+        $customerCardNum = data_get($wooCustomer, 'card_number');
+
+        if ($customerCardNum != '' || empty($customerCardNum)) {
+            $req = Http::withOptions([
+                'verify' => false,
+            ])->get(env('TCPOS_API_CDV_URL').'/getCustomerDetails/card/'.$customerCardNum);
+            $response = $req->json();
+            $tcposCustomerId = data_get($response, 'USER.ID');
+            return $tcposCustomerId;
+        } else {
+            return config('cdv.default_customer_id');
+        }
+    }
+
+
+    /**
      * Create payment data for TCPOS.
      */
     public function createPaymentTcposData($wooOrder)
@@ -177,8 +220,8 @@ class OrderController extends Controller
 
         $requestOrderData = [
             'data' => [
-                'date' => now()->addDay()->toDateTimeLocalString(),
-                'customerId' => config('cdv.default_customer_id'),
+                'date' => now()->addMinute()->toDateTimeLocalString(),
+                'customerId' => $this->getTcposCustomerId($wooOrder),
                 'shopId' => config('cdv.default_shop_id'),
                 'orderType' => config('cdv.default_order_type'),
                 'priceLevelId' => config('cdv.default_price_level_id'),
