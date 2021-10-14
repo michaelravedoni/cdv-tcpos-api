@@ -13,7 +13,7 @@ return [
     'default_product_max_quantity' => 6,
     'default_customer_id' => 897,
     'default_shop_id' => 1,
-    'default_price_level_id' => 2,
+    'default_price_level_id' => 14,
     'default_order_type' => 'delivery',
     'default_confirm_order_operation' => 'T',
     'default_image_type' => 'A',
