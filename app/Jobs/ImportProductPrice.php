@@ -75,44 +75,49 @@ class ImportProductPrice implements ShouldQueue
         //$data = data_get($response, 'getPrice.data.itemList.0.article');
         $data = data_get($response, 'getPrice.data.itemList');
 
-        foreach ($data as $value) {
+        if (isset($data)) {
 
-            $localPrice = Price::where('_tcpos_product_id', data_get($value, 'article.id'))->where('pricelevelid', data_get($value, 'article.pricelevelid'))->first();
+            foreach ($data as $value) {
 
-            // If a price in database exists
-            if (isset($localPrice)) {
+                $localPrice = Price::where('_tcpos_product_id', data_get($value, 'article.id'))->where('pricelevelid', data_get($value, 'article.pricelevelid'))->first();
 
-                $tcposPrice = (object) data_get($value, 'article');
+                // If a price in database exists
+                if (isset($localPrice)) {
 
-                // If the hash is the same as one in the database
-                if ($localPrice->price == $tcposPrice->price) {
-                    $localPrice->sync_action = 'none';
-                    $localPrice->save();
+                    $tcposPrice = (object) data_get($value, 'article');
 
-                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price untouched in the local database | tcposId:'.$tcposPrice->id);
+                    // If the hash is the same as one in the database
+                    if ($localPrice->price == $tcposPrice->price) {
+                        $localPrice->sync_action = 'none';
+                        $localPrice->save();
+
+                        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price untouched in the local database | tcposId:'.$tcposPrice->id);
+
+                    } else {
+                        $localPrice->price = $tcposPrice->price;
+                        $localPrice->discountedprice = $tcposPrice->discountedprice;
+                        $localPrice->sync_action = 'update';
+                        $localPrice->save();
+
+                        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price updated in the local database | tcposId:'.$tcposPrice->id);
+                    }
 
                 } else {
-                    $localPrice->price = $tcposPrice->price;
-                    $localPrice->discountedprice = $tcposPrice->discountedprice;
-                    $localPrice->sync_action = 'update';
-                    $localPrice->save();
+                    // If the price not exists in database: create it
+                    $tcposPrice = (object) data_get($value, 'article');
+                    $price = new Price;
+                    $price->_tcpos_product_id = $tcposPrice->id;
+                    $price->price = $tcposPrice->price;
+                    $price->discountedprice = $tcposPrice->discountedprice;
+                    $price->pricelevelid = $tcposPrice->pricelevelid;
+                    $price->sync_action = 'update';
+                    $price->save();
 
-                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price updated in the local database | tcposId:'.$tcposPrice->id);
+                    activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the local database | tcposId:'.$tcposPrice->id);
                 }
-
-            } else {
-                // If the price not exists in database: create it
-                $tcposPrice = (object) data_get($value, 'article');
-                $price = new Price;
-                $price->_tcpos_product_id = $tcposPrice->id;
-                $price->price = $tcposPrice->price;
-                $price->discountedprice = $tcposPrice->discountedprice;
-                $price->pricelevelid = $tcposPrice->pricelevelid;
-                $price->sync_action = 'update';
-                $price->save();
-
-                activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'prices'])->log('Product price imported in the local database | tcposId:'.$tcposPrice->id);
             }
+        } else {
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'prices'])->log('Product prices not found in TCPOS | tcposId:'.$this->id);
         }
     }
 }
