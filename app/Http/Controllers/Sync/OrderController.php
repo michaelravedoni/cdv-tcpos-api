@@ -118,6 +118,10 @@ class OrderController extends Controller
     public function getTcposCustomerId($wooOrder)
     {
         $WooCustomerId = data_get($wooOrder, 'customer_id');
+        // Si le l'id n'est pas trouvé ou la commande est effectuée en mode invité
+        if ($WooCustomerId == 0 || empty($WooCustomerId)) {
+            return config('cdv.default_customer_id');
+        }
         $wooCustomer = Customer::find($WooCustomerId);
         $customerCardNum = data_get($wooCustomer, 'card_number');
 
