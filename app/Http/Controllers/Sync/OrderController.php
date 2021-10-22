@@ -224,7 +224,7 @@ class OrderController extends Controller
 
         $requestOrderData = [
             'data' => [
-                'date' => now()->addMinute()->toDateTimeLocalString(),
+                'date' => now()->addHour(2)->toDateTimeLocalString(),
                 'customerId' => $this->getTcposCustomerId($wooOrder),
                 'shopId' => config('cdv.default_shop_id'),
                 'orderType' => config('cdv.default_order_type'),
