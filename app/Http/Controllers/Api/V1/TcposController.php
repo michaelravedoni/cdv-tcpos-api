@@ -38,7 +38,8 @@ class TcposController extends Controller
         curl_close($curl);
 
         if ($err) {
-        echo "cURL Error #:" . $err;
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'error', 'resource' => 'articles'])->log('cURL Error #:' . $err);
+            echo "cURL Error #:" . $err;
         } else {
             $xmlResponse = str_replace(
                 [
@@ -50,6 +51,7 @@ class TcposController extends Controller
             $jsonEncoded = json_encode($xmlParsed);
             $jsonDecoded = json_decode($jsonEncoded,TRUE);
             $data = data_get($jsonDecoded, 'DB');
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'articles'])->log('TCPOS WCF reached');
             return $data;
         }
     }
@@ -67,6 +69,7 @@ class TcposController extends Controller
      */
     public function importArticles()
     {
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'start', 'resource' => 'articles'])->log('Import TCPOS WCF articles in database');
         Article::truncate();
         foreach ($this->getArticles() as $key => $tcposArticle) {
 
