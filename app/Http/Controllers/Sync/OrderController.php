@@ -131,6 +131,9 @@ class OrderController extends Controller
             ])->get(env('TCPOS_API_CDV_URL').'/getCustomerDetails/card/'.$customerCardNum);
             $response = $req->json();
             $tcposCustomerId = data_get($response, 'USER.ID');
+            if (empty($tcposCustomerId)) {
+                return config('cdv.default_customer_id');
+            }
             return $tcposCustomerId;
         } else {
             return config('cdv.default_customer_id');
