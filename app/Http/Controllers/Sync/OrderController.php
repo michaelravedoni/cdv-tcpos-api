@@ -246,8 +246,10 @@ class OrderController extends Controller
 
             // S'il y a une erreur dans la création de la commande
             if ($dataOrderResponse != 'OK') {
-                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrderResponse, 'createOrder.message'));
+                activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrder, 'createOrder.message'));
                 return 'Error: The order could not be transmitted correctly to TCPOS WOND';
+            } else {
+                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' has been correctly  transmitted to TCPOS WOND. GUID: '.data_get($dataOrder, 'createOrder.data.guid'));
             }
 
             // S'il n'y a pas d'erreur dans la création de la commande: confirmer la commande dans TCPOS
@@ -271,9 +273,9 @@ class OrderController extends Controller
                 activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Error: The order #'.$wooOrder->id.' could not be confirmed correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'confirmOrder.message'));
                 return 'Error: The order could not be confirmed correctly to TCPOS WOND';
             }
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' created in TCPOS WOND');
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' created in TCPOS WOND. GUID: '.data_get($dataOrder, 'createOrder.data.guid'));
 
-            // S'il y a une erreur dans la confirmation de la commande : mettons un id sur la commande de Woocommerce
+            // S'il n'y a pas d'une erreur dans la confirmation de la commande : mettons un id sur la commande de Woocommerce
             $wooUpdateOrderData = [
                 'meta_data' => [
                     ['key' => config('cdv.wc_meta_tcpos_order_id'), 'value' => data_get($dataOrder, 'createOrder.data.guid')]
