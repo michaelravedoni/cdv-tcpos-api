@@ -180,6 +180,8 @@ class OrderController extends Controller
                     'paymentNotes' => 'Solde client.',
                     'paymentAmount' => AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'),
                 ];
+
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, "_funds_used").'. The order has to be controlled.');
         }
         return $paymentData;
     }
@@ -227,19 +229,6 @@ class OrderController extends Controller
                     'priceLevelId' => config('cdv.default_price_level_id'),
                 ]
             ];
-        }
-
-        // Ajouter le solde utilisé par le client s'il a utilisé son solde lié à sa carte client (pour un total juste sur TCPOS)
-        if (!empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
-            $items[] = [
-                'article' => [
-                    'id' => config('cdv.tcpos_default_discounts_item_id'),
-                    'quantity' => 1,
-                    'price' => AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'),
-                    'priceLevelId' => config('cdv.default_price_level_id'),
-                ]
-            ];
-            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, "_funds_used").'. The order has to be controlled.');
         }
 
         // Créer la ligne d'adresse pour le commentaire de commande TCPOS
