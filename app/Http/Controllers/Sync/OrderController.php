@@ -41,16 +41,6 @@ class OrderController extends Controller
 
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
-            // - Does use customer funds (compte client sur carte de membre) in the process (tcpos does not support funds usage in order)
-            if (empty($valueWooOrderIdMetaData) && !empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
-                // Create Warning
-                activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' may not be transmitted correctly to TCPOS. It uses customer funds (compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, "_funds_used").'. The order has to be treated manually.');
-            }
-
-            /* ---- */
-
-            // - Order is in progress
-            // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does not use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
             if (empty($valueWooOrderIdMetaData) && !$this->doesOrderUseVoucher($wooOrder)) {
                 // Create order in TCPOS
@@ -182,6 +172,15 @@ class OrderController extends Controller
             //$paymentData = [];
             activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order payment #'.$wooOrder->id.' has no payment. A fake one has been created for testing purpose.');
         }
+        // If funds used (customercard / solde de la carte client), add it as payment
+        if (!empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
+            $paymentData['payments'][] =
+                [
+                    'paymentType' => 'customercard',
+                    'paymentNotes' => 'Solde client.',
+                    'paymentAmount' => AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'),
+                ];
+        }
         return $paymentData;
     }
 
@@ -218,7 +217,7 @@ class OrderController extends Controller
             ];
         }
 
-        // Ajouter les discounts s'il y a une carte cadeau
+        // Ajouter les discounts s'il y a une carte cadeau (pour un total juste sur TCPOS)
         if ($type == 'voucher') {
             $items[] = [
                 'article' => [
@@ -228,6 +227,19 @@ class OrderController extends Controller
                     'priceLevelId' => config('cdv.default_price_level_id'),
                 ]
             ];
+        }
+
+        // Ajouter le solde utilisé par le client s'il a utilisé son solde lié à sa carte client (pour un total juste sur TCPOS)
+        if (!empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
+            $items[] = [
+                'article' => [
+                    'id' => config('cdv.tcpos_default_discounts_item_id'),
+                    'quantity' => 1,
+                    'price' => AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'),
+                    'priceLevelId' => config('cdv.default_price_level_id'),
+                ]
+            ];
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, "_funds_used").'. The order has to be controlled.');
         }
 
         // Créer la ligne d'adresse pour le commentaire de commande TCPOS
