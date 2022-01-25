@@ -40,6 +40,16 @@ class OrderController extends Controller
 
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
+            // - Does use customer funds (compte client sur carte de membre) in the process (tcpos does not support funds usage in order)
+            if (empty($valueWooOrderIdMetaData) && !empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
+                // Create Warning
+                activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' may not be transmitted correctly to TCPOS. It uses customer funds (compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, "_funds_used").'. The order has to be treated manually.');
+            }
+
+            /* ---- */
+
+            // - Order is in progress
+            // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does not use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
             if (empty($valueWooOrderIdMetaData) && !$this->doesOrderUseVoucher($wooOrder)) {
                 // Create order in TCPOS
