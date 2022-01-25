@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Codexshaper\WooCommerce\Facades\Customer;
 use Codexshaper\WooCommerce\Facades\Order;
 use App\Jobs\SyncOrderUpdate;
+use AppHelper;
 
 class OrderController extends Controller
 {
