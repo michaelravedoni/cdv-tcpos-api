@@ -68,6 +68,10 @@
                                 <div class="w-1/3">{{ $mineralDrink }}</div>
                             </div>
                             <div class="flex flex-wrap">
+                                <div class="w-2/3">Produits du terroir</div>
+                                <div class="w-1/3">{{ $regionalProduct }}</div>
+                            </div>
+                            <div class="flex flex-wrap">
                                 <div class="w-2/3">Bières</div>
                                 <div class="w-1/3">{{ $beer }}</div>
                             </div>

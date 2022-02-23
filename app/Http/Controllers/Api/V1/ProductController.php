@@ -318,6 +318,9 @@ class ProductController extends Controller
         if (in_array($notes2, ['Jus et minérales'])) {
             return "mineralDrink";
         }
+        if (in_array($notes2, ['Produits du terroir'])) {
+            return "regionalProduct";
+        }
         if (in_array($notes2, ['Livres'])) {
             return "book";
         }

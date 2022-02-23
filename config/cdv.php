@@ -119,6 +119,11 @@ return [
             'category_id' => 393,
             'manage_stock' => false,
             //'min_stock_quantity' => 3,
+        ],
+        'regionalProduct' => [
+            'category_id' => 435,
+            'manage_stock' => false,
+            //'min_stock_quantity' => 3,
         ]
     ],
 

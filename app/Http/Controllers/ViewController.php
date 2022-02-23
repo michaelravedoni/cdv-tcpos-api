@@ -86,6 +86,7 @@ class ViewController extends Controller
             'cider' => Product::where('category', 'cider')->count(),
             'wineSet' => Product::where('category', 'wineSet')->count(),
             'mineralDrink' => Product::where('category', 'mineralDrink')->count(),
+            'regionalProduct' => Product::where('category', 'regionalProduct')->count(),
             'beer' => Product::where('category', 'beer')->count(),
             'book' => Product::where('category', 'book')->count(),
             'selection' => Product::where('category', 'selection')->count(),
