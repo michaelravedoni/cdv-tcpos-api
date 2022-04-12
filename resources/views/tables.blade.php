@@ -42,7 +42,12 @@
                     <td class="px-4">{{ $order->status }}</td>
                     <td class="px-4">{{ $tcposOrderId }}</td>
                     <td class="px-4">{{ \Carbon\Carbon::parse($order->date_created)->locale('fr_ch')->isoFormat('L LT') }}</td>
-                    <td>{!! $tcposOrderId ? '<i class="bi bi-check-square text-green-600"></i>' : '<i class="bi bi-exclamation-square text-red-600"></i>' !!}</td>
+                    <td>
+                        {!! $tcposOrderId ? '<i class="bi bi-check-square text-green-600"></i>' : '<i class="bi bi-exclamation-square text-red-600"></i>' !!}
+                        @if ( empty($tcposOrderId) && $order->status == 'pending' && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60) )
+                        <i class="bi bi-exclamation-square text-red-600"></i> problème de synchronisation détecté
+                        @endif
+                    </td>
                 </tr>
                 @empty
                 <tr>
