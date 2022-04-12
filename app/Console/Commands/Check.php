@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderProblemCheck;
 
 class Check extends Command
 {
@@ -49,12 +50,7 @@ class Check extends Command
             if (empty($tcposOrderId) && $order->status == 'pending' && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60)) {
                 // problème de synchronisation détecté
                 $this->line('Order sync problem detected.');
-                Mail::plain('Bonjour, un problème de synchronisation a été détecté pour les commandes entre Woocommerce et TCPOS sur {{ $url }}. Veuillez contrôler.',
-                ['url' => env('APP_URL')], function ($message) {
-                    $message
-                    ->to('charpin@chateaudevilla.ch')
-                    ->subject('Commandes entre Woocommerce et TCPOS : Problème de synchronisation détecté');
-                });
+                Mail::to('charpin@chateaudevilla.ch')->send(new OrderProblemCheck());
             }
         }
 
