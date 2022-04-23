@@ -47,7 +47,7 @@ class Check extends Command
         $orders = Order::all(['per_page' => 5, 'page' => 1]);
         foreach ($orders as $order) {
             $tcposOrderId = AppHelper::getMetadataValueFromKey($order->meta_data, config('cdv.wc_meta_tcpos_order_id'));
-            if (empty($tcposOrderId) && $order->status == 'pending' && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60)) {
+            if (empty($tcposOrderId) && $order->status != 'completed' && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60)) {
                 // problème de synchronisation détecté
                 $this->line('Order sync problem detected.');
                 Mail::to('charpin@chateaudevilla.ch')->send(new OrderProblemCheck());
