@@ -51,6 +51,7 @@ class Check extends Command
                 // problème de synchronisation détecté
                 $this->line('Order sync problem detected.');
                 Mail::to('charpin@chateaudevilla.ch')->send(new OrderProblemCheck());
+                activity()->withProperties(['group' => 'email', 'level' => 'info', 'resource' => 'orders'])->log('Problem detected for Order #'.$order->id.'. Email sent.');
             }
         }
 
