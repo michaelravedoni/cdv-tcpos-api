@@ -30,7 +30,7 @@ class ProductController extends Controller
         $products8 = Product::all(['per_page' => 100, 'page' => 8]);
         $products9 = Product::all(['per_page' => 100, 'page' => 9]);
         $products10 = Product::all(['per_page' => 100, 'page' => 10]);
-        return $products->merge($products2)->merge($products3)->merge($products4)->merge($products5)->merge($products6)->merge($products7)->merge($products8)->merge($products9);
+        return $products->merge($products2)->merge($products3)->merge($products4)->merge($products5)->merge($products6)->merge($products7)->merge($products8)->merge($products9)->merge($products10);
     }
 
     /**
