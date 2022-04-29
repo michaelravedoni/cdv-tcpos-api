@@ -44,7 +44,7 @@
                     <td class="px-4">{{ \Carbon\Carbon::parse($order->date_created)->locale('fr_ch')->isoFormat('L LT') }}</td>
                     <td>
                         {!! $tcposOrderId ? '<i class="bi bi-check-square text-green-600"></i>' : '<i class="bi bi-exclamation-square text-red-600"></i>' !!}
-                        @if ( empty($tcposOrderId) && $order->status != 'completed' && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60) )
+                        @if ( empty($tcposOrderId) && in_array($order->status, ['processing', 'on-hold']) && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60) )
                         <i class="bi bi-exclamation-square text-red-600"></i> problème de synchronisation détecté
                         @endif
                     </td>
