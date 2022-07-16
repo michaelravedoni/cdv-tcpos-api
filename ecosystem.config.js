@@ -4,6 +4,7 @@ module.exports = {
     script : "artisan",
     interpreter : "php",
     instances: 1,
-    args : "queue:work"
+    args : "queue:work",
+    max_memory_restart: '1G'
   }]
 }
