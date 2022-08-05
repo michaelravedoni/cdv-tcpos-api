@@ -13,8 +13,6 @@ php artisan down
 # Install/update composer dependecies
 echo 'Command: composer'
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-ansi
-# composer2 for Infomaniak
-# composer2 install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-ansi
 # composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 # --no-interaction Do not ask any interactive question
 # --no-dev  Disables installation of require-dev packages.
