@@ -6,7 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use Spatie\Health\Facades\Health;
 use Spatie\Health\Checks\Checks\DatabaseCheck;
 use Spatie\Health\Checks\Checks\EnvironmentCheck;
-use App\Checks\QueueCheck;
 
 class CheckServiceProvider extends ServiceProvider
 {
@@ -20,7 +19,6 @@ class CheckServiceProvider extends ServiceProvider
         Health::checks([
             DatabaseCheck::new(),
             EnvironmentCheck::new(),
-            QueueCheck::new(),
         ]);
     }
 
