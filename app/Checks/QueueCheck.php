@@ -12,9 +12,7 @@ class QueueCheck extends Check
 {
     public function run(): Result
     {
-        $process = Process::fromShellCommandline('pm2 describe cdv-tcpos-api-queue');
-        $process->run();
-        $output = $process->getOutput();
+        $output = shell_exec('pm2 describe cdv-tcpos-api-queue');
 
         $result = Result::make();
         $result->shortSummary("pm2 describe cdv-tcpos-api-queue");
