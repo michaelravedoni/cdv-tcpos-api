@@ -18,7 +18,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "romanzipp/laravel-queue-monitor": "^2.1",
-        "spatie/laravel-activitylog": "^3.17"
+        "spatie/laravel-activitylog": "^3.17",
+        "spatie/laravel-health": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",

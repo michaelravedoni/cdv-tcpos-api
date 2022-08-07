@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ViewController;
+use Spatie\Health\Http\Controllers\HealthCheckResultsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,4 @@ Route::post('/tables/products/{id}/force-update', [ViewController::class, 'force
 Route::prefix('jobs')->group(function () {
     Route::queueMonitor();
 });
+Route::get('health', HealthCheckResultsController::class);

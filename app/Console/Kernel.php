@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('sync:tcpos_woo_order')->timezone('Europe/Zurich')->between('6:00', '20:00')->everyThirtyMinutes();
         $schedule->command('import:tcpos_articles')->timezone('Europe/Zurich')->daily();
         $schedule->command('check')->timezone('Europe/Zurich')->between('6:00', '20:00')->everyThirtyMinutes();
+        $schedule->command(\Spatie\Health\Commands\RunHealthChecksCommand::class)->everyThirtyMinutes();
 
 
         $schedule->command('activitylog:clean')->daily();
