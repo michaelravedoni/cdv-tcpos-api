@@ -44,7 +44,7 @@ class CheckQueue extends Command
          * Because we use a database queue, we check if the jobs table still contains any
          * old records. This means that the queue has been stalled.
          */
-        $records = DB::table('jobs')->where('created_at', '<', Carbon::now()->subMinutes(10)->getTimestamp())->get();
+        $records = DB::table('jobs')->where('created_at', '<', Carbon::now()->subMinutes(20)->getTimestamp())->get();
 
         if (! $records->isEmpty()) {
             report('Queue jobs table should be emptied by now but it is not! Please check your queue worker.');

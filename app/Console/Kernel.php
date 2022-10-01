@@ -34,9 +34,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('check')->timezone('Europe/Zurich')->between('6:00', '20:00')->everyThirtyMinutes();
         $schedule->command(\Spatie\Health\Commands\RunHealthChecksCommand::class)->everyThirtyMinutes();
 
-        $schedule->command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping(10);
+        $schedule->command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping(30);
         $schedule->command('queue:restart')->hourly();
-        $schedule->command('queue:db-monitor')->everyTenMinutes();
+        $schedule->command('queue:db-monitor')->everyThirtyMinutes();
 
         $schedule->command('activitylog:clean')->daily();
 
