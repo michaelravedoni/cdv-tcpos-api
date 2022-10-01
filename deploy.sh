@@ -64,8 +64,9 @@ php artisan up
 # pm2 start artisan --name cdv-tcpos-api-queue --interpreter php -- queue:work --daemon
 # pm2 stop cdv-tcpos-api-queue
 # pm2 start cdv-tcpos-api-queue
-pm2 stop ecosystem.config.js
-pm2 start ecosystem.config.js
+
+# pm2 stop ecosystem.config.js
+# pm2 start ecosystem.config.js
 
 # Start Cronless schedule
 # php artisan schedule:run-cronless
