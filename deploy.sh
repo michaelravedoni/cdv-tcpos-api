@@ -59,15 +59,6 @@ php artisan cache:clear
 echo 'Command: up'
 php artisan up
 
-# Start Queue
-# php artisan queue:work
-# pm2 start artisan --name cdv-tcpos-api-queue --interpreter php -- queue:work --daemon
-# pm2 stop cdv-tcpos-api-queue
-# pm2 start cdv-tcpos-api-queue
-
-# pm2 stop ecosystem.config.js
-# pm2 start ecosystem.config.js
-
 # Start Cronless schedule
 # php artisan schedule:run-cronless
 # * * * * * cd /home/clients/3c5d3b2a90da0ecefab095faf2bc2fd1/sites/cdv/cdv-tcpos-api && php artisan schedule:run >> /dev/null 2>&1
