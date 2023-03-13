@@ -160,8 +160,35 @@ class ProductController extends Controller
                     // Increment the counter
                     $countToNoneProducts += 1;
                 } else {
+                    // If the hash is not the same and the product has to be updated : update it
+                    $product = (object) $tcposProduct;
+
                     $localProduct->sync_action = 'update';
                     $localProduct->hash = $tcposProductHash;
+
+                    $localProduct->name = $product->description;
+                    $localProduct->category = $this->getProductCategory($product->notes2, $product->notes3);
+                    $localProduct->minQuantity = config('cdv.default_product_min_quantity');
+                    $localProduct->maxQuantity = $product->articleOrder ?? config('cdv.default_product_max_quantity');
+
+                    $localProduct->weight = $product->preparationWeight ?? 0;
+                    $localProduct->vatInPercent = data_get($product, 'vats.vatindex1', 'vats.vatindex2');
+
+                    $localProduct->description = $product->wondDescription;
+                    $localProduct->articleOrder = $product->articleOrder;
+                    $localProduct->isAddition = $product->isAddition;
+                    $localProduct->measureUnitId = $product->measureUnitId;
+                    $localProduct->printoutNotes = $product->printoutNotes;
+                    $localProduct->notes1 = $product->notes1;
+                    $localProduct->notes2 = $product->notes2;
+                    $localProduct->notes3 = $product->notes3;
+                    $localProduct->groupAId = $product->groupAId;
+                    $localProduct->groupBId = $product->groupBId;
+                    $localProduct->groupCId = $product->groupCId;
+                    $localProduct->groupDId = $product->groupDId;
+                    $localProduct->groupEId = $product->groupEId;
+                    $localProduct->groupFId = $product->groupFId;
+
                     $localProduct->save();
 
                     // Increment the counter
