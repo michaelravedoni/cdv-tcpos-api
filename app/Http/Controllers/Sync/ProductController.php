@@ -271,7 +271,7 @@ class ProductController extends Controller
             $data['images'] = [];
         }
         //There is no wooProduct: so create a product and if an image exists, add it
-        if (empty($wooProduct) && $productImage->hash != null) {
+        if (empty($wooProduct) && $productImage && $productImage->hash != null) {
             $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
             activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will create the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
         }
