@@ -46,7 +46,7 @@ class CheckWoo extends Command
 
         // Detect if there is a problem with images
         // Get tcposProductImages
-        $tcposProductImages = ProductImage::select(['id', '_tcpos_product_id'])->get();
+        $tcposProductImages = ProductImage::select(['id', '_tcpos_product_id', 'hash'])->get();
 
         // Get wooProducts
         $wooProducts = Woo::all();
@@ -69,7 +69,7 @@ class CheckWoo extends Command
             $checkedWooProduct = $wooProducts->firstWhere('_tcposId', $tcposProductImage->_tcpos_product_id);
             if (! empty($checkedWooProduct)) {
                 $matchedWooProducts[] = $checkedWooProduct;
-                if (! data_get($checkedWooProduct, 'has_image')) {
+                if (! data_get($checkedWooProduct, 'has_image') && $tcposProductImage->hash != null) {
                     $productIdsToSync[] = $tcposProductImage->_tcpos_product_id;
                 }
             }
