@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\ImportController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AttributeController;
+use App\Http\Controllers\Api\V1\CheckController;
 use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\VoucherController;
 use App\Http\Controllers\Api\V1\CustomerController;
@@ -86,3 +87,6 @@ Route::get('/sync/customers', [SyncCustomerController::class, 'sync'])->name('wc
 Route::get('/sync/products', [SyncProductController::class, 'sync'])->name('wc.sync.products');
 Route::get('/sync/orders', [SyncOrderController::class, 'sync'])->name('wc.sync.orders');
 Route::get('/sync/all', [SyncController::class, 'all'])->name('wc.sync.all');
+
+/* Check */
+Route::get('/check/woo', [CheckController::class, 'woo'])->name('check.woo');

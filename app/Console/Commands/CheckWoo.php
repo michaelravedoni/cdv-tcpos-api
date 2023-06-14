@@ -76,7 +76,7 @@ class CheckWoo extends Command
         }
 
         // Prepare tu update
-        // $productIdsToSync = [1976, 11976];
+        // $productIdsToSync = [1976, 11976]; // testing
         foreach ($productIdsToSync as $productIdToSync) {
             $modelProduct = ModelsProduct::where('_tcposId', $productIdToSync)->first();
             $modelProduct->sync_action = 'update';

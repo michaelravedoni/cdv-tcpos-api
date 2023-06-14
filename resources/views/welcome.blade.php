@@ -179,6 +179,9 @@
                         <a class="btn btn-outline btn-neutral btn-sm block" href="/api/sync/orders">Synchroniser les commandes manuellement (~1
                             min.)</a>
                     </div>
+                    <div class="mb-4">
+                        <a class="link" href="/api/check/woo">Contrôler Woocommerce</a>
+                    </div>
                 </div>
             </div>
         </div>
