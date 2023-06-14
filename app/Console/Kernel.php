@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('import:tcpos_articles')->timezone('Europe/Zurich')->daily();
         $schedule->command('check')->timezone('Europe/Zurich')->between('6:00', '20:00')->everyThirtyMinutes();
         $schedule->command(\Spatie\Health\Commands\RunHealthChecksCommand::class)->everyThirtyMinutes();
+        $schedule->command('check:woo')->timezone('Europe/Zurich')->between('6:00', '20:00')->hourly();
 
         $schedule->command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping(30);
         $schedule->command('queue:restart')->hourly();

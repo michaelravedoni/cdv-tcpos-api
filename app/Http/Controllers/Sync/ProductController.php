@@ -65,7 +65,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Sync customers.
+     * Sync products.
      */
     public function sync()
     {
