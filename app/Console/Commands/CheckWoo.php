@@ -53,7 +53,7 @@ class CheckWoo extends Command
         $wooProducts = $wooProducts->map(function ($wooProduct) {
             return [
                 'id' => $wooProduct->id,
-                '_wooId' => $wooProduct->sku,
+                '_wooId' => $wooProduct->_wooId,
                 '_tcposId' => $wooProduct->_tcposId ?? AppHelper::getMetadataValueFromKey(data_get($wooProduct, 'data.meta_data'), config('cdv.wc_meta_tcpos_id')),
                 '_tcposCode' => $wooProduct->_tcposCode,
                 'permalink' => data_get($wooProduct, 'data.permalink'),
@@ -64,13 +64,14 @@ class CheckWoo extends Command
 
         // Find where has no image
         $productIdsToSync = [];
-        $matchedWooProducts = [];
         foreach ($tcposProductImages as $key => $tcposProductImage) {
             $checkedWooProduct = $wooProducts->firstWhere('_tcposId', $tcposProductImage->_tcpos_product_id);
             if (! empty($checkedWooProduct)) {
-                $matchedWooProducts[] = $checkedWooProduct;
                 if (! data_get($checkedWooProduct, 'has_image') && $tcposProductImage->hash != null) {
                     $productIdsToSync[] = $tcposProductImage->_tcpos_product_id;
+                }
+                if (! data_get($checkedWooProduct, 'has_image')) {
+                    activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('No product image in Woocommerce | tcposId:'.$tcposProductImage->_tcpos_product_id.' wooId:'.data_get($checkedWooProduct, '_wooId'));
                 }
             }
         }
@@ -82,7 +83,7 @@ class CheckWoo extends Command
             $modelProduct->sync_action = 'update';
             $modelProduct->save();
 
-            activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('Product image will be updated in Woocommerce | TCPOS Id:'.$productIdToSync);
+            activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('Product image will be updated in Woocommerce | tcposId:'.$productIdToSync);
         }
 
         if (count($productIdsToSync) > 0) {
