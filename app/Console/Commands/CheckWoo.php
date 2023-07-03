@@ -71,7 +71,7 @@ class CheckWoo extends Command
                     $productIdsToSync[] = $tcposProductImage->_tcpos_product_id;
                 }
                 if (! data_get($checkedWooProduct, 'has_image')) {
-                    activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('No product image in Woocommerce | tcposId:'.$tcposProductImage->_tcpos_product_id.' wooId:'.data_get($checkedWooProduct, '_wooId'));
+                    activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('No product image in Woocommerce | tcposId:'.$tcposProductImage->_tcpos_product_id.' wooId:'.data_get($checkedWooProduct, '_wooId').' tcposCode:'.data_get($checkedWooProduct, '_tcposCode'));
                 }
             }
         }
