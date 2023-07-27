@@ -42,7 +42,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('activitylog:clean')->daily();
 
         $schedule->call(function () {
-            DB::table('queue_monitor')->where('started_at', '<=', now()->subDay())->delete();
+            DB::table('queue_monitor')->where('started_at', '<=', now()->subDays(4))->delete();
         })->daily();
     }
 
