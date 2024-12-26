@@ -26,11 +26,11 @@ class CustomerController extends Controller
     }
 
     /**
-     * Get all tcpos customers.
+     * Get all tcpos customers. Not in production.
      */
     public function getTcposCustomers()
     {
-        return TcposCustomer::all();
+        // return TcposCustomer::all();
     }
 
     /**

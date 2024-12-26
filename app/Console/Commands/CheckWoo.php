@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Product as ModelsProduct;
-use App\Models\ProductImage;
 use App\Models\Woo;
-use AppHelper;
+use App\Models\ProductImage;
+use App\Utilities\AppHelper;
 use Illuminate\Console\Command;
+use App\Models\Product as ModelsProduct;
 
 class CheckWoo extends Command
 {
@@ -88,5 +88,7 @@ class CheckWoo extends Command
         }
 
         $this->info('Check done.');
+
+        return self::SUCCESS;
     }
 }

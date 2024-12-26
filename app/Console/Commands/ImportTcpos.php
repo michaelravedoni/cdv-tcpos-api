@@ -40,5 +40,7 @@ class ImportTcpos extends Command
         $importController = new ImportController;
         $importController->importTcposAll();
         $this->info('Importation done. There are maybe queued jobs launched.');
+
+        return self::SUCCESS;
     }
 }

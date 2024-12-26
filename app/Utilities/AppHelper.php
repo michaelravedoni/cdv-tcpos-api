@@ -45,7 +45,7 @@ class AppHelper
      */
     public static function needImportFromTcpos()
     {
-        $tcposTimestamp = AppHelper::getLastTcposUpdate()->toDateTimeLocalString();
+        $tcposTimestamp = Self::getLastTcposUpdate()->toDateTimeLocalString();
         $localTimestamp = Setting::get('lastTcposUpdate', null);
 
         if ($tcposTimestamp <= $localTimestamp) {

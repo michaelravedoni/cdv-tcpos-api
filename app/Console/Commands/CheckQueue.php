@@ -53,7 +53,7 @@ class CheckQueue extends Command
 
             $this->warn('Queue jobs table should be emptied by now but it is not! Please check your queue worker.');
 
-            return;
+            return self::SUCCESS;
         }
 
         $this->info('Queue jobs are looking good.');

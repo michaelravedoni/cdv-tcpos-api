@@ -40,5 +40,7 @@ class SyncTcposWoo extends Command
         $syncController = new SyncController;
         $syncController->all();
         $this->info('Synchronisation done. There are queued jobs launched.');
+
+        return self::SUCCESS;
     }
 }

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use anlutro\LaravelSettings\Facade as Setting;
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
-use App\Http\Controllers\Sync\ProductController as SyncProductController;
-use AppHelper;
-use Codexshaper\WooCommerce\Facades\Order;
+use App\Utilities\AppHelper;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
+use Codexshaper\WooCommerce\Facades\Order;
+use anlutro\LaravelSettings\Facade as Setting;
+use App\Http\Controllers\Sync\ProductController as SyncProductController;
+use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
 
 class ImportController extends Controller
 {
@@ -24,7 +24,7 @@ class ImportController extends Controller
 
         $force = request()->input('force', false);
 
-        if (! appHelper::needImportFromTcpos() && ! $force) {
+        if (! AppHelper::needImportFromTcpos() && ! $force) {
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'all'])->log('No need to import data from tcpos. Last tcpos database update : '.Setting::get('lastTcposUpdate'));
 
             return response()->json([

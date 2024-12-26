@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Sync;
 
-use App\Http\Controllers\Controller;
-use App\Jobs\SyncOrderUpdate;
-use AppHelper;
-use Codexshaper\WooCommerce\Facades\Customer;
-use Codexshaper\WooCommerce\Facades\Order;
-use Illuminate\Http\JsonResponse;
+use App\Utilities\AppHelper;
 use Illuminate\Http\Request;
+use App\Jobs\SyncOrderUpdate;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
+use Codexshaper\WooCommerce\Facades\Order;
+use Codexshaper\WooCommerce\Facades\Customer;
 
 class OrderController extends Controller
 {

@@ -40,5 +40,7 @@ class SyncTcposWooOrder extends Command
         $orderController = new OrderController;
         $orderController->sync();
         $this->info('Synchronisation done. There are queued jobs launched.');
+
+        return self::SUCCESS;
     }
 }

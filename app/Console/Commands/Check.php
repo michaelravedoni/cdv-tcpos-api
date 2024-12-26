@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Utilities\AppHelper;
 use App\Mail\OrderProblemCheck;
-use AppHelper;
-use Codexshaper\WooCommerce\Facades\Order;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Codexshaper\WooCommerce\Facades\Order;
 
 class Check extends Command
 {
@@ -54,5 +54,7 @@ class Check extends Command
         }
 
         $this->info('Check done.');
+
+        return self::SUCCESS;
     }
 }

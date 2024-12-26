@@ -40,5 +40,7 @@ class ImportWoo extends Command
         $importController = new ImportController;
         $importController->importWooAll();
         $this->info('Importation done. There are maybe queued jobs launched.');
+
+        return self::SUCCESS;
     }
 }
