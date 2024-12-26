@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Product;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
@@ -96,7 +98,7 @@ class ViewController extends Controller
     /**
      * Show Tables.
      */
-    public function tables()
+    public function tables(): View
     {
         return view('tables', [
             'products' => \App\Models\Product::all(),
@@ -107,7 +109,7 @@ class ViewController extends Controller
     /**
      * Force product resource to update state.
      */
-    public function forceUpdateProduct(Request $request, $id)
+    public function forceUpdateProduct(Request $request, $id): RedirectResponse
     {
         $product = Product::where('id', $id)->first();
         $product->sync_action = 'update';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Sync;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncCustomerUpdate;
 use App\Models\Customer as TcposCustomer;
@@ -35,7 +36,7 @@ class CustomerController extends Controller
     /**
      * Import all woo customers.
      */
-    public function importWooCustomers()
+    public function importWooCustomers(): JsonResponse
     {
         $wooResourcesDeleted = Woo::where('resource', 'customer')->delete();
         $wooResources = $this->getWooCustomers();
@@ -57,7 +58,7 @@ class CustomerController extends Controller
     /**
      * Sync customers.
      */
-    public function sync()
+    public function sync(): JsonResponse
     {
         $wooResources = Woo::where('resource', 'customer')->get();
 

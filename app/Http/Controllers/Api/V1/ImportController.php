@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use anlutro\LaravelSettings\Facade as Setting;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
@@ -15,7 +16,7 @@ class ImportController extends Controller
     /**
      * Import tcpos all.
      */
-    public function importTcposAll()
+    public function importTcposAll(): JsonResponse
     {
         $begin = microtime(true);
 
@@ -63,7 +64,7 @@ class ImportController extends Controller
     /**
      * Import woo all.
      */
-    public function importWooAll()
+    public function importWooAll(): JsonResponse
     {
         $begin = microtime(true);
 

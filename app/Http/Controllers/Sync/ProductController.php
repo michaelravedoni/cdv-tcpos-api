@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Sync;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncProductCreate;
 use App\Jobs\SyncProductDelete;
@@ -43,7 +44,7 @@ class ProductController extends Controller
     /**
      * Import all woo products.
      */
-    public function importWooProducts()
+    public function importWooProducts(): JsonResponse
     {
         $wooResourcesDeleted = Woo::where('resource', 'product')->delete();
         $wooResources = $this->getWooProducts();

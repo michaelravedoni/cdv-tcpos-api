@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,7 +12,7 @@ class InfoController extends Controller
     /**
      * Show API Informations.
      */
-    public function api()
+    public function api(): JsonResponse
     {
 
         return response()->json([

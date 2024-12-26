@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use Illuminate\Support\Facades\Http;
@@ -27,7 +28,7 @@ class AttributeController extends Controller
     /**
      * Import attributes in database.
      */
-    public function importAttributes()
+    public function importAttributes(): JsonResponse
     {
         $begin = microtime(true);
 

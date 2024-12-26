@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -11,7 +12,7 @@ class CustomerController extends Controller
     /**
      * Get customer.
      */
-    public function getCustomer($cardnum)
+    public function getCustomer($cardnum): JsonResponse
     {
         $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
         $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
@@ -87,7 +88,7 @@ class CustomerController extends Controller
     /**
      * Get verification field.
      */
-    public function getCustomerVerificationField($cardnum)
+    public function getCustomerVerificationField($cardnum): JsonResponse
     {
         return response()->json(['zipcode']);
     }
@@ -95,7 +96,7 @@ class CustomerController extends Controller
     /**
      * Verify user.
      */
-    public function verifyCustomer(Request $request, $cardnum)
+    public function verifyCustomer(Request $request, $cardnum): JsonResponse
     {
         $verificationInput = $request->input('verificationFields');
         $value = data_get($verificationInput, '0.value');

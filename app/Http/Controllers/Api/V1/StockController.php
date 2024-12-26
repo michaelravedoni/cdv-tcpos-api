@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportProductStock;
 use App\Models\Product;
@@ -27,7 +28,7 @@ class StockController extends Controller
     /**
      * Import products stocks.
      */
-    public function importStocks()
+    public function importStocks(): JsonResponse
     {
 
         //Stock::truncate();

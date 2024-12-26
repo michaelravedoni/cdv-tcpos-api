@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Sync;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncAttributeTermUpdate;
 use App\Jobs\SyncAttributeUpdate;
@@ -44,7 +45,7 @@ class AttributeController extends Controller
     /**
      * Sync attributes.
      */
-    public function sync()
+    public function sync(): JsonResponse
     {
         $count_attribute_update = 0;
         foreach ($this->getWooAttributes() as $wooAttributes) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Sync;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 class SyncController extends Controller
@@ -9,7 +10,7 @@ class SyncController extends Controller
     /**
      * Sync all.
      */
-    public function all()
+    public function all(): JsonResponse
     {
         $begin = microtime(true);
 

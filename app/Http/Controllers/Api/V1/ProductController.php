@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Jobs\ImportProductImage;
@@ -109,7 +110,7 @@ class ProductController extends Controller
     /**
      * Get products prices.
      */
-    public function importPrices($ids = null)
+    public function importPrices($ids = null): JsonResponse
     {
         //Price::truncate();
 
@@ -131,7 +132,7 @@ class ProductController extends Controller
     /**
      * Import products in database.
      */
-    public function importProducts()
+    public function importProducts(): JsonResponse
     {
         $begin = microtime(true);
 
@@ -254,7 +255,7 @@ class ProductController extends Controller
     /**
      * Import product image from database.
      */
-    public function importImage($id)
+    public function importImage($id): JsonResponse
     {
 
         $req = Http::get(env('TCPOS_API_WOND_URL').'/getImage?id='.$id);
@@ -305,7 +306,7 @@ class ProductController extends Controller
     /**
      * Import products images from database.
      */
-    public function importImages()
+    public function importImages(): JsonResponse
     {
         $ids = Product::all()->pluck('_tcposId')->all();
 

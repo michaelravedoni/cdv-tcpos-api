@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Sync;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncOrderUpdate;
 use AppHelper;
@@ -25,7 +26,7 @@ class OrderController extends Controller
     /**
      * Sync customers.
      */
-    public function sync()
+    public function sync(): JsonResponse
     {
         $wooOrders = $this->getWooOrders();
 
