@@ -2,15 +2,13 @@
 
 namespace App\Jobs;
 
+use Codexshaper\WooCommerce\Facades\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
 use romanzipp\QueueMonitor\Traits\IsMonitored;
-use Codexshaper\WooCommerce\Facades\Order;
 
 class SyncOrderUpdate implements ShouldQueue
 {
@@ -18,6 +16,7 @@ class SyncOrderUpdate implements ShouldQueue
     use IsMonitored;
 
     public $id;
+
     public $data;
 
     /**
@@ -44,7 +43,7 @@ class SyncOrderUpdate implements ShouldQueue
      * @return void
      */
     public function handle()
-    {   
+    {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-order
         Order::update($this->id, $this->data);
 

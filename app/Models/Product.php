@@ -26,7 +26,7 @@ class Product extends Model
     {
         return $this->hasMany(Price::class, '_tcpos_product_id', '_tcposId');
     }
-    
+
     /**
      * Get the stock for the product.
      */
@@ -34,7 +34,7 @@ class Product extends Model
     {
         return $this->hasOne(Stock::class, '_tcpos_product_id', '_tcposId');
     }
-    
+
     /**
      * Get the image for the product.
      */
@@ -169,7 +169,6 @@ class Product extends Model
     /**
      * Get the pictures for the product.
      */
-    
     public function pictures()
     {
         if (isset($this->imageHash)) {
@@ -181,7 +180,7 @@ class Product extends Model
                         'hash' => md5($this->imageHash),
                     ],
                     'hash' => md5($this->imageHash),
-                ]
+                ],
             ];
         } else {
             return [];
@@ -191,12 +190,12 @@ class Product extends Model
     /**
      * Get the image url for the product.
      */
-    
     public function imageUrl()
     {
         if (isset($this->hash)) {
             $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->_tcposId.'.jpg';
             $url = Storage::disk('public')->url($path);
+
             return $url;
         } else {
             return null;
@@ -206,7 +205,6 @@ class Product extends Model
     /**
      * Check if need to update.
      */
-    
     public function needToUpdate()
     {
         // Check if product price has update
@@ -243,13 +241,13 @@ class Product extends Model
     {
         $category = $this->category;
         $categoryRule = data_get(config('cdv.categories'), $category);
-        
+
         // Category not found in config
         if (empty($categoryRule)) {
             return false;
         }
         // Rule set in config do not manage stock
-        if (!data_get($categoryRule, 'manage_stock')) {
+        if (! data_get($categoryRule, 'manage_stock')) {
             return true;
         }
         // Product stock quantity is superior as the minimal set in config
@@ -267,7 +265,7 @@ class Product extends Model
         $categoryRule = data_get(config('cdv.categories'), $category);
 
         // Rule set in config do not manage stock
-        if (!data_get($categoryRule, 'manage_stock')) {
+        if (! data_get($categoryRule, 'manage_stock')) {
             return false;
         } else {
             return true;

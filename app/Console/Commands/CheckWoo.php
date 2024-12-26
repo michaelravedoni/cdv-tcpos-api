@@ -5,9 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Product as ModelsProduct;
 use App\Models\ProductImage;
 use App\Models\Woo;
-use Illuminate\Console\Command;
 use AppHelper;
-use Codexshaper\WooCommerce\Facades\Product;
+use Illuminate\Console\Command;
 
 class CheckWoo extends Command
 {
@@ -87,7 +86,7 @@ class CheckWoo extends Command
         }
 
         if (count($productIdsToSync) > 0) {
-            $this->line('TCPOS Ids that will be updated : '. implode(', ', $productIdsToSync));
+            $this->line('TCPOS Ids that will be updated : '.implode(', ', $productIdsToSync));
         }
 
         $this->info('Check done.');

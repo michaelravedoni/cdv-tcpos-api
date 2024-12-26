@@ -124,7 +124,7 @@ return [
             'category_id' => 435,
             'manage_stock' => false,
             //'min_stock_quantity' => 3,
-        ]
+        ],
     ],
 
     // Price level ID

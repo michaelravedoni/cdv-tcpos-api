@@ -51,7 +51,7 @@ class CheckQueue extends Command
 
             Mail::raw('Hello, queue jobs problem in '.config('app.name').' application. Queue jobs table should be emptied by now but it is not! Please check the queue worker manually. URL : '.config('app.url'), function ($message) {
                 $message->to('michael@ravedoni.com')->subject(config('app.name').' - Queue problem');
-              });
+            });
 
             $this->warn('Queue jobs table should be emptied by now but it is not! Please check your queue worker.');
 

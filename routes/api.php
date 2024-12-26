@@ -1,23 +1,21 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Api\V1\ImportController;
-use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AttributeController;
 use App\Http\Controllers\Api\V1\CheckController;
-use App\Http\Controllers\Api\V1\StockController;
-use App\Http\Controllers\Api\V1\VoucherController;
 use App\Http\Controllers\Api\V1\CustomerController;
-use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\ImportController;
 use App\Http\Controllers\Api\V1\InfoController;
+use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\StockController;
 use App\Http\Controllers\Api\V1\TcposController;
+use App\Http\Controllers\Api\V1\VoucherController;
 use App\Http\Controllers\Sync\AttributeController as SyncAttributeController;
 use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
-use App\Http\Controllers\Sync\ProductController as SyncProductController;
 use App\Http\Controllers\Sync\OrderController as SyncOrderController;
+use App\Http\Controllers\Sync\ProductController as SyncProductController;
 use App\Http\Controllers\Sync\SyncController as SyncController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

@@ -3,11 +3,6 @@
 namespace App\Http\Controllers\Sync;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Sync\ProductController;
-use App\Http\Controllers\Sync\AttributeController;
-use App\Http\Controllers\Sync\CustomerController;
-use App\Http\Controllers\Sync\OrderController;
 
 class SyncController extends Controller
 {

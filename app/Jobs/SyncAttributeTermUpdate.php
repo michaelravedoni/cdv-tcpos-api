@@ -2,17 +2,13 @@
 
 namespace App\Jobs;
 
+use Codexshaper\WooCommerce\Facades\Term;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
 use romanzipp\QueueMonitor\Traits\IsMonitored;
-use Codexshaper\WooCommerce\Facades\Term;
-use Codexshaper\WooCommerce\Facades\Attribute;
-use App\Models\Attribute as TcposAttribute;
 
 class SyncAttributeTermUpdate implements ShouldQueue
 {
@@ -20,6 +16,7 @@ class SyncAttributeTermUpdate implements ShouldQueue
     use IsMonitored;
 
     public $id;
+
     public $data;
 
     /**

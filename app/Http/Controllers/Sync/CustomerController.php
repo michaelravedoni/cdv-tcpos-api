@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Sync;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\SyncCustomerUpdate;
+use App\Models\Customer as TcposCustomer;
 use App\Models\Woo;
 use Codexshaper\WooCommerce\Facades\Customer;
 use Codexshaper\WooCommerce\Facades\Order;
-use App\Models\Customer as TcposCustomer;
-use App\Jobs\SyncCustomerUpdate;
 
 class CustomerController extends Controller
 {
@@ -22,6 +20,7 @@ class CustomerController extends Controller
         $customers2 = Customer::all(['per_page' => 100, 'page' => 2]);
         $customers3 = Customer::all(['per_page' => 100, 'page' => 3]);
         $customers4 = Customer::all(['per_page' => 100, 'page' => 4]);
+
         return $customers->merge($customers2)->merge($customers3)->merge($customers4);
     }
 
@@ -74,15 +73,17 @@ class CustomerController extends Controller
             if (empty(data_get($wooCustomer, 'card_number'))) {
                 // No update because no card.
                 $count_customer_no_card += 1;
+
                 continue;
             }
-            
+
             $lastOrder = Order::where('customer_id', $wooCustomer->id)->get()->sortByDesc('date_created')->first();
             $lastOrderStatus = data_get($lastOrder, 'status');
             if (isset($lastOrderStatus) && in_array($lastOrderStatus, ['pending', 'processing', 'on-hold'])) {
                 // No update car une commande ouverte ou en traitement
                 $count_customer_order_active += 1;
                 $customers_order_active[] = ['customer' => $wooCustomer, 'lastOrder' => $lastOrder];
+
                 continue;
             }
 
@@ -104,7 +105,7 @@ class CustomerController extends Controller
             ];
 
             $customers_update[] = ['customer' => $wooCustomer];
-            
+
             //Customer::update($customer_id, $data);
             SyncCustomerUpdate::dispatch($wooCustomer->id, $data);
             $count_customer_update += 1;

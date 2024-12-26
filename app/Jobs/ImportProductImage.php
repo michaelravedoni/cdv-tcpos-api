@@ -2,18 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
-use romanzipp\QueueMonitor\Traits\IsMonitored;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Product;
-use App\Models\ProductImage;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ImportProductImage implements ShouldQueue
 {
@@ -67,6 +65,7 @@ class ImportProductImage implements ShouldQueue
             $productImage->save();
 
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'warning', 'resource' => 'images'])->log('Product image not found in TCPOS database | tcposId:'.$this->id);
+
             return;
         }
 
@@ -75,6 +74,7 @@ class ImportProductImage implements ShouldQueue
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'images'])->log('Product image already saved in the local database and local filesystem | tcposId:'.$this->id);
             $productImage->sync_action = 'none';
             $productImage->save();
+
             return;
         }
 

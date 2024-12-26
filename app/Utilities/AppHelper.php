@@ -1,10 +1,10 @@
 <?php
+
 namespace App\Utilities;
 
-use Illuminate\Support\Facades\Http;
 use anlutro\LaravelSettings\Facade as Setting;
-use Codexshaper\WooCommerce\Facades\Product;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Support\Facades\Http;
 
 class AppHelper
 {
@@ -15,6 +15,7 @@ class AppHelper
     {
         $response = Http::timeout(1000)->get(env('TCPOS_API_WOND_URL').'/getLastRefreshTimestamp')->json();
         $tcposTimestamp = data_get($response, 'getLastRefreshTimestamp.timestamp');
+
         return \Carbon\Carbon::parse($tcposTimestamp);
     }
 
@@ -24,6 +25,7 @@ class AppHelper
     public static function getLastTcposImport()
     {
         $date = Setting::get('lastTcposimport', '1900-01-01');
+
         return \Carbon\Carbon::parse($date);
     }
 
@@ -34,6 +36,7 @@ class AppHelper
     {
         $firstOrder = Order::all()->first();
         $firstOrderTimestamp = data_get($firstOrder, 'date_modified');
+
         return \Carbon\Carbon::parse($firstOrderTimestamp);
     }
 
@@ -73,6 +76,7 @@ class AppHelper
             $firstOrderTimestamp = data_get($firstOrder, 'date_modified');
             Setting::set('lastWooUpdate', $firstOrderTimestamp);
             Setting::save();
+
             return true;
         }
     }

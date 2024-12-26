@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use AppHelper;
 
 class CustomerController extends Controller
 {
@@ -16,7 +15,7 @@ class CustomerController extends Controller
     {
         $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
         $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
-        
+
         $responseSearchCustomer = Http::get(env('TCPOS_API_WOND_URL').'/searchCustomerByData?cardNum='.$cardnum.'&token='.urlencode($token))->json();
         $idSearchCustomer = data_get($responseSearchCustomer, 'searchCustomerByData.id');
         if (isset($idSearchCustomer)) {
@@ -24,14 +23,14 @@ class CustomerController extends Controller
             $data = data_get($responseGetCustomer, 'getCustomer.customer');
 
             return response()->json([
-                'firstName' => data_get($data, 'firstName') ?? data_get(explode(" ", data_get($data, 'description')), '1'),
-                'lastName' => data_get($data, 'lastName') ?? data_get(explode(" ", data_get($data, 'description')), '0'),
+                'firstName' => data_get($data, 'firstName') ?? data_get(explode(' ', data_get($data, 'description')), '1'),
+                'lastName' => data_get($data, 'lastName') ?? data_get(explode(' ', data_get($data, 'description')), '0'),
                 'email' => data_get($data, 'email'),
                 'phone' => data_get($data, 'phone'),
                 'title' => data_get($data, 'title'),
                 'address' => [
-                    'firstName' => data_get($data, 'firstName') ?? data_get(explode(" ", data_get($data, 'description')), '1'),
-                    'lastName' => data_get($data, 'lastName') ?? data_get(explode(" ", data_get($data, 'description')), '0'),
+                    'firstName' => data_get($data, 'firstName') ?? data_get(explode(' ', data_get($data, 'description')), '1'),
+                    'lastName' => data_get($data, 'lastName') ?? data_get(explode(' ', data_get($data, 'description')), '0'),
                     'company' => data_get($data, 'notes1'),
                     'url' => data_get($data, 'url'),
                     'address' => [data_get($data, 'street')],
@@ -66,9 +65,10 @@ class CustomerController extends Controller
      */
     public function getCustomerByCardnum(Request $request, $cardnum)
     {
-        if (!$request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
+        if (! $request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
             return response()->json(['message' => 'Access refused']);
         }
+
         return $this->getCustomer($cardnum);
     }
 
@@ -77,9 +77,10 @@ class CustomerController extends Controller
      */
     public function getCustomerFundsByCardnumber(Request $request, $cardnum)
     {
-        if (!$request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
+        if (! $request->hasHeader('x-access-secret') && $request->header('X-Header-Name') != env('TCPOS_API_SECRET')) {
             return response()->json(['message' => 'Access refused']);
         }
+
         return $this->getCustomerFunds($cardnum);
     }
 
@@ -102,7 +103,8 @@ class CustomerController extends Controller
         if ($value == data_get($this->getCustomer($cardnum), 'original.address.zipcode')) {
             return response()->json(true, 200);
         }
+
         return response()->json(['code' => '401', 'message' => 'Verification field value zipcode is incorrect'], 401);
-        
+
     }
 }

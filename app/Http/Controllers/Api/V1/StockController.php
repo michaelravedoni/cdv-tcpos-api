@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\ImportProductStock;
 use App\Models\Product;
 use App\Models\Stock;
-use App\Jobs\ImportProductStock;
+use Illuminate\Support\Facades\Http;
 
 class StockController extends Controller
 {
@@ -21,6 +20,7 @@ class StockController extends Controller
         ])->get(env('TCPOS_API_CDV_URL').'/getarticlesstock/id/'.$id);
         $response = $req->json();
         $data = data_get($response, 'STOCK');
+
         return $data;
     }
 
