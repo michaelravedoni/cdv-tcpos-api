@@ -3,20 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\Price;
 use App\Http\Resources\ProductResource;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
 use App\Jobs\ImportProductImage;
 use App\Jobs\ImportProductPrice;
+use App\Models\Price;
+use App\Models\Product;
+use App\Models\ProductImage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-
     /**
      * Show all products.
      */
@@ -50,6 +47,7 @@ class ProductController extends Controller
     {
         $response = Http::timeout(1000)->get(env('TCPOS_API_WOND_URL').'/getArticles')->json();
         $data = data_get($response, 'getArticles.articleList');
+
         return $data;
     }
 
@@ -94,6 +92,7 @@ class ProductController extends Controller
             $priceItem = (object) data_get($value, 'article');
             $array[] = $priceItem;
         }
+
         return $array;
     }
 
@@ -103,6 +102,7 @@ class ProductController extends Controller
     public function indexPrices()
     {
         $data = Price::all();
+
         return $data;
     }
 
@@ -243,7 +243,7 @@ class ProductController extends Controller
 
         $end = microtime(true) - $begin;
 
-        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from TCPOS | '.$countToNoneProducts.' to untouch, '. $countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDelete.' deleted.');
+        activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'products', 'duration' => $end])->log(Product::all()->count().' products imported from TCPOS | '.$countToNoneProducts.' to untouch, '.$countToCreateProducts.' to create, '.$countToUpdateProducts.' to update and '.$countLocalProductsToDelete.' deleted.');
 
         return response()->json([
             'message' => 'imported',
@@ -281,6 +281,7 @@ class ProductController extends Controller
         if ($productImage->hash == md5($data)) {
             $productImage->sync_action = 'none';
             $productImage->save();
+
             return response()->json([
                 'message' => 'Image already saved',
             ]);
@@ -325,32 +326,33 @@ class ProductController extends Controller
     public function getProductCategory($notes2, $notes3)
     {
         if (in_array($notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
-            return "wine";
+            return 'wine';
         }
         if (in_array($notes2, ['Service du vin'])) {
-            return "wineSet";
+            return 'wineSet';
         }
         if (in_array($notes2, ['Bières et Cidres']) && in_array($notes3, ['Bière'])) {
-            return "beer";
+            return 'beer';
         }
         if (in_array($notes2, ['Bières et Cidres'])) {
-            return "cider";
+            return 'cider';
         }
         if (in_array($notes2, ['Alcools'])) {
-            return "spirit";
+            return 'spirit';
         }
         if (in_array($notes2, ['Sélection du mois'])) {
-            return "selection";
+            return 'selection';
         }
         if (in_array($notes2, ['Jus et minérales'])) {
-            return "mineralDrink";
+            return 'mineralDrink';
         }
         if (in_array($notes2, ['Produits du terroir'])) {
-            return "regionalProduct";
+            return 'regionalProduct';
         }
         if (in_array($notes2, ['Livres'])) {
-            return "book";
+            return 'book';
         }
+
         return 'none';
     }
 }

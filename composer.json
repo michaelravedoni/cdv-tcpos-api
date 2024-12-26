@@ -8,28 +8,28 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
-        "anlutro/l4-settings": "^1.0",
+        "php": "^8.0",
+        "anlutro/l4-settings": "^1.1",
         "arcanedev/log-viewer": "^8.1",
         "codexshaper/laravel-woocommerce": "^3.0",
-        "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.54",
-        "laravel/sanctum": "^2.11",
-        "laravel/tinker": "^2.5",
-        "romanzipp/laravel-queue-monitor": "^2.1",
-        "spatie/laravel-activitylog": "^3.17",
-        "spatie/laravel-health": "*"
+        "guzzlehttp/guzzle": "^7.2",
+        "laravel/framework": "^9.52",
+        "laravel/sanctum": "^3.0",
+        "laravel/tinker": "^2.7",
+        "romanzipp/laravel-queue-monitor": "^2.3",
+        "spatie/laravel-activitylog": "^4.4",
+        "spatie/laravel-health": "*",
+        "league/flysystem-aws-s3-v3": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",
-        "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
-        "laravel/sail": "^1.0.1",
-        "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^5.0",
-        "phpunit/phpunit": "^9.3.3",
-        "spatie/laravel-cronless-schedule": "^1.0"
+        "laravel/sail": "^1.15",
+        "mockery/mockery": "^1.4.4",
+        "nunomaduro/collision": "^6.3",
+        "phpunit/phpunit": "^9.5.10",
+        "spatie/laravel-cronless-schedule": "^1.1",
+        "spatie/laravel-ignition": "^1.4"
     },
     "autoload": {
         "psr-4": {
@@ -52,7 +52,7 @@
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

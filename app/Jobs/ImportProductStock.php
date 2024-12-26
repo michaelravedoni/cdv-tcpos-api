@@ -2,16 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Models\Stock;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
-use romanzipp\QueueMonitor\Traits\IsMonitored;
 use Illuminate\Support\Facades\Http;
-use App\Models\Stock;
+use romanzipp\QueueMonitor\Traits\IsMonitored;
 
 class ImportProductStock implements ShouldQueue
 {

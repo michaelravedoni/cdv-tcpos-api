@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class ProductResource extends JsonResource
 {
@@ -37,7 +36,7 @@ class ProductResource extends JsonResource
                     'priceLevelCode' => 13,
                     'price' => data_get($this->pricesRelations, '2.price'),
                     'vatInPercent' => $this->vatInPercent,
-                ]
+                ],
             ],
             'pictures' => $this->pictures(),
             'attributes' => $this->attributesArray(),

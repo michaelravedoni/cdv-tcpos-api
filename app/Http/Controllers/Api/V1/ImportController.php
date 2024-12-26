@@ -2,18 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Api\V1\ProductController;
-use App\Http\Controllers\Api\V1\AttributeController;
-use App\Http\Controllers\Api\V1\StockController;
-use App\Http\Controllers\Sync\ProductController as SyncProductController;
-use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
-use Illuminate\Support\Facades\Http;
 use anlutro\LaravelSettings\Facade as Setting;
-use Codexshaper\WooCommerce\Facades\Product;
-use Codexshaper\WooCommerce\Facades\Order;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
+use App\Http\Controllers\Sync\ProductController as SyncProductController;
 use AppHelper;
+use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Support\Facades\Http;
 
 class ImportController extends Controller
 {
@@ -28,8 +23,9 @@ class ImportController extends Controller
 
         $force = request()->input('force', false);
 
-        if (!appHelper::needImportFromTcpos() && !$force) {
+        if (! appHelper::needImportFromTcpos() && ! $force) {
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'all'])->log('No need to import data from tcpos. Last tcpos database update : '.Setting::get('lastTcposUpdate'));
+
             return response()->json([
                 'message' => 'No need to import data from tcpos. Last tcpos database update : '.Setting::get('lastTcposUpdate'),
             ]);
@@ -105,6 +101,7 @@ class ImportController extends Controller
         } else {
             Setting::set('lastTcposUpdate', $tcposTimestamp);
             Setting::save();
+
             return true;
         }
 
@@ -129,6 +126,7 @@ class ImportController extends Controller
             $firstOrderTimestamp = data_get($firstOrder, 'date_modified');
             Setting::set('lastWooUpdate', $firstOrderTimestamp);
             Setting::save();
+
             return true;
         }
     }

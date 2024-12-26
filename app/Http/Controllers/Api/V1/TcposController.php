@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use App\Models\Article;
 
 class TcposController extends Controller
 {
-
     /**
      * Get all DB data from TCPOS WCF.
      */
@@ -17,19 +14,19 @@ class TcposController extends Controller
     {
         $curl = curl_init();
         curl_setopt_array($curl, [
-        CURLOPT_PORT => "10306",
-        CURLOPT_URL => env('TCPOS_API_WCF_URL'),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:msc=\"http://schemas.microsoft.com/ws/2005/12/wsdl/contract\" xmlns:tns=\"http://tempuri.org/\"><soap:Body><GetDB xmlns=\"http://tempuri.org/\"><xmlRequest>\n&lt;DB&gt;\n&lt;PRICELEVELS&gt;\n&lt;CODE&gt;2&lt;/CODE&gt;\n&lt;CODE&gt;5&lt;/CODE&gt;\n&lt;CODE&gt;13&lt;/CODE&gt;\n&lt;/PRICELEVELS&gt;\n&lt;/DB&gt;\n</xmlRequest></GetDB></soap:Body></soap:Envelope>",
-        CURLOPT_HTTPHEADER => [
-            "Content-Type: text/xml; charset=utf-8",
-            'SOAPAction: "http://tempuri.org/IWebShop/GetDB"'
-        ],
+            CURLOPT_PORT => '10306',
+            CURLOPT_URL => env('TCPOS_API_WCF_URL'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"  xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:msc=\"http://schemas.microsoft.com/ws/2005/12/wsdl/contract\" xmlns:tns=\"http://tempuri.org/\"><soap:Body><GetDB xmlns=\"http://tempuri.org/\"><xmlRequest>\n&lt;DB&gt;\n&lt;PRICELEVELS&gt;\n&lt;CODE&gt;2&lt;/CODE&gt;\n&lt;CODE&gt;5&lt;/CODE&gt;\n&lt;CODE&gt;13&lt;/CODE&gt;\n&lt;/PRICELEVELS&gt;\n&lt;/DB&gt;\n</xmlRequest></GetDB></soap:Body></soap:Envelope>",
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: "http://tempuri.org/IWebShop/GetDB"',
+            ],
         ]);
 
         $response = curl_exec($curl);
@@ -38,20 +35,20 @@ class TcposController extends Controller
         curl_close($curl);
 
         if ($err) {
-            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'error', 'resource' => 'articles'])->log('cURL Error #:' . $err);
-            echo "cURL Error #:" . $err;
+            activity()->withProperties(['group' => 'import-tcpos', 'level' => 'error', 'resource' => 'articles'])->log('cURL Error #:'.$err);
+            echo 'cURL Error #:'.$err;
         } else {
             $xmlResponse = str_replace(
                 [
                     '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><GetDBResponse xmlns="http://tempuri.org/">',
-                    '</GetDBResponse></s:Body></s:Envelope>'
-                ]
-                , '', html_entity_decode($response));
+                    '</GetDBResponse></s:Body></s:Envelope>',
+                ], '', html_entity_decode($response));
             $xmlParsed = simplexml_load_string($xmlResponse);
             $jsonEncoded = json_encode($xmlParsed);
-            $jsonDecoded = json_decode($jsonEncoded,TRUE);
+            $jsonDecoded = json_decode($jsonEncoded, true);
             $data = data_get($jsonDecoded, 'DB');
             activity()->withProperties(['group' => 'import-tcpos', 'level' => 'info', 'resource' => 'articles'])->log('TCPOS WCF reached');
+
             return $data;
         }
     }
@@ -132,13 +129,14 @@ class TcposController extends Controller
                         'priceLevelCode' => 13,
                         'price' => data_get($article->tcposProduct, 'pricesRelations.2.price', data_get($article->priceLevelCodes, '2.PRICE')),
                         //'vatInPercent' => $article->vatInPercent,
-                    ]
+                    ],
                 ],
                 'attributes' => $article->attributesArray(),
                 'category' => $article->category,
                 'code' => $article->_tcposCode,
             ];
         }
+
         return $articles;
     }
 }

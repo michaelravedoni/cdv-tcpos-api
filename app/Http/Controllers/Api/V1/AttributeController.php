@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use App\Models\Product;
-use App\Models\Price;
 use App\Models\Attribute;
+use Illuminate\Support\Facades\Http;
 
 class AttributeController extends Controller
 {
-
     /**
      * Show all attributes.
      */
@@ -56,7 +52,7 @@ class AttributeController extends Controller
                 $brake;
             }*/
         }
-        
+
         $end = microtime(true) - $begin;
 
         activity()->withProperties(['group' => 'import-tcpos', 'level' => 'end', 'resource' => 'attributes', 'duration' => $end])->log(Attribute::all()->count().' attributes imported from TCPOS');

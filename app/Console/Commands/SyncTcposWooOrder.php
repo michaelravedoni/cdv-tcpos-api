@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Http\Controllers\Sync\OrderController;
+use Illuminate\Console\Command;
 
 class SyncTcposWooOrder extends Command
 {

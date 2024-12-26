@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Sync;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Codexshaper\WooCommerce\Facades\Customer;
-use Codexshaper\WooCommerce\Facades\Order;
 use App\Jobs\SyncOrderUpdate;
 use AppHelper;
+use Codexshaper\WooCommerce\Facades\Customer;
+use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class OrderController extends Controller
 {
@@ -18,9 +18,9 @@ class OrderController extends Controller
     public function getWooOrders()
     {
         $orders = Order::all(['status' => 'processing', 'per_page' => 100, 'page' => 1]);
+
         return $orders;
     }
-
 
     /**
      * Sync customers.
@@ -42,7 +42,7 @@ class OrderController extends Controller
             // - Order is in progress
             // - Has not been already synchronized (meta_tcposOrderId to null)
             // - Does not use voucher (bon cadeau) in the process (tcpos does not support voucher usage in order)
-            if (empty($valueWooOrderIdMetaData) && !$this->doesOrderUseVoucher($wooOrder)) {
+            if (empty($valueWooOrderIdMetaData) && ! $this->doesOrderUseVoucher($wooOrder)) {
                 // Create order in TCPOS
                 $this->createTcposOrder($wooOrder, 'default');
                 $count_order_create += 1;
@@ -89,6 +89,7 @@ class OrderController extends Controller
                 continue;
             }
         }
+
         return false;
     }
 
@@ -110,6 +111,7 @@ class OrderController extends Controller
                 continue;
             }
         }
+
         return false;
     }
 
@@ -135,12 +137,12 @@ class OrderController extends Controller
             if (empty($tcposCustomerId)) {
                 return config('cdv.default_customer_id');
             }
+
             return $tcposCustomerId;
         } else {
             return config('cdv.default_customer_id');
         }
     }
-
 
     /**
      * Create payment data for TCPOS.
@@ -156,8 +158,8 @@ class OrderController extends Controller
                         'paymentType' => data_get($paymentConfig, 'type'),
                         'paymentNotes' => data_get($paymentConfig, 'note'),
                         'paymentAmount' => data_get($wooOrder, 'total'),
-                    ]
-                ]
+                    ],
+                ],
             ];
         } else {
             $paymentData = [
@@ -166,14 +168,14 @@ class OrderController extends Controller
                         'paymentType' => 'cash',
                         'paymentNotes' => 'Non payé. Paiement créé artificiellement pour un test.',
                         'paymentAmount' => data_get($wooOrder, 'total'),
-                    ]
-                ]
+                    ],
+                ],
             ];
             //$paymentData = [];
             activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order payment #'.$wooOrder->id.' has no payment. A fake one has been created for testing purpose.');
         }
         // If funds used (customercard / solde de la carte client), add it as payment
-        if (!empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
+        if (! empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
             $paymentData['payments'][] =
                 [
                     'paymentType' => 'customercard',
@@ -181,8 +183,9 @@ class OrderController extends Controller
                     'paymentAmount' => AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'),
                 ];
 
-            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, "_funds_used").'. The order has to be controlled.');
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used').'. The order has to be controlled.');
         }
+
         return $paymentData;
     }
 
@@ -203,7 +206,7 @@ class OrderController extends Controller
                     'quantity' => data_get($item, 'quantity'),
                     'price' => data_get($item, 'price'),
                     'priceLevelId' => config('cdv.default_price_level_id'),
-                ]
+                ],
             ];
         }
 
@@ -215,7 +218,7 @@ class OrderController extends Controller
                     'quantity' => 1,
                     'price' => $wooOrder->shipping_total,
                     'priceLevelId' => config('cdv.default_price_level_id'),
-                ]
+                ],
             ];
         }
 
@@ -227,7 +230,7 @@ class OrderController extends Controller
                     'quantity' => 1,
                     'price' => $wooOrder->discount_total,
                     'priceLevelId' => config('cdv.default_price_level_id'),
-                ]
+                ],
             ];
         }
 
@@ -246,7 +249,7 @@ class OrderController extends Controller
                 'priceLevelId' => config('cdv.default_price_level_id'),
                 'transactionComment' => 'Commande Woocommerce #'.$wooOrder->id.' à livrer chez '.$stringShippingAddress.$stringVoucherComment,
                 'itemList' => $items,
-            ]
+            ],
         ];
 
         // Générer un token pour TCPOS
@@ -262,6 +265,7 @@ class OrderController extends Controller
             // S'il y a une erreur dans la création de la commande
             if ($dataOrderResponse != 'OK') {
                 activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' could not be transmitted correctly to TCPOS WOND. Message: '.data_get($dataOrder, 'createOrder.message'));
+
                 return 'Error: The order could not be transmitted correctly to TCPOS WOND';
             } else {
                 activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' has been correctly  transmitted to TCPOS WOND. GUID: '.data_get($dataOrder, 'createOrder.data.guid'));
@@ -286,6 +290,7 @@ class OrderController extends Controller
             // S'il y a une erreur dans la confirmation de la commande
             if ($dataOrderConfirmResponse != 'OK') {
                 activity()->withProperties(['group' => 'sync', 'level' => 'error', 'resource' => 'orders'])->log('Error: The order #'.$wooOrder->id.' could not be confirmed correctly to TCPOS WOND. Message: '.data_get($dataOrderConfirm, 'confirmOrder.message'));
+
                 return 'Error: The order could not be confirmed correctly to TCPOS WOND';
             }
             activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' created in TCPOS WOND. GUID: '.data_get($dataOrder, 'createOrder.data.guid'));
@@ -293,8 +298,8 @@ class OrderController extends Controller
             // S'il n'y a pas d'une erreur dans la confirmation de la commande : mettons un id sur la commande de Woocommerce
             $wooUpdateOrderData = [
                 'meta_data' => [
-                    ['key' => config('cdv.wc_meta_tcpos_order_id'), 'value' => data_get($dataOrder, 'createOrder.data.guid')]
-                ]
+                    ['key' => config('cdv.wc_meta_tcpos_order_id'), 'value' => data_get($dataOrder, 'createOrder.data.guid')],
+                ],
             ];
             // Order::update($this->id, $this->data);
             SyncOrderUpdate::dispatch($wooOrder->id, $wooUpdateOrderData);

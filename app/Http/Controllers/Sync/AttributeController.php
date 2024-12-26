@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Sync;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Codexshaper\WooCommerce\Facades\Term;
-use Codexshaper\WooCommerce\Facades\Attribute;
-use App\Models\Attribute as TcposAttribute;
 use App\Jobs\SyncAttributeTermUpdate;
 use App\Jobs\SyncAttributeUpdate;
+use App\Models\Attribute as TcposAttribute;
+use Codexshaper\WooCommerce\Facades\Attribute;
+use Codexshaper\WooCommerce\Facades\Term;
 
 class AttributeController extends Controller
 {
@@ -19,6 +18,7 @@ class AttributeController extends Controller
     {
         $attributes = Attribute::all(['per_page' => 100, 'page' => 1]);
         $attributes2 = Attribute::all(['per_page' => 100, 'page' => 2]);
+
         return $attributes->merge($attributes2);
     }
 
@@ -29,6 +29,7 @@ class AttributeController extends Controller
     {
         $terms = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 1]);
         $terms2 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 2]);
+
         return $terms->merge($terms2);
     }
 
@@ -39,8 +40,6 @@ class AttributeController extends Controller
     {
         return TcposAttribute::all();
     }
-
-
 
     /**
      * Sync attributes.

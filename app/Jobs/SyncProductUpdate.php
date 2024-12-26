@@ -2,15 +2,13 @@
 
 namespace App\Jobs;
 
+use Codexshaper\WooCommerce\Facades\Product;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
 use romanzipp\QueueMonitor\Traits\IsMonitored;
-use Codexshaper\WooCommerce\Facades\Product;
 
 class SyncProductUpdate implements ShouldQueue
 {
@@ -18,6 +16,7 @@ class SyncProductUpdate implements ShouldQueue
     use IsMonitored;
 
     public $id;
+
     public $data;
 
     /**
@@ -44,7 +43,7 @@ class SyncProductUpdate implements ShouldQueue
      * @return void
      */
     public function handle()
-    {   
+    {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-product
         Product::update($this->id, $this->data);
 

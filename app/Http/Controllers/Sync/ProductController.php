@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Sync;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Resources\ProductResource;
-use App\Models\Woo;
-use Codexshaper\WooCommerce\Facades\Product;
-use App\Models\Product as TcposProduct;
-use App\Models\ProductImage as TcposProductImage;
-use App\Jobs\SyncProductUpdate;
 use App\Jobs\SyncProductCreate;
 use App\Jobs\SyncProductDelete;
+use App\Jobs\SyncProductUpdate;
+use App\Models\Product as TcposProduct;
+use App\Models\ProductImage as TcposProductImage;
+use App\Models\Woo;
+use Codexshaper\WooCommerce\Facades\Product;
 
 class ProductController extends Controller
 {
@@ -30,6 +28,7 @@ class ProductController extends Controller
         $products8 = Product::all(['per_page' => 100, 'page' => 8]);
         $products9 = Product::all(['per_page' => 100, 'page' => 9]);
         $products10 = Product::all(['per_page' => 100, 'page' => 10]);
+
         return $products->merge($products2)->merge($products3)->merge($products4)->merge($products5)->merge($products6)->merge($products7)->merge($products8)->merge($products9)->merge($products10);
     }
 
@@ -74,6 +73,7 @@ class ProductController extends Controller
 
         if ($tcposResources->count() == 0) {
             activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'products'])->log('No product retrieved from API (got an empty array). Prevent to delete all the production...');
+
             return 'No product retrieved from API (got an empty array). Prevent to delete all the production...';
         }
 
@@ -101,9 +101,11 @@ class ProductController extends Controller
                     //Product::create($data);
                     SyncProductCreate::dispatch($data);
                     $count_product_create += 1;
+
                     continue;
                 }
                 $count_product_untouched += 1;
+
                 continue;
             }
             // If tcpos item found in Woo, check and update
@@ -118,6 +120,7 @@ class ProductController extends Controller
                     //Product::update($match->_wooId, $data);
                     SyncProductUpdate::dispatch($match->_wooId, $data);
                     $count_product_update += 1;
+
                     continue;
                 } else {
                     $count_product_untouched += 1;
@@ -127,6 +130,7 @@ class ProductController extends Controller
                 //Product::delete($match->_wooId);
                 SyncProductDelete::dispatch($match->_wooId);
                 $count_product_delete += 1;
+
                 continue;
             }
         }
@@ -144,6 +148,7 @@ class ProductController extends Controller
                 //Product::delete($match->_wooId);
                 SyncProductDelete::dispatch($wooItem->_wooId);
                 $count_product_delete += 1;
+
                 continue;
             }
         }
@@ -177,7 +182,7 @@ class ProductController extends Controller
             return false;
         }
         // Rule set in config do not manage stock
-        if (!data_get($categoryRule, 'manage_stock')) {
+        if (! data_get($categoryRule, 'manage_stock')) {
             return true;
         }
         // Product stock quantity is superior as the minimal set in config
@@ -195,7 +200,7 @@ class ProductController extends Controller
         $categoryRule = data_get(config('cdv.categories'), $category);
 
         // Rule set in config do not manage stock
-        if (!data_get($categoryRule, 'manage_stock')) {
+        if (! data_get($categoryRule, 'manage_stock')) {
             return false;
         } else {
             return true;
@@ -254,7 +259,7 @@ class ProductController extends Controller
                 if (data_get($wooProduct->data, 'images.0.name') != $productImage->hash) {
                     //There is an existing image but not match the tcpos hash one : upload
                     $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-                    activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') image with : '. $dist_image_url);
+                    activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') image with : '.$dist_image_url);
                 } else {
                     //There is an existing image that match the tcpos hash one : keep it
                     //$data['images'] = $wooProduct->data->images;
@@ -264,7 +269,7 @@ class ProductController extends Controller
             if (data_get($wooProduct->data, 'images.0.name') == null) {
                 //There is no existing image : upload
                 $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
+                activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will update the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '.$dist_image_url);
             }
         } else {
             //There is no tcpos image
@@ -273,7 +278,7 @@ class ProductController extends Controller
         //There is no wooProduct: so create a product and if an image exists, add it
         if (empty($wooProduct) && $productImage && $productImage->hash != null) {
             $data['images'] = [['name' => $productImage->hash, 'src' => $dist_image_url]];
-            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will create the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '. $dist_image_url);
+            activity()->withProperties(['group' => 'sync', 'level' => 'info', 'resource' => 'products'])->log('Will create the product (id:'.$tcposProduct->_tcposId.' UGS:'.$tcposProduct->_tcposCode.') with a new image : '.$dist_image_url);
         }
 
         return $data;

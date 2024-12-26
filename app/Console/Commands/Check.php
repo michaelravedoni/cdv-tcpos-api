@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Mail\OrderProblemCheck;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\OrderProblemCheck;
 
 class Check extends Command
 {
@@ -50,7 +50,7 @@ class Check extends Command
             if (empty($tcposOrderId) && in_array($order->status, ['processing', 'on-hold']) && \Carbon\Carbon::parse($order->date_created) < \Carbon\Carbon::now()->addMinutes(60)) {
                 // problème de synchronisation détecté
                 $this->line('Order sync problem detected.');
-                Mail::to('charpin@chateaudevilla.ch')->send(new OrderProblemCheck());
+                Mail::to('charpin@chateaudevilla.ch')->send(new OrderProblemCheck);
                 activity()->withProperties(['group' => 'email', 'level' => 'warning', 'resource' => 'orders'])->log('Problem detected for Order #'.$order->id.'. Email sent.');
             }
         }

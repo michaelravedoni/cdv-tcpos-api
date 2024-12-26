@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Article extends Model
 {
@@ -34,8 +33,9 @@ class Article extends Model
     public function tcposProduct()
     {
         return $this->hasOne(Product::class, '_tcposCode', '_tcposCode');
-    }/**
+    }
 
+    /**
      * Get the prices for the product.
      */
     public function pricesRelations()
@@ -164,32 +164,33 @@ class Article extends Model
     public function setArticleCategory($notes2)
     {
         if (in_array($notes2, ['Rouge', 'Blanc', 'Rosé', 'Mousseux'])) {
-            return "wine";
+            return 'wine';
         }
         if (in_array($notes2, ['Service du vin'])) {
-            return "wineSet";
+            return 'wineSet';
         }
         if (in_array($notes2, ['Bière', 'Bières et Cidres'])) {
-            return "beer";
+            return 'beer';
         }
         if (in_array($notes2, ['Bières et Cidres', '– Cidre'])) {
-            return "cider";
+            return 'cider';
         }
         if (in_array($notes2, ['Alcools'])) {
-            return "spirit";
+            return 'spirit';
         }
         if (in_array($notes2, ['Sélection du mois'])) {
-            return "selection";
+            return 'selection';
         }
         if (in_array($notes2, ['Jus et minérales'])) {
-            return "mineralDrink";
+            return 'mineralDrink';
         }
         if (in_array($notes2, ['Produits du terroir'])) {
-            return "regionalProduct";
+            return 'regionalProduct';
         }
         if (in_array($notes2, ['Livres'])) {
-            return "book";
+            return 'book';
         }
+
         return 'none';
     }
 }

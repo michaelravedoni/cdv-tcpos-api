@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use App\Models\Product;
-use romanzipp\QueueMonitor\Models\Monitor;
-use Spatie\Activitylog\Models\Activity;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Str;
-use anlutro\LaravelSettings\Facade as Setting;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use romanzipp\QueueMonitor\Models\Monitor;
+use Spatie\Activitylog\Models\Activity;
 
 class ViewController extends Controller
 {
@@ -26,7 +25,7 @@ class ViewController extends Controller
         $showLogsLevelInfo = request()->input('show-info', false);
 
         $activities = Activity::orderBy('created_at', 'desc')->get();
-        if (!$showLogsLevelInfo) {
+        if (! $showLogsLevelInfo) {
             $filteredActivities = $activities->filter(function ($value, $key) {
                 return data_get($value->properties, 'level') != 'info';
             });
@@ -38,7 +37,7 @@ class ViewController extends Controller
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
 
-        new \App\Console\Kernel(app(), new Dispatcher());
+        new \App\Console\Kernel(app(), new Dispatcher);
         $schedule = app(Schedule::class);
         $scheduled = collect($schedule->events());
         $scheduledTcpos = $scheduled->filter(function ($item) {
