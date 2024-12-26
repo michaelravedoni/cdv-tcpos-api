@@ -18,7 +18,8 @@
         "laravel/tinker": "^2.5",
         "romanzipp/laravel-queue-monitor": "^2.1",
         "spatie/laravel-activitylog": "^3.17",
-        "spatie/laravel-health": "*"
+        "spatie/laravel-health": "*",
+        "league/flysystem-aws-s3-v3": "^3.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",
