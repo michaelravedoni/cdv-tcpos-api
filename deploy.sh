@@ -53,7 +53,7 @@ php artisan cache:clear
 # npm install
 
 # Build assets using Laravel Mix
-# npm run production
+# npm run build
 
 # Turn off maintenance mode
 echo 'Command: up'
