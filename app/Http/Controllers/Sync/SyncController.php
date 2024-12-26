@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Sync;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 
 class SyncController extends Controller
 {

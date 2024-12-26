@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportProductStock;
 use App\Models\Product;
 use App\Models\Stock;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class StockController extends Controller

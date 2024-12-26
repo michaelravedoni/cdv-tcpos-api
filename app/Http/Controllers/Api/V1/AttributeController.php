@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class AttributeController extends Controller

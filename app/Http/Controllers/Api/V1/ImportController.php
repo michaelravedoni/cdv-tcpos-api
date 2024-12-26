@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\JsonResponse;
 use anlutro\LaravelSettings\Facade as Setting;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
 use App\Http\Controllers\Sync\ProductController as SyncProductController;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class ImportController extends Controller

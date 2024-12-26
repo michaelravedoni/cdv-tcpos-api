@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Models\Product;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use romanzipp\QueueMonitor\Models\Monitor;
 use Spatie\Activitylog\Models\Activity;
 

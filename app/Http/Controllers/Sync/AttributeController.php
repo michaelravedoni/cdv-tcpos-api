@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Sync;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncAttributeTermUpdate;
 use App\Jobs\SyncAttributeUpdate;
 use App\Models\Attribute as TcposAttribute;
 use Codexshaper\WooCommerce\Facades\Attribute;
 use Codexshaper\WooCommerce\Facades\Term;
+use Illuminate\Http\JsonResponse;
 
 class AttributeController extends Controller
 {

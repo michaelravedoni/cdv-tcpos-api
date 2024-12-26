@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Sync;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncProductCreate;
 use App\Jobs\SyncProductDelete;
@@ -11,6 +10,7 @@ use App\Models\Product as TcposProduct;
 use App\Models\ProductImage as TcposProductImage;
 use App\Models\Woo;
 use Codexshaper\WooCommerce\Facades\Product;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {

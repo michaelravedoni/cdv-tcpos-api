@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Sync;
 
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncCustomerUpdate;
 use App\Models\Customer as TcposCustomer;
 use App\Models\Woo;
 use Codexshaper\WooCommerce\Facades\Customer;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Http\JsonResponse;
 
 class CustomerController extends Controller
 {
