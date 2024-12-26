@@ -8,9 +8,11 @@ use Codexshaper\WooCommerce\Facades\Order;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use romanzipp\QueueMonitor\Models\Monitor;
 use Spatie\Activitylog\Models\Activity;
 
@@ -96,7 +98,7 @@ class ViewController extends Controller
     /**
      * Show Tables.
      */
-    public function tables()
+    public function tables(): View
     {
         return view('tables', [
             'products' => \App\Models\Product::all(),
@@ -107,7 +109,7 @@ class ViewController extends Controller
     /**
      * Force product resource to update state.
      */
-    public function forceUpdateProduct(Request $request, $id)
+    public function forceUpdateProduct(Request $request, $id): RedirectResponse
     {
         $product = Product::where('id', $id)->first();
         $product->sync_action = 'update';

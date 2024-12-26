@@ -8,6 +8,7 @@ use App\Http\Controllers\Sync\CustomerController as SyncCustomerController;
 use App\Http\Controllers\Sync\ProductController as SyncProductController;
 use AppHelper;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class ImportController extends Controller
@@ -15,7 +16,7 @@ class ImportController extends Controller
     /**
      * Import tcpos all.
      */
-    public function importTcposAll()
+    public function importTcposAll(): JsonResponse
     {
         $begin = microtime(true);
 
@@ -63,7 +64,7 @@ class ImportController extends Controller
     /**
      * Import woo all.
      */
-    public function importWooAll()
+    public function importWooAll(): JsonResponse
     {
         $begin = microtime(true);
 

@@ -10,6 +10,7 @@ use App\Models\Product as TcposProduct;
 use App\Models\ProductImage as TcposProductImage;
 use App\Models\Woo;
 use Codexshaper\WooCommerce\Facades\Product;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
@@ -43,7 +44,7 @@ class ProductController extends Controller
     /**
      * Import all woo products.
      */
-    public function importWooProducts()
+    public function importWooProducts(): JsonResponse
     {
         $wooResourcesDeleted = Woo::where('resource', 'product')->delete();
         $wooResources = $this->getWooProducts();

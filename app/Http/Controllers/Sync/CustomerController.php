@@ -8,6 +8,7 @@ use App\Models\Customer as TcposCustomer;
 use App\Models\Woo;
 use Codexshaper\WooCommerce\Facades\Customer;
 use Codexshaper\WooCommerce\Facades\Order;
+use Illuminate\Http\JsonResponse;
 
 class CustomerController extends Controller
 {
@@ -35,7 +36,7 @@ class CustomerController extends Controller
     /**
      * Import all woo customers.
      */
-    public function importWooCustomers()
+    public function importWooCustomers(): JsonResponse
     {
         $wooResourcesDeleted = Woo::where('resource', 'customer')->delete();
         $wooResources = $this->getWooCustomers();
@@ -57,7 +58,7 @@ class CustomerController extends Controller
     /**
      * Sync customers.
      */
-    public function sync()
+    public function sync(): JsonResponse
     {
         $wooResources = Woo::where('resource', 'customer')->get();
 

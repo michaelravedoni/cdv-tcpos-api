@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ImportProductStock;
 use App\Models\Product;
 use App\Models\Stock;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class StockController extends Controller
@@ -27,7 +28,7 @@ class StockController extends Controller
     /**
      * Import products stocks.
      */
-    public function importStocks()
+    public function importStocks(): JsonResponse
     {
 
         //Stock::truncate();

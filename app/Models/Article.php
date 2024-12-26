@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Article extends Model
 {
@@ -30,7 +32,7 @@ class Article extends Model
     /**
      * Get the TCPOS product for the article.
      */
-    public function tcposProduct()
+    public function tcposProduct(): HasOne
     {
         return $this->hasOne(Product::class, '_tcposCode', '_tcposCode');
     }
@@ -38,7 +40,7 @@ class Article extends Model
     /**
      * Get the prices for the product.
      */
-    public function pricesRelations()
+    public function pricesRelations(): HasMany
     {
         return $this->hasMany(Price::class, '_tcpos_product_id', '_tcposId');
     }
@@ -46,7 +48,7 @@ class Article extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationCellar()
+    public function attributeRelationCellar(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposCode', 'groupACode');
     }
@@ -54,7 +56,7 @@ class Article extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationGrape()
+    public function attributeRelationGrape(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposCode', 'groupBCode');
     }
@@ -62,7 +64,7 @@ class Article extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationFillingLevel()
+    public function attributeRelationFillingLevel(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposCode', 'groupCCode');
     }
@@ -70,7 +72,7 @@ class Article extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationTownship()
+    public function attributeRelationTownship(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposCode', 'groupDCode');
     }

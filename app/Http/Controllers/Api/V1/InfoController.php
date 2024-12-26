@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 
 class InfoController extends Controller
 {
     /**
      * Show API Informations.
      */
-    public function api()
+    public function api(): JsonResponse
     {
 
         return response()->json([

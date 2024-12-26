@@ -36,10 +36,8 @@ class Check extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->line('Check if everthing is ok');
 

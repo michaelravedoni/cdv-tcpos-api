@@ -8,6 +8,7 @@ use App\Jobs\SyncAttributeUpdate;
 use App\Models\Attribute as TcposAttribute;
 use Codexshaper\WooCommerce\Facades\Attribute;
 use Codexshaper\WooCommerce\Facades\Term;
+use Illuminate\Http\JsonResponse;
 
 class AttributeController extends Controller
 {
@@ -44,7 +45,7 @@ class AttributeController extends Controller
     /**
      * Sync attributes.
      */
-    public function sync()
+    public function sync(): JsonResponse
     {
         $count_attribute_update = 0;
         foreach ($this->getWooAttributes() as $wooAttributes) {

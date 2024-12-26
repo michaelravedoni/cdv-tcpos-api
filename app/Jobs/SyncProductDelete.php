@@ -36,10 +36,8 @@ class SyncProductDelete implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#delete-product
         Product::delete($this->id, ['force' => false]);

@@ -39,10 +39,8 @@ class SyncCustomerUpdate implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-customer
         Customer::update($this->id, $this->data);

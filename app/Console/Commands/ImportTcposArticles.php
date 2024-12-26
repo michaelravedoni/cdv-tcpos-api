@@ -33,10 +33,8 @@ class ImportTcposArticles extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->line('Importation lauched');
         $importController = new TcposController;

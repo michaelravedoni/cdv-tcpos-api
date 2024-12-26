@@ -22,10 +22,8 @@ class OrderProblemCheck extends Mailable
 
     /**
      * Build the message.
-     *
-     * @return $this
      */
-    public function build()
+    public function build(): static
     {
         return $this->view('emails.order-problem-check')->subject('Commandes entre Woocommerce et TCPOS : Problème de synchronisation détecté');
     }
