@@ -42,7 +42,7 @@ class SyncAttributeUpdate implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-attribute
         Attribute::update($this->id, $this->data);

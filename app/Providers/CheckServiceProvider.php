@@ -14,7 +14,7 @@ class CheckServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         Health::checks([
             DatabaseCheck::new(),
@@ -27,7 +27,7 @@ class CheckServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         //
     }

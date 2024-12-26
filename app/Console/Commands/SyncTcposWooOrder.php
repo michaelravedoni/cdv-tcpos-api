@@ -36,7 +36,7 @@ class SyncTcposWooOrder extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->line('Synchronisation lauched');
         $orderController = new OrderController;

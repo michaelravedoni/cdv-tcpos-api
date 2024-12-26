@@ -39,7 +39,7 @@ class CheckWoo extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $this->line('Check if everthing is ok with woocommerce');
 

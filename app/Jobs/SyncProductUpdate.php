@@ -42,7 +42,7 @@ class SyncProductUpdate implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         // https://codexshaper.github.io/docs/laravel-woocommerce/#update-product
         Product::update($this->id, $this->data);

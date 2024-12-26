@@ -40,7 +40,7 @@ class ImportProductPrice implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data={
             "data": {

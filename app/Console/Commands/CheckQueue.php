@@ -38,7 +38,7 @@ class CheckQueue extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         /**
          * Because we use a database queue, we check if the jobs table still contains any

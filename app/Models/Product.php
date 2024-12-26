@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +24,7 @@ class Product extends Model
     /**
      * Get the prices for the product.
      */
-    public function pricesRelations()
+    public function pricesRelations(): HasMany
     {
         return $this->hasMany(Price::class, '_tcpos_product_id', '_tcposId');
     }
@@ -30,7 +32,7 @@ class Product extends Model
     /**
      * Get the stock for the product.
      */
-    public function stockRelation()
+    public function stockRelation(): HasOne
     {
         return $this->hasOne(Stock::class, '_tcpos_product_id', '_tcposId');
     }
@@ -38,7 +40,7 @@ class Product extends Model
     /**
      * Get the image for the product.
      */
-    public function imageRelation()
+    public function imageRelation(): HasOne
     {
         return $this->hasOne(ProductImage::class, '_tcpos_product_id', '_tcposId');
     }
@@ -46,7 +48,7 @@ class Product extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationCellar()
+    public function attributeRelationCellar(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposId', 'groupAId');
     }
@@ -54,7 +56,7 @@ class Product extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationGrape()
+    public function attributeRelationGrape(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposId', 'groupBId');
     }
@@ -62,7 +64,7 @@ class Product extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationFillingLevel()
+    public function attributeRelationFillingLevel(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposId', 'groupCId');
     }
@@ -70,7 +72,7 @@ class Product extends Model
     /**
      * Get the attributes for the product.
      */
-    public function attributeRelationTownship()
+    public function attributeRelationTownship(): HasOne
     {
         return $this->hasOne(Attribute::class, '_tcposId', 'groupDId');
     }

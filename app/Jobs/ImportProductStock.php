@@ -40,7 +40,7 @@ class ImportProductStock implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $req = Http::withOptions([
             'verify' => false,
