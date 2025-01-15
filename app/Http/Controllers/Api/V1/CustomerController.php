@@ -51,6 +51,7 @@ class CustomerController extends Controller
                 //'raw' => $data,
             ]);
         }
+        return response()->json(['code' => '404', 'message' => 'Customer not found.'], 404);
     }
 
     /**
