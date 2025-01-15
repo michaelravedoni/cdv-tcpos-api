@@ -124,6 +124,8 @@ class OrderController extends Controller
         $WooCustomerId = data_get($wooOrder, 'customer_id');
         // Si le l'id n'est pas trouvé ou la commande est effectuée en mode invité
         if ($WooCustomerId == 0 || empty($WooCustomerId)) {
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('In order #'.$wooOrder->id.' the customer was not found in WooCommerce. The default has set.');
+
             return config('cdv.default_customer_id');
         }
         $wooCustomer = Customer::find($WooCustomerId);
@@ -136,11 +138,15 @@ class OrderController extends Controller
             $response = $req->json();
             $tcposCustomerId = data_get($response, 'USER.ID');
             if (empty($tcposCustomerId)) {
+                activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('In order #'.$wooOrder->id.' the customer was not found in TCPOS database. The default has set.');
+
                 return config('cdv.default_customer_id');
             }
 
             return $tcposCustomerId;
         } else {
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('In order #'.$wooOrder->id.' the customer was not found with cardnumber in WooCommer imported customers. The default has set.');
+
             return config('cdv.default_customer_id');
         }
     }
