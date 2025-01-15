@@ -65,13 +65,13 @@ class ProductController extends Controller
      */
     public function getPrice($id)
     {
-        $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data={
+        $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data='.urlencode('{
             "data": {
                 "shopId": 1,
                 "priceLevelId": 14,
                 "itemList": [{
                     "article": {
-                    "priceLevelId": 14,
+                        "priceLevelId": 14,
                         "id": '.$id.',
                         "quantity": 1
                     }
@@ -84,14 +84,16 @@ class ProductController extends Controller
                     }
                 }]
             }
-        }');
+        }'));
         $response = $req->json();
         $data = data_get($response, 'getPrice.data.itemList');
 
         $array = [];
-        foreach ($data as $key => $value) {
-            $priceItem = (object) data_get($value, 'article');
-            $array[] = $priceItem;
+        if ($data) {
+            foreach ($data as $key => $value) {
+                $priceItem = (object) data_get($value, 'article');
+                $array[] = $priceItem;
+            }
         }
 
         return $array;
