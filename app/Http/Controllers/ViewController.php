@@ -26,15 +26,12 @@ class ViewController extends Controller
         $activitiesLimit = request()->input('limit', 500);
         $showLogsLevelInfo = request()->input('show-info', false);
 
-        $activities = Activity::orderBy('created_at', 'desc')->get();
-        if (! $showLogsLevelInfo) {
-            $filteredActivities = $activities->filter(function ($value, $key) {
-                return data_get($value->properties, 'level') != 'info';
-            });
-            $activities = $filteredActivities->splice(0, $activitiesLimit)->all();
-        } else {
-            $activities = $activities->splice(0, $activitiesLimit);
-        }
+        $activities = Activity::orderBy('created_at', 'desc')
+        ->limit($activitiesLimit)
+        ->when(! $showLogsLevelInfo, function (Builder $query) {
+                    $query->whereNot('properties->level', 'info');
+                })
+        ->get();
 
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
