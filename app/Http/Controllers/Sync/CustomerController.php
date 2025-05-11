@@ -21,8 +21,11 @@ class CustomerController extends Controller
         $customers2 = Customer::all(['per_page' => 100, 'page' => 2]);
         $customers3 = Customer::all(['per_page' => 100, 'page' => 3]);
         $customers4 = Customer::all(['per_page' => 100, 'page' => 4]);
+        $customers5 = Customer::all(['per_page' => 100, 'page' => 5]);
+        $customers6 = Customer::all(['per_page' => 100, 'page' => 6]);
+        $customers7 = Customer::all(['per_page' => 100, 'page' => 7]);
 
-        return $customers->merge($customers2)->merge($customers3)->merge($customers4);
+        return $customers->merge($customers2)->merge($customers3)->merge($customers4)->merge($customers5)->merge($customers6)->merge($customers7);
     }
 
     /**
