@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('hash')->nullable();
             $table->string('sync_action')->nullable();
 
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->integer('isAddition')->nullable();
             $table->integer('articleOrder')->nullable();
             $table->string('measureUnitId')->nullable();

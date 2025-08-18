@@ -19,6 +19,7 @@ class AttributeController extends Controller
     {
         $attributes = Attribute::all(['per_page' => 100, 'page' => 1]);
         $attributes2 = Attribute::all(['per_page' => 100, 'page' => 2]);
+        $attributes2 = Attribute::all(['per_page' => 100, 'page' => 3]);
 
         return $attributes->merge($attributes2);
     }
@@ -30,6 +31,7 @@ class AttributeController extends Controller
     {
         $terms = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 1]);
         $terms2 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 2]);
+        $terms2 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 3]);
 
         return $terms->merge($terms2);
     }
