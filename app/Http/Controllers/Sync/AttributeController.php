@@ -17,11 +17,11 @@ class AttributeController extends Controller
      */
     public function getWooAttributes()
     {
-        $attributes = Attribute::all(['per_page' => 100, 'page' => 1]);
+        $attributes1 = Attribute::all(['per_page' => 100, 'page' => 1]);
         $attributes2 = Attribute::all(['per_page' => 100, 'page' => 2]);
-        $attributes2 = Attribute::all(['per_page' => 100, 'page' => 3]);
+        $attributes3 = Attribute::all(['per_page' => 100, 'page' => 3]);
 
-        return $attributes->merge($attributes2);
+        return $attributes1->merge($attributes2)->merge($attributes3);
     }
 
     /**
@@ -29,11 +29,11 @@ class AttributeController extends Controller
      */
     public function getWooCellarTerms()
     {
-        $terms = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 1]);
+        $terms1 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 1]);
         $terms2 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 2]);
-        $terms2 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 3]);
+        $terms3 = Term::all(config('cdv.wc_attribute_ids.cellar'), ['per_page' => 100, 'page' => 3]);
 
-        return $terms->merge($terms2);
+        return $terms1->merge($terms2)->merge($terms3);
     }
 
     /**
