@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Queue;
@@ -24,11 +25,12 @@ class AppServiceProvider extends ServiceProvider
     {
         JsonResource::withoutWrapping();
 
-        Queue::failing(function (JobFailed $event) {
-            // $event->connectionName
-            // $event->job
-            // $event->exception
-            activity()->withProperties(['group' => 'jobs', 'level' => 'error', 'resource' => 'job'])->log($event->exception->getMessage());
+        Queue::failing(function (JobFailed $event): void {
+            activity()
+                ->withProperties(['group' => 'jobs', 'level' => 'error', 'resource' => 'job'])
+                ->log($event->exception->getMessage());
         });
+
+        LogViewer::auth(fn ($request) => true);
     }
 }

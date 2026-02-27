@@ -36,18 +36,20 @@ class ViewController extends Controller
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
 
-        new \App\Console\Kernel(app(), new Dispatcher);
+        // Manually load the console routes to populate the schedule for the web context
+        require base_path('routes/console.php');
+
         $schedule = app(Schedule::class);
         $scheduled = collect($schedule->events());
-        $scheduledTcpos = $scheduled->filter(function ($item) {
-            return Str::contains($item->command, 'import:tcpos');
-        })->first()->nextRunDate();
-        $scheduledWoo = $scheduled->filter(function ($item) {
-            return Str::contains($item->command, 'import:woo');
-        })->first()->nextRunDate();
-        $scheduledSync = $scheduled->filter(function ($item) {
-            return Str::contains($item->command, 'sync:tcpos_woo');
-        })->first()->nextRunDate();
+
+        $scheduledTcpos = $scheduled->filter(fn ($item) => Str::contains($item->command, 'import:tcpos'))->first();
+        $scheduledTcpos = $scheduledTcpos ? $scheduledTcpos->nextRunDate() : null;
+
+        $scheduledWoo = $scheduled->filter(fn ($item) => Str::contains($item->command, 'import:woo'))->first();
+        $scheduledWoo = $scheduledWoo ? $scheduledWoo->nextRunDate() : null;
+
+        $scheduledSync = $scheduled->filter(fn ($item) => Str::contains($item->command, 'sync:tcpos_woo'))->first();
+        $scheduledSync = $scheduledSync ? $scheduledSync->nextRunDate() : null;
 
         $lastTcposUpdate = AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT');
         $needImportFromTcpos = AppHelper::needImportFromTcpos();
