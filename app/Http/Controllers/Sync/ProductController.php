@@ -75,7 +75,9 @@ class ProductController extends Controller
         if ($tcposResources->count() == 0) {
             activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'products'])->log('No product retrieved from API (got an empty array). Prevent to delete all the production...');
 
-            return 'No product retrieved from API (got an empty array). Prevent to delete all the production...';
+            return response()->json([
+                'message' => 'No product retrieved from API (got an empty array). Prevent to delete all the production...',
+            ], 400);
         }
 
         $count_product_create = 0;
