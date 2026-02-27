@@ -53,9 +53,9 @@ class ViewController extends Controller
 
         $lastTcposUpdate = AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT');
         $needImportFromTcpos = AppHelper::needImportFromTcpos();
-        $lastJobDatetime = $lastJob ? $lastJob->started_at->locale('fr_ch')->timezone('Europe/Zurich') : false;
+        $lastJobDatetime = $lastJob?->started_at?->locale('fr_ch')->timezone('Europe/Zurich') ?? false;
 
-        if (isset($lastJob) && $lastJob->started_at->diffInMinutes(now()) <= 1) {
+        if ($lastJob && $lastJob->started_at && $lastJob->started_at->diffInMinutes(now()) <= 1) {
             $jobsWorking = true;
         } else {
             $jobsWorking = false;

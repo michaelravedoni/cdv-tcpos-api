@@ -102,20 +102,20 @@
                             <div class="w-1/2"><span class="tooltip tooltip-right"
                                     data-tip="Prochaine importation Woocommerce"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-download"></i> Woocommerce</span></div>
                             <div class="w-1/2">
-                                {{ $scheduledWoo->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}</div>
+                                {{ $scheduledWoo?->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') ?? 'Non programmé' }}</div>
                         </div>
                         <div class="flex flex-wrap">
                             <div class="w-1/2"><span class="tooltip tooltip-right"
                                     data-tip="Prochaine importation TCPOS"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-download"></i> TCPOS</span></div>
                             <div class="w-1/2">
-                                {{ $scheduledTcpos->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}
+                                {{ $scheduledTcpos?->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') ?? 'Non programmé' }}
                             </div>
                         </div>
                         <div class="flex flex-wrap">
                             <div class="w-1/2"><span class="tooltip tooltip-right"
                                     data-tip="Prochaine synchronisation"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-arrow-repeat"></i> Synchro</span></div>
                             <div class="w-1/2">
-                                {{ $scheduledSync->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') }}
+                                {{ $scheduledSync?->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') ?? 'Non programmé' }}
                             </div>
                         </div>
                     </div>

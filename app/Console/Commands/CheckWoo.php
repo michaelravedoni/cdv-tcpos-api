@@ -48,10 +48,11 @@ class CheckWoo extends Command
         // Get wooProducts
         $wooProducts = Woo::all();
         $wooProducts = $wooProducts->map(function ($wooProduct) {
+            $tcposId = $wooProduct->_tcposId ?? AppHelper::getMetadataValueFromKey(data_get($wooProduct, 'data.meta_data'), config('cdv.wc_meta_tcpos_id'));
             return [
                 'id' => $wooProduct->id,
                 '_wooId' => $wooProduct->_wooId,
-                '_tcposId' => $wooProduct->_tcposId ?? AppHelper::getMetadataValueFromKey(data_get($wooProduct, 'data.meta_data'), config('cdv.wc_meta_tcpos_id')),
+                '_tcposId' => $tcposId ? (int) $tcposId : null,
                 '_tcposCode' => $wooProduct->_tcposCode,
                 'permalink' => data_get($wooProduct, 'data.permalink'),
                 'has_image' => data_get($wooProduct, 'data.images.0.src') ? true : false,
@@ -62,7 +63,11 @@ class CheckWoo extends Command
         // Find where has no image
         $productIdsToSync = [];
         foreach ($tcposProductImages as $key => $tcposProductImage) {
-            $checkedWooProduct = $wooProducts->firstWhere('_tcposId', $tcposProductImage->_tcpos_product_id);
+            $tcposIdToMatch = (string) $tcposProductImage->_tcpos_product_id;
+            $checkedWooProduct = $wooProducts->first(function($item) use ($tcposIdToMatch) {
+                return (string) data_get($item, '_tcposId') === $tcposIdToMatch;
+            });
+            
             if (! empty($checkedWooProduct)) {
                 if (! data_get($checkedWooProduct, 'has_image') && $tcposProductImage->hash != null) {
                     $productIdsToSync[] = $tcposProductImage->_tcpos_product_id;
@@ -77,10 +82,12 @@ class CheckWoo extends Command
         // $productIdsToSync = [1976, 11976]; // testing
         foreach ($productIdsToSync as $productIdToSync) {
             $modelProduct = ModelsProduct::where('_tcposId', $productIdToSync)->first();
-            $modelProduct->sync_action = 'update';
-            $modelProduct->save();
+            if ($modelProduct) {
+                $modelProduct->sync_action = 'update';
+                $modelProduct->save();
 
-            activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('Product image will be updated in Woocommerce | tcposId:'.$productIdToSync);
+                activity()->withProperties(['group' => 'check', 'level' => 'warning', 'resource' => 'products'])->log('Product image will be updated in Woocommerce | tcposId:'.$productIdToSync);
+            }
         }
 
         if (count($productIdsToSync) > 0) {

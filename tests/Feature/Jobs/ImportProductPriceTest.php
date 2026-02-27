@@ -3,10 +3,11 @@
 use App\Jobs\ImportProductPrice;
 use App\Models\Price;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
-    putenv('TCPOS_API_WOND_URL=http://localhost');
-    $_ENV['TCPOS_API_WOND_URL'] = 'http://localhost';
+    config(['cdv.tcpos.api_wond_url' => 'http://localhost']);
+    DB::table('prices')->truncate();
 });
 
 it('imports prices when they do not exist in local database', function () {
@@ -20,7 +21,7 @@ it('imports prices when they do not exist in local database', function () {
                             'id' => $id,
                             'price' => 10.5,
                             'discountedprice' => 9.5,
-                            'pricelevelid' => 14
+                            'pricelevelid' => '14'
                         ]
                     ]
                 ]
@@ -37,19 +38,21 @@ it('imports prices when they do not exist in local database', function () {
     $this->assertDatabaseHas('prices', [
         '_tcpos_product_id' => $id,
         'price' => 10.5,
-        'pricelevelid' => 14,
+        'pricelevelid' => '14',
         'sync_action' => 'update'
     ]);
 });
 
 it('updates existing prices if price changed', function () {
     $id = 123;
-    Price::create([
+    DB::table('prices')->insert([
         '_tcpos_product_id' => $id,
         'price' => 10.0,
         'discountedprice' => 9.0,
-        'pricelevelid' => 14,
-        'sync_action' => 'none'
+        'pricelevelid' => '14',
+        'sync_action' => 'none',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     Http::fake([
@@ -62,7 +65,7 @@ it('updates existing prices if price changed', function () {
                                 'id' => $id,
                                 'price' => 11.0,
                                 'discountedprice' => 10.0,
-                                'pricelevelid' => 14
+                                'pricelevelid' => '14'
                             ]
                         ]
                     ]
@@ -82,12 +85,14 @@ it('updates existing prices if price changed', function () {
 
 it('sets sync_action to none if price is unchanged', function () {
     $id = 123;
-    $price = Price::create([
+    DB::table('prices')->insert([
         '_tcpos_product_id' => $id,
         'price' => 10.0,
         'discountedprice' => 9.0,
-        'pricelevelid' => 14,
-        'sync_action' => 'update'
+        'pricelevelid' => '14',
+        'sync_action' => 'update',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     Http::fake([
@@ -100,7 +105,7 @@ it('sets sync_action to none if price is unchanged', function () {
                                 'id' => $id,
                                 'price' => 10.0,
                                 'discountedprice' => 9.0,
-                                'pricelevelid' => 14
+                                'pricelevelid' => '14'
                             ]
                         ]
                     ]
@@ -111,6 +116,6 @@ it('sets sync_action to none if price is unchanged', function () {
 
     (new ImportProductPrice($id))->handle();
 
-    $price->refresh();
+    $price = Price::where('_tcpos_product_id', $id)->where('pricelevelid', '14')->first();
     expect($price->sync_action)->toBe('none');
-})->skip();
+});

@@ -86,6 +86,10 @@ class AppHelper
      */
     public static function getMetadataValueFromKey($metadataArray, $key)
     {
+        if (empty($metadataArray) || ! is_array($metadataArray)) {
+            return null;
+        }
+
         return data_get($metadataArray, array_search($key, array_column($metadataArray, 'key')).'.value');
     }
 }

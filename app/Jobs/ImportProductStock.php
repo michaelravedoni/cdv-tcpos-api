@@ -42,7 +42,7 @@ class ImportProductStock implements ShouldQueue
     {
         $req = Http::withOptions([
             'verify' => false,
-        ])->get(env('TCPOS_API_CDV_URL').'/getarticlesstock/id/'.$this->id);
+        ])->get(config('cdv.tcpos.api_cdv_url').'/getarticlesstock/id/'.$this->id);
         $response = $req->json();
         $data = data_get($response, 'STOCK');
 

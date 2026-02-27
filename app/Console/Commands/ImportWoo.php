@@ -34,10 +34,9 @@ class ImportWoo extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(ImportController $importController): int
     {
         $this->line('Importation lauched');
-        $importController = new ImportController;
         $importController->importWooAll();
         $this->info('Importation done. There are maybe queued jobs launched.');
 

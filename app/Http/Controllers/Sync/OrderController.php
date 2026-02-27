@@ -134,7 +134,7 @@ class OrderController extends Controller
         if ($customerCardNum != '' || empty($customerCardNum)) {
             $req = Http::withOptions([
                 'verify' => false,
-            ])->get(env('TCPOS_API_CDV_URL').'/getCustomerDetails/card/'.$customerCardNum);
+            ])->get(config('cdv.tcpos.api_cdv_url').'/getCustomerDetails/card/'.$customerCardNum);
             $response = $req->json();
             $tcposCustomerId = data_get($response, 'USER.ID');
             if (empty($tcposCustomerId)) {
@@ -260,12 +260,12 @@ class OrderController extends Controller
         ];
 
         // Générer un token pour TCPOS
-        $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
+        $requestToken = Http::get(config('cdv.tcpos.api_wond_url').'/login?user='.config('cdv.tcpos.api_wond_user').'&password='.config('cdv.tcpos.api_wond_password'));
         $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
 
         // S'il y a a un token: créer la commande dans TCPOS
         if ($token) {
-            $requestOrder = Http::get(env('TCPOS_API_WOND_URL').'/createOrder?token='.urlencode($token).'&data='.urlencode(json_encode($requestOrderData)));
+            $requestOrder = Http::get(config('cdv.tcpos.api_wond_url').'/createOrder?token='.urlencode($token).'&data='.urlencode(json_encode($requestOrderData)));
             $dataOrder = $requestOrder->json();
             $dataOrderResponse = data_get($dataOrder, 'createOrder.result');
 
@@ -290,7 +290,7 @@ class OrderController extends Controller
                 $requestOrderConfirmData['payments'] = json_encode($this->createPaymentTcposData($wooOrder));
             }
 
-            $requestOrderConfirm = Http::get(env('TCPOS_API_WOND_URL').'/confirmOrder', $requestOrderConfirmData);
+            $requestOrderConfirm = Http::get(config('cdv.tcpos.api_wond_url').'/confirmOrder', $requestOrderConfirmData);
             $dataOrderConfirm = $requestOrderConfirm->json();
             $dataOrderConfirmResponse = data_get($dataOrderConfirm, 'confirmOrder.result');
 

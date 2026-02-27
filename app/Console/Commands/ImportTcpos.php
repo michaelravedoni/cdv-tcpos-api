@@ -34,10 +34,9 @@ class ImportTcpos extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(ImportController $importController): int
     {
         $this->line('Importation lauched');
-        $importController = new ImportController;
         $importController->importTcposAll();
         $this->info('Importation done. There are maybe queued jobs launched.');
 

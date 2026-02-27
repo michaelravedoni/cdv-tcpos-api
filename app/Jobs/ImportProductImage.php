@@ -42,7 +42,7 @@ class ImportProductImage implements ShouldQueue
      */
     public function handle(): void
     {
-        $req = Http::get(env('TCPOS_API_WOND_URL').'/getImage?id='.$this->id);
+        $req = Http::get(config('cdv.tcpos.api_wond_url').'/getImage?id='.$this->id);
         $response = $req->json();
         $data = data_get($response, 'getImage.imageList.0.bitmapFile');
 
@@ -80,7 +80,7 @@ class ImportProductImage implements ShouldQueue
         $image = $data;
         $image = str_replace(' ', '+', $image);
         $imageDecode = base64_decode($image);
-        $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->id.'.jpg';
+        $path = config('cdv.tcpos.products_images_base_path').'/'.$this->id.'.jpg';
         Storage::disk('public')->put($path, $imageDecode);
 
         $productImage->hash = md5($data);

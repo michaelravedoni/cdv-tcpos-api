@@ -34,10 +34,9 @@ class SyncTcposWoo extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(SyncController $syncController): int
     {
         $this->line('Synchronisation lauched');
-        $syncController = new SyncController;
         $syncController->all();
         $this->info('Synchronisation done. There are queued jobs launched.');
 

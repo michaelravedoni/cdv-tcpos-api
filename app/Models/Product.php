@@ -195,7 +195,7 @@ class Product extends Model
     public function imageUrl()
     {
         if (isset($this->hash)) {
-            $path = env('TCPOS_PRODUCTS_IMAGES_BASE_PATH').'/'.$this->_tcposId.'.jpg';
+            $path = config('cdv.tcpos.products_images_base_path').'/'.$this->_tcposId.'.jpg';
             $url = Storage::disk('public')->url($path);
 
             return $url;

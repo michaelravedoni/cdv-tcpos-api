@@ -3,10 +3,11 @@
 use App\Jobs\ImportProductStock;
 use App\Models\Stock;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
-    putenv('TCPOS_API_CDV_URL=http://localhost');
-    $_ENV['TCPOS_API_CDV_URL'] = 'http://localhost';
+    config(['cdv.tcpos.api_cdv_url' => 'http://localhost']);
+    DB::table('stocks')->truncate();
 });
 
 it('imports stock when it does not exist in local database', function () {
@@ -24,10 +25,12 @@ it('imports stock when it does not exist in local database', function () {
 
 it('updates existing stock if value changed', function () {
     $id = 123;
-    Stock::create([
+    DB::table('stocks')->insert([
         '_tcpos_product_id' => $id,
         'value' => "50",
-        'sync_action' => 'none'
+        'sync_action' => 'none',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     Http::fake(['*/getarticlesstock/*' => Http::response(['STOCK' => 60], 200)]);
@@ -43,16 +46,18 @@ it('updates existing stock if value changed', function () {
 
 it('sets sync_action to none if stock value is unchanged', function () {
     $id = 123;
-    $stock = Stock::create([
+    DB::table('stocks')->insert([
         '_tcpos_product_id' => $id,
         'value' => "50",
-        'sync_action' => 'update'
+        'sync_action' => 'update',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     Http::fake(['*/getarticlesstock/*' => Http::response(['STOCK' => 50], 200)]);
 
     (new ImportProductStock($id))->handle();
 
-    $stock->refresh();
+    $stock = Stock::where('_tcpos_product_id', $id)->first();
     expect($stock->sync_action)->toBe('none');
-})->skip();
+});

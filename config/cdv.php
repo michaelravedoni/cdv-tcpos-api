@@ -146,4 +146,13 @@ return [
         ],
     ],
 
+    // TCPOS API
+    'tcpos' => [
+        'api_wond_url' => env('TCPOS_API_WOND_URL'),
+        'api_cdv_url' => env('TCPOS_API_CDV_URL'),
+        'api_wond_user' => env('TCPOS_API_WOND_USER'),
+        'api_wond_password' => env('TCPOS_API_WOND_PASSWORD'),
+        'products_images_base_path' => env('TCPOS_PRODUCTS_IMAGES_BASE_PATH', 'images'),
+    ],
+
 ];

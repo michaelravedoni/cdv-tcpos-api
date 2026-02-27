@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     Storage::fake('public');
     
-    putenv('TCPOS_API_WOND_URL=http://localhost');
-    putenv('TCPOS_PRODUCTS_IMAGES_BASE_PATH=images');
-    $_ENV['TCPOS_API_WOND_URL'] = 'http://localhost';
-    $_ENV['TCPOS_PRODUCTS_IMAGES_BASE_PATH'] = 'images';
+    config([
+        'cdv.tcpos.api_wond_url' => 'http://localhost',
+        'cdv.tcpos.products_images_base_path' => 'images',
+    ]);
 });
 
 it('imports a product image when it does not exist in local database', function () {
@@ -40,7 +40,7 @@ it('imports a product image when it does not exist in local database', function 
     ]);
 
     Storage::disk('public')->assertExists('images/' . $id . '.jpg');
-})->skip();
+});
 
 it('updates an existing product image if hash is different', function () {
     $id = 123;
@@ -75,11 +75,11 @@ it('does nothing when the image hash is the same in tcpos and local database', f
     $imageData = base64_encode('same-content');
     $hash = md5($imageData);
 
-    $productImage = ProductImage::create([
-        '_tcpos_product_id' => $id,
-        'hash' => $hash,
-        'sync_action' => 'update'
-    ]);
+    $productImage = new ProductImage();
+    $productImage->_tcpos_product_id = $id;
+    $productImage->hash = $hash;
+    $productImage->sync_action = 'update';
+    $productImage->save();
 
     Http::fake([
         '*/getImage*' => Http::response([
@@ -93,7 +93,7 @@ it('does nothing when the image hash is the same in tcpos and local database', f
 
     $productImage->refresh();
     expect($productImage->sync_action)->toBe('none');
-})->skip();
+});
 
 it('resets hash and labels no sync action if no image found in TCPOS', function () {
     $id = 123;

@@ -34,10 +34,9 @@ class SyncTcposWooOrder extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): int
+    public function handle(OrderController $orderController): int
     {
         $this->line('Synchronisation lauched');
-        $orderController = new OrderController;
         $orderController->sync();
         $this->info('Synchronisation done. There are queued jobs launched.');
 
