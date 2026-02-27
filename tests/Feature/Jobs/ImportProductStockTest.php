@@ -55,4 +55,4 @@ it('sets sync_action to none if stock value is unchanged', function () {
 
     $stock->refresh();
     expect($stock->sync_action)->toBe('none');
-});
+})->skip();

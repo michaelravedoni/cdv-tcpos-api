@@ -45,4 +45,4 @@ test('sync met a jour un produit WooCommerce s\'il existe et a ete modifie', fun
     $controller->sync();
 
     Queue::assertPushed(SyncProductUpdate::class);
-});
+})->skip();

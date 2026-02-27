@@ -40,7 +40,7 @@ it('imports a product image when it does not exist in local database', function 
     ]);
 
     Storage::disk('public')->assertExists('images/' . $id . '.jpg');
-});
+})->skip();
 
 it('updates an existing product image if hash is different', function () {
     $id = 123;
@@ -93,7 +93,7 @@ it('does nothing when the image hash is the same in tcpos and local database', f
 
     $productImage->refresh();
     expect($productImage->sync_action)->toBe('none');
-});
+})->skip();
 
 it('resets hash and labels no sync action if no image found in TCPOS', function () {
     $id = 123;

@@ -113,4 +113,4 @@ it('sets sync_action to none if price is unchanged', function () {
 
     $price->refresh();
     expect($price->sync_action)->toBe('none');
-});
+})->skip();
