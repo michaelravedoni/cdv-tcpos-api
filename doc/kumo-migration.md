@@ -23,13 +23,16 @@ Les trois API à remplacer sont utilisées aux endroits suivants :
 | **Groupes d'articles** | `GET /api/v1/groups` | **Oui** |
 | **Détails Client** (par carte) | `GET /api/v2/customers` (via filtre OData) | **Oui** |
 | **Détails Voucher** (par barcode) | `GET /api/v1/vouchers/{id}` | **Oui** |
-| **Stock des articles** | **Aucun endpoint trouvé** | **Incertain** |
+| **Stock des articles** | `GET /api/v1/stock-levels/articles/{id}` | **Oui** |
 
 ---
 
 ### 3. Points d'attention et limitations
 
-1.  **Gestion des Stocks** : C'est le point critique. Le Swagger fourni ne contient **aucune référence au stock ou à l'inventaire** (recherche effectuée sur les termes "Stock", "Inventory", "Quantity", "Availability"). Si cette fonctionnalité est indispensable, il faudra vérifier si un plugin Kumo spécifique à l'inventaire existe ou si ces données sont accessibles via un autre biais.
+1.  **Gestion des Stocks** : Suite à une mise à jour de la configuration de l'API Kumo, les fonctions de stock sont désormais disponibles.
+    *   **Mapping** : Les articles de vente (`GET /api/v1/articles/{id}`) incluent désormais un champ `RelatedStockBomIds` (souvent identique au code de l'article de vente) permettant de faire le lien avec l'inventaire.
+    *   **Endpoints** : Utilisation de `GET /api/v1/stock-levels/articles/{id}` pour un article spécifique.
+    *   **Performance** : L'endpoint global `GET /api/v1/stock-levels/articles` est fonctionnel mais lent (environ 50 secondes pour l'ensemble du catalogue). Il est préférable de privilégier des appels ciblés ou une synchronisation asynchrone prudente.
 2.  **Authentification** : L'API Kumo utilise OAuth2 (`/connect/token`), contrairement aux implémentations actuelles qui semblent utiliser des URL directes ou des mécanismes plus simples. Une nouvelle couche d'authentification devra être implémentée.
 3.  **Format de données** : Le passage de SOAP (`WCF_URL`) à REST (Kumo) simplifiera grandement le code de `TcposController`, mais nécessitera un re-mapping complet des champs (ex: `DESCRIPTION` vs `Description`, `CODE` vs `Id`).
 4.  **Filtrage Client** : La recherche d'un client par numéro de carte (`CardNumber`) devra probablement passer par un paramètre `$filter` OData sur l'endpoint des clients, car il n'existe pas d'endpoint dédié de type `/card/{num}`.
@@ -97,8 +100,8 @@ Avant de modifier le code, il est crucial de valider la faisabilité complète a
 **1.1. Clarification des Gaps avec TCPOS (Action Immédiate)**
 Comme identifié précédemment, le Swagger Kumo actuel présente des lacunes critiques pour un site e-commerce :
 *   **Création de commande (`createOrder` / `confirmOrder`)** : Absente du Swagger. *Action : Demander à TCPOS si un autre endpoint ou un plugin spécifique gère l'injection de transactions.*
-*   **Stocks (`getarticlesstock`)** : Absent. *Action : Demander comment lire l'inventaire en temps réel via Kumo.*
-*   **Décision stratégique** : Si Kumo ne couvre pas ces points, la migration sera **partielle** (Kumo pour la synchronisation du catalogue, maintien de WOND/CDV pour les commandes et le stock).
+*   **Stocks (`getarticlesstock`)** : Désormais disponible via `GET /api/v1/stock-levels/articles/{id}`.
+*   **Décision stratégique** : La migration peut inclure le stock. Seule la partie **Commandes** (Transactions) reste dépendante de WOND.
 
 **1.2. Configuration de l'environnement**
 *   Ajout des nouvelles variables d'environnement dans `.env` et `config/cdv.php` :
@@ -166,9 +169,9 @@ Cette phase permet de supprimer l'API SOAP obsolète (WCF) et de rationaliser le
 
 ## Phase 5 : Stratégie de Maintien (Fallback) et Commandes
 
-Tant que Kumo ne propose pas les endpoints pour la création de commande et la lecture du stock (confirmé lors de la Phase 1) :
+Tant que Kumo ne propose pas les endpoints pour la création de commande (confirmé lors de la Phase 1) :
 
-*   **Stocks** : Le job `ImportProductStock` continue d'utiliser `TCPOS_API_CDV_URL/getarticlesstock/id/`.
+*   **Stocks** : Le job `ImportProductStock` peut désormais être migré vers Kumo en utilisant `GET /api/v1/stock-levels/articles/{id}`.
 *   **Commandes** : `OrderController@createTcposOrder` continue d'utiliser `TCPOS_API_WOND_URL/login`, `/createOrder` et `/confirmOrder`.
 *   **Timestamp de rafraîchissement** : Remplacer `WOND/getLastRefreshTimestamp` par `GET /api/v1/tills/{id}/status` ou `GET /api/v1/till-statuses` en inspectant la propriété `LastDbRefreshTimestamp`.
 
@@ -194,7 +197,7 @@ Pour s'assurer que la migration ne casse pas le site en production :
 ### Résumé des bénéfices de ce plan :
 1.  **Contrôlable** : Utilisation d'un *Feature Flag* pour un retour arrière instantané.
 2.  **Performant** : Réduction drastique des appels HTTP (fusion des imports articles et prix grâce à l'architecture de Kumo).
-3.  **Viable** : Identification claire des limites actuelles (Stocks, Commandes) pour ne pas casser le workflow d'achat en attendant une mise à jour de l'API Kumo de la part du fournisseur.
+3.  **Viable** : Identification claire des limites actuelles (Commandes) pour ne pas casser le workflow d'achat en attendant une mise à jour de l'API Kumo de la part du fournisseur.
 
 ---
 
