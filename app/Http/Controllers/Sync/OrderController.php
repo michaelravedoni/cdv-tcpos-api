@@ -154,8 +154,16 @@ class OrderController extends Controller
     /**
      * Create payment data for TCPOS.
      */
-    public function createPaymentTcposData($wooOrder)
+    public function createPaymentTcposData($wooOrder, $tcposTotal = null)
     {
+        $totalToPay = $tcposTotal ?? data_get($wooOrder, 'total');
+        $fundsUsed = AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used');
+        $mainPaymentAmount = $totalToPay;
+
+        if (! empty($fundsUsed)) {
+            $mainPaymentAmount = $totalToPay - $fundsUsed;
+        }
+
         $paymentConfig = data_get(config('cdv.payment_methods'), data_get($wooOrder, 'payment_method'));
 
         if (isset($paymentConfig)) {
@@ -164,7 +172,7 @@ class OrderController extends Controller
                     [
                         'paymentType' => data_get($paymentConfig, 'type'),
                         'paymentNotes' => data_get($paymentConfig, 'note'),
-                        'paymentAmount' => data_get($wooOrder, 'total'),
+                        'paymentAmount' => $mainPaymentAmount,
                     ],
                 ],
             ];
@@ -174,7 +182,7 @@ class OrderController extends Controller
                     [
                         'paymentType' => 'cash',
                         'paymentNotes' => 'Non payé. Paiement créé artificiellement pour un test.',
-                        'paymentAmount' => data_get($wooOrder, 'total'),
+                        'paymentAmount' => $mainPaymentAmount,
                     ],
                 ],
             ];
@@ -182,15 +190,15 @@ class OrderController extends Controller
             activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order payment #'.$wooOrder->id.' has no payment. A fake one has been created for testing purpose.');
         }
         // If funds used (customercard / solde de la carte client), add it as payment
-        if (! empty(AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'))) {
+        if (! empty($fundsUsed)) {
             $paymentData['payments'][] =
                 [
                     'paymentType' => 'customercard',
                     'paymentNotes' => 'Solde client.',
-                    'paymentAmount' => AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used'),
+                    'paymentAmount' => $fundsUsed,
                 ];
 
-            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.AppHelper::getMetadataValueFromKey($wooOrder->meta_data, '_funds_used').'. The order has to be controlled.');
+            activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' uses customer funds (solde du compte client) for a total of '.$fundsUsed.'. The order has to be controlled.');
         }
 
         return $paymentData;
@@ -287,7 +295,12 @@ class OrderController extends Controller
             ];
 
             if ($type == 'default') {
-                $requestOrderConfirmData['payments'] = json_encode($this->createPaymentTcposData($wooOrder));
+                $tcposTotal = data_get($dataOrder, 'createOrder.data.total') ?? data_get($wooOrder, 'total');
+                $wooTotal = data_get($wooOrder, 'total');
+                if (number_format((float) $tcposTotal, 2) != number_format((float) $wooTotal, 2)) {
+                    activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' has a total discrepancy between Woo ('.$wooTotal.') and TCPOS ('.$tcposTotal.'). Using TCPOS total for payment to allow confirmation.');
+                }
+                $requestOrderConfirmData['payments'] = json_encode($this->createPaymentTcposData($wooOrder, $tcposTotal));
             }
 
             $requestOrderConfirm = Http::get(config('cdv.tcpos.api_wond_url').'/confirmOrder', $requestOrderConfirmData);
@@ -308,6 +321,13 @@ class OrderController extends Controller
                     ['key' => config('cdv.wc_meta_tcpos_order_id'), 'value' => data_get($dataOrder, 'createOrder.data.guid')],
                 ],
             ];
+
+            if (number_format((float) $tcposTotal, 2) != number_format((float) $wooTotal, 2)) {
+                $wooUpdateOrderData['meta_data'][] = [
+                    'key' => 'tcpos_rounding_adjustment',
+                    'value' => number_format((float) $tcposTotal - (float) $wooTotal, 2),
+                ];
+            }
             // Order::update($this->id, $this->data);
             SyncOrderUpdate::dispatch($wooOrder->id, $wooUpdateOrderData);
             activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'orders'])->log('Order #'.$wooOrder->id.' dispatched to queue');
