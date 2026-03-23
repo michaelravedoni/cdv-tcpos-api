@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Jobs\SyncOrderUpdate;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Codexshaper\WooCommerce\Facades\Order;
 use Codexshaper\WooCommerce\Facades\Customer;
@@ -294,11 +295,14 @@ class OrderController extends Controller
                 'operation' => $operation,
             ];
 
+            $tcposTotal = data_get($dataOrder, 'createOrder.data.total') ?? data_get($wooOrder, 'total');
+            $wooTotal = data_get($wooOrder, 'total');
+
             if ($type == 'default') {
-                $tcposTotal = data_get($dataOrder, 'createOrder.data.total') ?? data_get($wooOrder, 'total');
-                $wooTotal = data_get($wooOrder, 'total');
                 if (number_format((float) $tcposTotal, 2) != number_format((float) $wooTotal, 2)) {
-                    activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log('The order #'.$wooOrder->id.' has a total discrepancy between Woo ('.$wooTotal.') and TCPOS ('.$tcposTotal.'). Using TCPOS total for payment to allow confirmation.');
+                    $logMessage = 'The order #'.$wooOrder->id.' has a total discrepancy between Woo ('.$wooTotal.') and TCPOS ('.$tcposTotal.'). Using TCPOS total for payment to allow confirmation.';
+                    activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'orders'])->log($logMessage);
+                    Log::info($logMessage);
                 }
                 $requestOrderConfirmData['payments'] = json_encode($this->createPaymentTcposData($wooOrder, $tcposTotal));
             }
