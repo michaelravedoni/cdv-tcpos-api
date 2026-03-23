@@ -124,8 +124,8 @@
                     <div class="w-2/3"><span class="tooltip tooltip-right"
                             data-tip="Dernière mise à jour dans la base TCPOS"><i class="bi bi-arrow-left-square"></i> <i class="bi bi-upload"></i> TCPOS</span></div>
                     <div class="w-1/3">
-                        <span class="tooltip" data-tip="{{ AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT') }}">
-                            {{ now()->locale('fr_ch')->longRelativeToNowDiffForHumans(AppHelper::getLastTcposUpdate()) }}
+                        <span class="tooltip" data-tip="{{ $lastTcposUpdateDate->locale('fr_ch')->isoFormat('L LT') }}">
+                            {{ now()->locale('fr_ch')->longRelativeToNowDiffForHumans($lastTcposUpdateDate) }}
                         </span>
                     </div>
                 </div>
@@ -194,6 +194,7 @@
 
         <form action="" method="get" class="grid grid-cols-6 gap-4">
             <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="this.form.submit()" name="limit">
+                <option value="100" @if($activitiesLimit == 100) selected @endif>100</option>
                 <option value="500" @if($activitiesLimit == 500) selected @endif>500</option>
                 <option value="1000" @if($activitiesLimit == 1000) selected @endif>1000</option>
                 <option value="2000" @if($activitiesLimit == 2000) selected @endif>2000</option>
@@ -235,30 +236,18 @@
                     @forelse($activities as $activity)
                     @php
                     $level = $activity->getExtraProperty('level');
-                    $colorText = '';
-                    $colorBg = '';
-                    if ($level == 'start') {
-                    $colorBg = 'bg-success';
-                    $colorText = 'alert-success';
-                    } elseif ($level == 'end') {
-                    $colorBg = 'bg-success';
-                    $colorText = 'alert-success';
-                    } elseif ($level == 'error') {
-                    $colorBg = 'bg-error';
-                    $colorText = 'alert-error';
-                    } elseif ($level == 'warning') {
-                    $colorBg = 'bg-warning';
-                    $colorText = 'alert-warning';
-                    } elseif ($level == 'info') {
-                    $colorBg = 'text-base-content';
-                    $colorText = 'bg-base-content-100';
-                    } elseif ($level == 'job') {
-                    $colorBg = 'bg-info';
-                    $colorText = 'alert-info';
-                    }
+                    $colors = [
+                        'start'   => ['bg' => 'bg-success', 'text' => 'alert-success'],
+                        'end'     => ['bg' => 'bg-success', 'text' => 'alert-success'],
+                        'error'   => ['bg' => 'bg-error',   'text' => 'alert-error'],
+                        'warning' => ['bg' => 'bg-warning', 'text' => 'alert-warning'],
+                        'info'    => ['bg' => 'text-base-content', 'text' => 'bg-base-content-100'],
+                        'job'     => ['bg' => 'bg-info',    'text' => 'alert-info'],
+                    ];
+                    $color = $colors[$level] ?? ['bg' => '', 'text' => ''];
                     @endphp
 
-                    <tr class="font-sm leading-relaxed {{ $colorText }} {{ $colorBg }}">
+                    <tr class="font-sm leading-relaxed {{ $color['text'] }} {{ $color['bg'] }}">
                         <td class="px-4 min-w-max">{{ $activity->getExtraProperty('group') }}</td>
                         <td class="px-4">{{ $activity->getExtraProperty('resource') }}</td>
                         <td class="px-4">{{ $level }}</td>

@@ -23,15 +23,15 @@ class ViewController extends Controller
      */
     public function show()
     {
-        $activitiesLimit = request()->input('limit', 500);
+        $activitiesLimit = request()->input('limit', 100);
         $showLogsLevelInfo = request()->input('show-info', false);
 
         $activities = Activity::orderBy('created_at', 'desc')
-        ->limit($activitiesLimit)
-        ->when(! $showLogsLevelInfo, function (Builder $query) {
-                    $query->whereNot('properties->level', 'info');
-                })
-        ->get();
+            ->limit($activitiesLimit)
+            ->when(! $showLogsLevelInfo, function (Builder $query) {
+                $query->whereNot('properties->level', 'info');
+            })
+            ->get();
 
         $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
         $remainingJobs = DB::table('jobs')->count();
@@ -51,8 +51,15 @@ class ViewController extends Controller
         $scheduledSync = $scheduled->filter(fn ($item) => Str::contains($item->command, 'sync:tcpos_woo'))->first();
         $scheduledSync = $scheduledSync ? $scheduledSync->nextRunDate() : null;
 
-        $lastTcposUpdate = AppHelper::getLastTcposUpdate()->locale('fr_ch')->isoFormat('L LT');
-        $needImportFromTcpos = AppHelper::needImportFromTcpos();
+        // Fetch TCPOS update once to avoid multiple HTTP calls
+        $lastTcposUpdateDate = AppHelper::getLastTcposUpdate();
+        $lastTcposUpdate = $lastTcposUpdateDate->locale('fr_ch')->isoFormat('L LT');
+        
+        // We can pass the object to AppHelper if we modify it, but let's just use it here
+        $tcposTimestamp = $lastTcposUpdateDate->toDateTimeLocalString();
+        $localTimestamp = \anlutro\LaravelSettings\Facade::get('lastTcposUpdate', null);
+        $needImportFromTcpos = $tcposTimestamp > $localTimestamp;
+
         $lastJobDatetime = $lastJob?->started_at?->locale('fr_ch')->timezone('Europe/Zurich') ?? false;
 
         if ($lastJob && $lastJob->started_at && $lastJob->started_at->diffInMinutes(now()) <= 1) {
@@ -65,7 +72,12 @@ class ViewController extends Controller
             $query->where('value', '<', 6);
         })->count();
 
-        $products_count = Product::all()->count();
+        $products_count = Product::count();
+
+        // Group category counts in one query
+        $categoryCounts = Product::select('category', DB::raw('count(*) as total'))
+            ->groupBy('category')
+            ->pluck('total', 'category');
 
         return view('welcome', [
             'activities' => $activities,
@@ -74,6 +86,7 @@ class ViewController extends Controller
             'lastJobDatetime' => $lastJobDatetime,
             'remainingJobs' => $remainingJobs,
             'lastTcposUpdate' => $lastTcposUpdate,
+            'lastTcposUpdateDate' => $lastTcposUpdateDate, // Pass the date object too
             'needImportFromTcpos' => $needImportFromTcpos,
             'jobsWorking' => $jobsWorking,
             'scheduledTcpos' => $scheduledTcpos,
@@ -81,16 +94,16 @@ class ViewController extends Controller
             'scheduledSync' => $scheduledSync,
             'products_count' => $products_count,
             'products_where_minimal_quantity_under_six' => $products_where_minimal_quantity_under_six,
-            'count_wine' => Product::where('category', 'wine')->count(),
-            'spirit' => Product::where('category', 'spirit')->count(),
-            'cider' => Product::where('category', 'cider')->count(),
-            'wineSet' => Product::where('category', 'wineSet')->count(),
-            'mineralDrink' => Product::where('category', 'mineralDrink')->count(),
-            'regionalProduct' => Product::where('category', 'regionalProduct')->count(),
-            'beer' => Product::where('category', 'beer')->count(),
-            'book' => Product::where('category', 'book')->count(),
-            'selection' => Product::where('category', 'selection')->count(),
-            'none' => Product::where('category', 'none')->count(),
+            'count_wine' => $categoryCounts->get('wine', 0),
+            'spirit' => $categoryCounts->get('spirit', 0),
+            'cider' => $categoryCounts->get('cider', 0),
+            'wineSet' => $categoryCounts->get('wineSet', 0),
+            'mineralDrink' => $categoryCounts->get('mineralDrink', 0),
+            'regionalProduct' => $categoryCounts->get('regionalProduct', 0),
+            'beer' => $categoryCounts->get('beer', 0),
+            'book' => $categoryCounts->get('book', 0),
+            'selection' => $categoryCounts->get('selection', 0),
+            'none' => $categoryCounts->get('none', 0),
         ]);
     }
 
