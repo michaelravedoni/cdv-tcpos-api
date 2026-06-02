@@ -84,8 +84,12 @@ class OrderController extends Controller
         }
 
         foreach ($codesArray as $code) {
-            // Si un nombre à 16 chiffres: true
-            if (preg_match('/^\d{16}$/', $code)) {
+            // Un code de bon cadeau est considéré comme tel s'il est purement numérique.
+            // Il peut s'agir :
+            // - D'un ancien bon cadeau au format court (généralement 5 chiffres).
+            // - D'un nouveau bon cadeau au format standard (16 chiffres).
+            // On accepte donc tout code numérique ayant entre 5 et 16 chiffres.
+            if (preg_match('/^\d{5,16}$/', $code)) {
                 return true;
             } else {
                 continue;
