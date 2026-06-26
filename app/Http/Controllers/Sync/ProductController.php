@@ -255,7 +255,7 @@ class ProductController extends Controller
         // Images
         $productImage = TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
         $dist_image_url = $tcposProduct->imageUrl();
-        if (isset($wooProduct) && $productImage->hash != null) {
+        if (isset($wooProduct) && $productImage && $productImage->hash != null) {
             //There is a tcpos image and a wooProduct
             if (data_get($wooProduct->data, 'images.0.name') != null) {
                 //There is an existing image.

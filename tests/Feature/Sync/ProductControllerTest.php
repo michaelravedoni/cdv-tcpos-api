@@ -62,3 +62,34 @@ test('sync met a jour un produit WooCommerce s\'il existe et a ete modifie', fun
 
     Queue::assertPushed(SyncProductUpdate::class);
 });
+
+test('sync met a jour un produit WooCommerce sans image associee', function () {
+    Queue::fake();
+    config(['cdv.categories.wine' => ['manage_stock' => false]]);
+    
+    $tcposProduct = TcposProduct::factory()->create([
+        '_tcposId' => 777,
+        '_tcposCode' => 'SKU_NO_IMAGE', 
+        'category' => 'wine',
+        'sync_action' => 'update'
+    ]);
+
+    Price::create(['_tcpos_product_id' => 777, 'pricelevelid' => '2', 'price' => 10, 'sync_action' => 'none']);
+    Price::create(['_tcpos_product_id' => 777, 'pricelevelid' => '6', 'price' => 15, 'sync_action' => 'none']);
+    Price::create(['_tcpos_product_id' => 777, 'pricelevelid' => '14', 'price' => 20, 'sync_action' => 'none']);
+
+    // Aucun TcposProductImage n'est créé en BD pour 777
+
+    $woo = new Woo();
+    $woo->resource = 'product';
+    $woo->_wooId = 501;
+    $woo->_tcposCode = 'SKU_NO_IMAGE';
+    $woo->data = (object)['id' => 501, 'images' => []];
+    $woo->save();
+
+    $controller = new \App\Http\Controllers\Sync\ProductController();
+    $controller->sync();
+
+    Queue::assertPushed(SyncProductUpdate::class);
+});
+
