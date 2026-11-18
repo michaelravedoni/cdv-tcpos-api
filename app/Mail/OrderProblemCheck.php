@@ -11,13 +11,18 @@ class OrderProblemCheck extends Mailable
     use Queueable, SerializesModels;
 
     /**
+     * @var array<int, array<string, mixed>>
+     */
+    public array $orders;
+
+    /**
      * Create a new message instance.
      *
-     * @return void
+     * @param  array<int, array<string, mixed>>  $orders
      */
-    public function __construct()
+    public function __construct(array $orders = [])
     {
-        //
+        $this->orders = $orders;
     }
 
     /**

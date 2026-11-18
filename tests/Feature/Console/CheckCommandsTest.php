@@ -37,6 +37,29 @@ it('checks if everything is ok and detects problematic orders', function () {
     expect(Cache::has('order_problem_check_sent_at'))->toBeTrue();
 });
 
+it('does not alert for recent orders younger than 60 minutes', function () {
+    Mail::fake();
+    Cache::forget('order_problem_check_sent_at');
+
+    $order = (object) [
+        'id' => 2,
+        'status' => 'processing',
+        'date_created' => now()->subMinutes(10)->toIso8601String(),
+        'meta_data' => [
+            [
+                'key' => config('cdv.wc_meta_tcpos_order_id'),
+                'value' => '',
+            ],
+        ],
+    ];
+
+    Order::shouldReceive('all')->once()->andReturn(collect([$order]));
+
+    $this->artisan('check')->assertExitCode(0);
+
+    Mail::assertNotSent(OrderProblemCheck::class);
+});
+
 it('does not send email if throttled', function () {
     Mail::fake();
     Cache::put('order_problem_check_sent_at', now(), now()->addHours(4));

@@ -45,9 +45,27 @@ class CheckQueue extends Command
         $records = DB::table('jobs')->where('created_at', '<', Carbon::now()->subMinutes(20)->getTimestamp())->get();
 
         if (! $records->isEmpty()) {
+            $totalPending = DB::table('jobs')->count();
+            $totalFailed = DB::table('failed_jobs')->count();
+            $oldestCreatedAt = $records->min('created_at');
+            $oldestMinutes = $oldestCreatedAt ? Carbon::createFromTimestamp($oldestCreatedAt)->diffInMinutes(now()) : 0;
+            $appUrl = rtrim((string) config('app.url'), '/');
+
             report('Queue jobs table should be emptied by now but it is not! Please check your queue worker.');
 
-            Mail::raw('Hello, queue jobs problem in '.config('app.name').' application. Queue jobs table should be emptied by now but it is not! Please check the queue worker manually. URL : '.config('app.url'), function ($message) {
+            $body = implode("\n", [
+                'Bonjour,',
+                '',
+                'La file de jobs de ' . config('app.name') . ' semble bloquée ou saturée :',
+                "- Jobs en attente : {$totalPending} (dont {$records->count()} de plus de 20 minutes)",
+                "- Plus vieux job en attente depuis : {$oldestMinutes} minutes",
+                "- Jobs échoués (failed_jobs) : {$totalFailed}",
+                '',
+                "Vérifier la file : {$appUrl}/jobs",
+                "Vérifier les logs : {$appUrl}/logs",
+            ]);
+
+            Mail::raw($body, function ($message) {
                 $message->to('michael@ravedoni.com')->subject(config('app.name').' - Queue problem');
             });
 
