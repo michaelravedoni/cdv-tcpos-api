@@ -19,18 +19,20 @@ class ProductController extends Controller
      */
     public function getWooProducts()
     {
-        $products = Product::all(['per_page' => 100, 'page' => 1]);
-        $products2 = Product::all(['per_page' => 100, 'page' => 2]);
-        $products3 = Product::all(['per_page' => 100, 'page' => 3]);
-        $products4 = Product::all(['per_page' => 100, 'page' => 4]);
-        $products5 = Product::all(['per_page' => 100, 'page' => 5]);
-        $products6 = Product::all(['per_page' => 100, 'page' => 6]);
-        $products7 = Product::all(['per_page' => 100, 'page' => 7]);
-        $products8 = Product::all(['per_page' => 100, 'page' => 8]);
-        $products9 = Product::all(['per_page' => 100, 'page' => 9]);
-        $products10 = Product::all(['per_page' => 100, 'page' => 10]);
+        $allProducts = collect();
+        $perPage = 100;
+        $page = 1;
 
-        return $products->merge($products2)->merge($products3)->merge($products4)->merge($products5)->merge($products6)->merge($products7)->merge($products8)->merge($products9)->merge($products10);
+        do {
+            $batch = Product::all(['per_page' => $perPage, 'page' => $page]);
+            if ($batch->isEmpty()) {
+                break;
+            }
+            $allProducts = $allProducts->merge($batch);
+            $page++;
+        } while ($batch->count() === $perPage);
+
+        return $allProducts;
     }
 
     /**
@@ -87,12 +89,12 @@ class ProductController extends Controller
         $count_product_update = 0;
         $count_product_delete = 0;
 
+        $wooByCode = $wooResources->keyBy('_tcposCode');
+        $tcposByCode = $tcposResources->keyBy('_tcposCode');
+
         // The loop: from tcpos to Woo
         foreach ($tcposResources as $tcposItem) {
-            // For testing only a product
-            //if ($tcposItem->_tcposCode != 6578) {continue;}
-
-            $match = Woo::where('resource', 'product')->where('_tcposCode', $tcposItem->_tcposCode)->first();
+            $match = $wooByCode->get($tcposItem->_tcposCode);
 
             // If tcpos item not found in Woo, check and create it
             if (empty($match)) {
@@ -144,7 +146,7 @@ class ProductController extends Controller
                 continue;
             }
 
-            $match = TcposProduct::where('_tcposCode', $wooItem->_tcposCode)->first();
+            $match = $tcposByCode->get($wooItem->_tcposCode);
 
             if (empty($match)) {
                 // Delete it
@@ -253,7 +255,7 @@ class ProductController extends Controller
         ];
 
         // Images
-        $productImage = TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
+        $productImage = $tcposProduct->imageRelation ?? TcposProductImage::where('_tcpos_product_id', $tcposProduct->_tcposId)->first();
         $dist_image_url = $tcposProduct->imageUrl();
         if (isset($wooProduct) && $productImage && $productImage->hash != null) {
             //There is a tcpos image and a wooProduct

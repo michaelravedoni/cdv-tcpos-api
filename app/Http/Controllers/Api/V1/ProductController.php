@@ -46,7 +46,7 @@ class ProductController extends Controller
      */
     public function getProducts()
     {
-        $response = Http::timeout(1000)->get(env('TCPOS_API_WOND_URL').'/getArticles')->json();
+        $response = Http::timeout(1000)->get(config('cdv.tcpos.api_wond_url').'/getArticles')->json();
         $data = data_get($response, 'getArticles.articleList');
 
         return $data;
@@ -65,7 +65,7 @@ class ProductController extends Controller
      */
     public function getPrice($id)
     {
-        $req = Http::get(env('TCPOS_API_WOND_URL').'/getPrice?data='.urlencode('{
+        $req = Http::timeout(15)->get(config('cdv.tcpos.api_wond_url').'/getPrice?data='.urlencode('{
             "data": {
                 "shopId": 1,
                 "priceLevelId": 14,

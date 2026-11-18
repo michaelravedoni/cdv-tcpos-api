@@ -40,7 +40,7 @@ class ImportProductPrice implements ShouldQueue
      */
     public function handle(): void
     {
-        $req = Http::get(config('cdv.tcpos.api_wond_url').'/getPrice?data='.urlencode('{
+        $req = Http::timeout(15)->get(config('cdv.tcpos.api_wond_url').'/getPrice?data='.urlencode('{
             "data": {
                 "shopId": 1,
                 "priceLevelId": 14,

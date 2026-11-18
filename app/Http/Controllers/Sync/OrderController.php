@@ -136,8 +136,8 @@ class OrderController extends Controller
         $wooCustomer = Customer::find($WooCustomerId);
         $customerCardNum = data_get($wooCustomer, 'card_number');
 
-        if ($customerCardNum != '' || empty($customerCardNum)) {
-            $req = Http::withOptions([
+        if (! empty($customerCardNum)) {
+            $req = Http::timeout(15)->withOptions([
                 'verify' => false,
             ])->get(config('cdv.tcpos.api_cdv_url').'/getCustomerDetails/card/'.$customerCardNum);
             $response = $req->json();
