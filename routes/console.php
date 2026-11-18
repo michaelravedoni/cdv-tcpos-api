@@ -33,7 +33,7 @@ Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlap
 Schedule::command('queue:restart')->hourly();
 Schedule::command('queue:db-monitor')->everyThirtyMinutes();
 
-Schedule::command('activitylog:clean')->daily();
+Schedule::command('activitylog:clean --force')->daily();
 
 Schedule::call(function () {
     DB::table('queue_monitor')->where('started_at', '<=', now()->subDays(4))->delete();
