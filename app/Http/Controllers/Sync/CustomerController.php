@@ -87,7 +87,7 @@ class CustomerController extends Controller
             $wooCustomer = $wooCustomerRecord->data;
             $cardNumber = data_get($wooCustomer, 'card_number');
 
-            if (empty($cardNumber)) {
+            if (empty($cardNumber) || ! ctype_digit((string) $cardNumber)) {
                 $count_customer_no_card += 1;
 
                 continue;

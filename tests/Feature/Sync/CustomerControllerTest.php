@@ -36,7 +36,7 @@ test('sync depeche le job de mise a jour pour les clients avec carte quand le so
 
     $customerData = (object) [
         'id' => 100,
-        'card_number' => 'CARD123',
+        'card_number' => '20018',
         'account_funds' => 10,
         'meta_data' => [
             (object) ['key' => 'account_type', 'value' => 'customer'],
@@ -56,7 +56,7 @@ test('sync depeche le job de mise a jour pour les clients avec carte quand le so
     Http::fake([
         '*/login*' => Http::response(['login' => ['customerProperties' => ['token' => 't']]], 200),
         '*/searchCustomer*' => Http::response(['searchCustomerByData' => ['id' => 1]], 200),
-        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => 'CARD123']]], 200),
+        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => '20018']]], 200),
     ]);
 
     $controller = new \App\Http\Controllers\Sync\CustomerController();
@@ -77,7 +77,7 @@ test('sync ne depeche pas de job si le solde et le type sont identiques', functi
         '_wooId' => 101,
         'data' => (object) [
             'id' => 101,
-            'card_number' => 'CARD124',
+            'card_number' => '20019',
             'account_funds' => 50,
             'meta_data' => [
                 (object) ['key' => 'account_type', 'value' => 'customer'],
@@ -92,12 +92,35 @@ test('sync ne depeche pas de job si le solde et le type sont identiques', functi
     Http::fake([
         '*/login*' => Http::response(['login' => ['customerProperties' => ['token' => 't']]], 200),
         '*/searchCustomer*' => Http::response(['searchCustomerByData' => ['id' => 1]], 200),
-        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => 'CARD124']]], 200),
+        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => '20019']]], 200),
     ]);
 
     $controller = new \App\Http\Controllers\Sync\CustomerController();
     $response = $controller->sync();
 
     expect($response->getData(true)['count_customer_unchanged'])->toBe(1);
+    Queue::assertNotPushed(SyncCustomerUpdate::class);
+});
+
+test('sync ignore les fausses cartes non numeriques sans appeler TCPOS', function () {
+    Queue::fake();
+    Http::fake();
+
+    Woo::create([
+        'resource' => 'customer',
+        '_wooId' => 102,
+        'data' => (object) [
+            'id' => 102,
+            'card_number' => 'syjzvgwxnw',
+            'account_funds' => 0,
+            'meta_data' => [],
+        ],
+    ]);
+
+    $controller = new \App\Http\Controllers\Sync\CustomerController();
+    $response = $controller->sync();
+
+    expect($response->getData(true)['count_customer_no_card'])->toBe(1);
+    Http::assertNothingSent();
     Queue::assertNotPushed(SyncCustomerUpdate::class);
 });
