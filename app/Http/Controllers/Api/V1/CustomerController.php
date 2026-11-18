@@ -14,14 +14,43 @@ class CustomerController extends Controller
      */
     public function getCustomer($cardnum): JsonResponse
     {
-        $requestToken = Http::get(env('TCPOS_API_WOND_URL').'/login?user='.env('TCPOS_API_WOND_USER').'&password='.env('TCPOS_API_WOND_PASSWORD'));
-        $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
+        $wondUrl = config('cdv.tcpos.api_wond_url');
+        $requestToken = Http::timeout(15)->get($wondUrl.'/login', [
+            'user' => config('cdv.tcpos.api_wond_user'),
+            'password' => config('cdv.tcpos.api_wond_password'),
+        ]);
 
-        $responseSearchCustomer = Http::get(env('TCPOS_API_WOND_URL').'/searchCustomerByData?cardNum='.$cardnum.'&token='.urlencode($token))->json();
-        $idSearchCustomer = data_get($responseSearchCustomer, 'searchCustomerByData.id');
+        if ($requestToken->failed()) {
+            return response()->json(['code' => '502', 'message' => 'TCPOS WOND login failed.'], 502);
+        }
+
+        $token = data_get($requestToken->json(), 'login.customerProperties.token', false);
+        if (! $token) {
+            return response()->json(['code' => '502', 'message' => 'TCPOS WOND token missing.'], 502);
+        }
+
+        $responseSearch = Http::timeout(15)->get($wondUrl.'/searchCustomerByData', [
+            'cardNum' => $cardnum,
+            'token' => $token,
+        ]);
+
+        if ($responseSearch->failed()) {
+            return response()->json(['code' => '502', 'message' => 'TCPOS WOND search failed.'], 502);
+        }
+
+        $idSearchCustomer = data_get($responseSearch->json(), 'searchCustomerByData.id');
         if (isset($idSearchCustomer)) {
-            $responseGetCustomer = Http::get(env('TCPOS_API_WOND_URL').'/getCustomer?email&id='.$idSearchCustomer.'&token='.urlencode($token))->json();
-            $data = data_get($responseGetCustomer, 'getCustomer.customer');
+            $responseGetCustomer = Http::timeout(15)->get($wondUrl.'/getCustomer', [
+                'email' => '',
+                'id' => $idSearchCustomer,
+                'token' => $token,
+            ]);
+
+            if ($responseGetCustomer->failed()) {
+                return response()->json(['code' => '502', 'message' => 'TCPOS WOND getCustomer failed.'], 502);
+            }
+
+            $data = data_get($responseGetCustomer->json(), 'getCustomer.customer');
 
             return response()->json([
                 'firstName' => data_get($data, 'firstName') ?? data_get(explode(' ', data_get($data, 'description')), '1'),

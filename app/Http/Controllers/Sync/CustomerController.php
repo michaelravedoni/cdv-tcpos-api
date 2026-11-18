@@ -13,19 +13,30 @@ use Illuminate\Http\JsonResponse;
 class CustomerController extends Controller
 {
     /**
-     * Get all woo customers.
+     * Get all woo customers (paginated dynamically, filtered to card holders when supported).
      */
     public function getWooCustomers()
     {
-        $customers = Customer::all(['per_page' => 100, 'page' => 1]);
-        $customers2 = Customer::all(['per_page' => 100, 'page' => 2]);
-        $customers3 = Customer::all(['per_page' => 100, 'page' => 3]);
-        $customers4 = Customer::all(['per_page' => 100, 'page' => 4]);
-        $customers5 = Customer::all(['per_page' => 100, 'page' => 5]);
-        $customers6 = Customer::all(['per_page' => 100, 'page' => 6]);
-        $customers7 = Customer::all(['per_page' => 100, 'page' => 7]);
+        $allCustomers = collect();
+        $perPage = 100;
+        $page = 1;
 
-        return $customers->merge($customers2)->merge($customers3)->merge($customers4)->merge($customers5)->merge($customers6)->merge($customers7);
+        do {
+            $batch = Customer::all([
+                'per_page' => $perPage,
+                'page' => $page,
+                'has_card' => 1,
+            ]);
+
+            if ($batch->isEmpty()) {
+                break;
+            }
+
+            $allCustomers = $allCustomers->merge($batch);
+            $page++;
+        } while ($batch->count() === $perPage);
+
+        return $allCustomers;
     }
 
     /**
@@ -66,16 +77,17 @@ class CustomerController extends Controller
         $wooResources = Woo::where('resource', 'customer')->get();
 
         $count_customer_update = 0;
+        $count_customer_unchanged = 0;
         $count_customer_order_active = 0;
         $count_customer_no_card = 0;
-        $customers_order_active = [];
+        $count_customer_error = 0;
+        $customer_controller = new \App\Http\Controllers\Api\V1\CustomerController;
 
-        foreach ($wooResources as $wooCustomer) {
+        foreach ($wooResources as $wooCustomerRecord) {
+            $wooCustomer = $wooCustomerRecord->data;
+            $cardNumber = data_get($wooCustomer, 'card_number');
 
-            $wooCustomer = $wooCustomer->data;
-
-            if (empty(data_get($wooCustomer, 'card_number'))) {
-                // No update because no card.
+            if (empty($cardNumber)) {
                 $count_customer_no_card += 1;
 
                 continue;
@@ -84,46 +96,64 @@ class CustomerController extends Controller
             $lastOrder = Order::where('customer_id', $wooCustomer->id)->get()->sortByDesc('date_created')->first();
             $lastOrderStatus = data_get($lastOrder, 'status');
             if (isset($lastOrderStatus) && in_array($lastOrderStatus, ['pending', 'processing', 'on-hold'])) {
-                // No update car une commande ouverte ou en traitement
                 $count_customer_order_active += 1;
-                $customers_order_active[] = ['customer' => $wooCustomer, 'lastOrder' => $lastOrder];
 
                 continue;
             }
 
-            $customer_controller = new \App\Http\Controllers\Api\V1\CustomerController;
-            $tcposCustomerFund = $customer_controller->getCustomerFunds(data_get($wooCustomer, 'card_number'));
-            $tcposCustomer = $customer_controller->getCustomer(data_get($wooCustomer, 'card_number'));
-            $tcposCustomerAccountType = data_get($tcposCustomer->original, 'accountType');
+            $tcposResponse = $customer_controller->getCustomer($cardNumber);
+            if ($tcposResponse->getStatusCode() !== 200) {
+                $count_customer_error += 1;
+                activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'customers'])->log('TCPOS customer lookup failed | WooId:'.$wooCustomer->id.' Card:'.$cardNumber.' Status:'.$tcposResponse->getStatusCode());
 
-            //$metaDataArray = $wooCustomer->meta_data;
-            //$metaDataArray = array_merge($metaDataArray,[]);
-            $metaDataArray = [
-                ['key' => config('cdv.wc_meta_customer_account_type'), 'value' => $tcposCustomerAccountType],
-                ['id' => 999, 'key' => 'account_funds', 'value' => $tcposCustomerFund],
-            ];
+                continue;
+            }
+
+            $tcposData = $tcposResponse->getData(true);
+            $tcposCustomerFund = data_get($tcposData, 'accountFunds');
+            $tcposCustomerAccountType = data_get($tcposData, 'accountType');
+
+            if (! is_numeric($tcposCustomerFund)) {
+                $count_customer_error += 1;
+                activity()->withProperties(['group' => 'sync', 'level' => 'warning', 'resource' => 'customers'])->log('TCPOS customer funds invalid | WooId:'.$wooCustomer->id.' Card:'.$cardNumber);
+
+                continue;
+            }
+
+            $targetFunds = (float) $tcposCustomerFund;
+            $currentFunds = (float) data_get($wooCustomer, 'account_funds', 0);
+            $accountTypeKey = config('cdv.wc_meta_customer_account_type');
+            $currentAccountType = data_get(
+                collect(data_get($wooCustomer, 'meta_data', []))->firstWhere('key', $accountTypeKey),
+                'value'
+            );
+
+            if (abs($targetFunds - $currentFunds) <= 0.001 && $currentAccountType === $tcposCustomerAccountType) {
+                $count_customer_unchanged += 1;
+
+                continue;
+            }
 
             $data = [
-                'account_funds' => $tcposCustomerFund,
-                'meta_data' => [$metaDataArray],
+                'account_funds' => $targetFunds,
+                'meta_data' => [
+                    ['key' => $accountTypeKey, 'value' => $tcposCustomerAccountType],
+                ],
             ];
 
-            $customers_update[] = ['customer' => $wooCustomer];
-
-            //Customer::update($customer_id, $data);
             SyncCustomerUpdate::dispatch($wooCustomer->id, $data);
             $count_customer_update += 1;
         }
 
-        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'customers'])->log('Customers sync queued |  '.$count_customer_update.' update, '.$count_customer_order_active.' with an active order and '.$count_customer_no_card.' without card');
+        activity()->withProperties(['group' => 'sync', 'level' => 'job', 'resource' => 'customers'])->log('Customers sync queued | '.$count_customer_update.' update, '.$count_customer_unchanged.' unchanged, '.$count_customer_order_active.' active order, '.$count_customer_no_card.' without card, '.$count_customer_error.' errors');
 
         return response()->json([
             'message' => 'Sync queued. See /jobs.',
             'count_customer_update' => $count_customer_update,
+            'count_customer_unchanged' => $count_customer_unchanged,
             'count_customer_order_active' => $count_customer_order_active,
             'count_customer_no_card' => $count_customer_no_card,
-            //'customers_order_active' => $customers_order_active,
-            //'customers_update' => $customers_update,
+            'count_customer_error' => $count_customer_error,
         ]);
     }
 }

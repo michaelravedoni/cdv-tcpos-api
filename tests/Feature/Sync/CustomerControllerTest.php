@@ -7,47 +7,97 @@ use Codexshaper\WooCommerce\Facades\Order;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Http;
 
-test('importWooCustomers stocke les clients WooCommerce en local', function () {
+test('importWooCustomers stocke les clients WooCommerce en local avec pagination dynamique', function () {
+    $page1 = collect(range(1, 100))->map(fn ($i) => (object) ['id' => $i, 'first_name' => "User{$i}"]);
+    $page2 = collect([(object) ['id' => 101, 'first_name' => 'Alice']]);
+
     Customer::shouldReceive('all')
-        ->times(7) // Le contrôleur fait 7 appels
-        ->andReturn(collect([(object)['id' => 100, 'first_name' => 'Alice', 'sku' => 'SKU']]));
+        ->once()
+        ->with(['per_page' => 100, 'page' => 1, 'has_card' => 1])
+        ->andReturn($page1);
+
+    Customer::shouldReceive('all')
+        ->once()
+        ->with(['per_page' => 100, 'page' => 2, 'has_card' => 1])
+        ->andReturn($page2);
 
     $controller = new \App\Http\Controllers\Sync\CustomerController();
-    $controller->importWooCustomers();
+    $response = $controller->importWooCustomers();
 
+    expect($response->getData(true)['count'])->toBe(101);
     $this->assertDatabaseHas('woos', [
         'resource' => 'customer',
-        '_wooId' => 100
+        '_wooId' => 101,
     ]);
 });
 
-test('sync depeche le job de mise a jour pour les clients avec carte', function () {
+test('sync depeche le job de mise a jour pour les clients avec carte quand le solde change', function () {
     Queue::fake();
-    
-    $customerData = (object)[
+
+    $customerData = (object) [
         'id' => 100,
         'card_number' => 'CARD123',
-        'meta_data' => []
+        'account_funds' => 10,
+        'meta_data' => [
+            (object) ['key' => 'account_type', 'value' => 'customer'],
+        ],
     ];
-    
+
     Woo::create([
         'resource' => 'customer',
         '_wooId' => 100,
-        'data' => $customerData
+        'data' => $customerData,
     ]);
 
     Order::shouldReceive('where')->andReturn(new class {
-        function get() { return collect(); }
+        public function get() { return collect(); }
     });
 
     Http::fake([
         '*/login*' => Http::response(['login' => ['customerProperties' => ['token' => 't']]], 200),
         '*/searchCustomer*' => Http::response(['searchCustomerByData' => ['id' => 1]], 200),
-        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['accountType' => 'customer', 'prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => 'CARD123']]], 200),
+        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => 'CARD123']]], 200),
     ]);
 
     $controller = new \App\Http\Controllers\Sync\CustomerController();
     $controller->sync();
 
-    Queue::assertPushed(SyncCustomerUpdate::class);
+    Queue::assertPushed(SyncCustomerUpdate::class, function ($job) {
+        return $job->id === 100
+            && $job->data['account_funds'] === 50.0
+            && $job->data['meta_data'] === [['key' => 'account_type', 'value' => 'customer']];
+    });
+});
+
+test('sync ne depeche pas de job si le solde et le type sont identiques', function () {
+    Queue::fake();
+
+    Woo::create([
+        'resource' => 'customer',
+        '_wooId' => 101,
+        'data' => (object) [
+            'id' => 101,
+            'card_number' => 'CARD124',
+            'account_funds' => 50,
+            'meta_data' => [
+                (object) ['key' => 'account_type', 'value' => 'customer'],
+            ],
+        ],
+    ]);
+
+    Order::shouldReceive('where')->andReturn(new class {
+        public function get() { return collect(); }
+    });
+
+    Http::fake([
+        '*/login*' => Http::response(['login' => ['customerProperties' => ['token' => 't']]], 200),
+        '*/searchCustomer*' => Http::response(['searchCustomerByData' => ['id' => 1]], 200),
+        '*/getCustomer*' => Http::response(['getCustomer' => ['customer' => ['prepayBalanceCash' => 50, 'ID' => 1, 'firstName' => 'A', 'lastName' => 'B', 'cardNum' => 'CARD124']]], 200),
+    ]);
+
+    $controller = new \App\Http\Controllers\Sync\CustomerController();
+    $response = $controller->sync();
+
+    expect($response->getData(true)['count_customer_unchanged'])->toBe(1);
+    Queue::assertNotPushed(SyncCustomerUpdate::class);
 });
