@@ -1,290 +1,268 @@
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="bumblebee">
+@extends('layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('title', 'Dashboard — Château de Villa Sync')
 
-    <title>Château de Villa - Woocommerce & TCPOS Sync</title>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-    <meta name="robots" content="noindex, nofollow">
+@section('topbar_actions')
+    <button type="button" id="toggle-autoreload" class="btn btn-sm" title="Mettre en pause / reprendre le rechargement automatique">
+        <span id="autoreload-dot" class="dot" style="color:var(--success);"></span>
+        <span id="autoreload-label">Auto: 60s</span>
+    </button>
+    <a href="{{ request()->fullUrlWithQuery(['refresh' => 1]) }}" class="btn btn-primary btn-sm">
+        Actualiser
+    </a>
+@endsection
 
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.0/dist/full.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+@section('content')
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Tableau de bord</h1>
+            <p class="page-subtitle">Supervision de la synchronisation TCPOS ↔ WooCommerce</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="{{ route('tables', ['tab' => 'orders']) }}" class="btn btn-sm">Voir les commandes</a>
+            <a href="{{ route('tables', ['tab' => 'customers']) }}" class="btn btn-sm">Voir les clients ({{ $customersWithCardCount }})</a>
+            <a href="{{ route('tables', ['tab' => 'products']) }}" class="btn btn-sm">Voir les produits ({{ $products_count }})</a>
+        </div>
+    </div>
 
-</head>
-
-<body class="font-sans p-6 bg-base-200">
-
-    <button type="button" class="absolute top-0 right-0 m-4 btn btn-primary" title="Rafraîchissement automatique" onclick="location.reload();" id="reloadbtn"><i class="bi bi-arrow-repeat mr-3"></i>60</button>
-
-    <h1 class="text-5xl text-neutral font-bold">
-        Dashboard
-        <small class="text-xl">Château de Villa</small>
-    </h1>
-    <div class="mb-6">Woocommerce & TCPOS Sync</div>
-
-    <div class="px-6 py-4 mb-6 pl-4 rounded-md shadow-lg bg-base-100 text-base-content card">
-
-        <h2 class="mb-4 text-2xl font-bold text-neutral">
-            Informations
-        </h2>
-        <div class="flex flex-wrap">
-            <div class="w-full lg:w-1/3">
-                <h3 class="mb-1 font-bold text-neutral">Produits</h3>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3">Produits dans la base de données</div>
-                    <div class="w-1/3">{{ $products_count }}</div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3">Produits avec une quantité ⊖ à 6</div>
-                    <div class="w-1/3">
-                        {{ $products_where_minimal_quantity_under_six }}</div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div tabindex="0" class="collapse w-full">
-                        <div class="text-base font-normal p-0 m-0">
-                            Produits par type <i class="bi bi-caret-down-fill"></i>
-                        </div>
-                        <div class="collapse-content">
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Vins</div>
-                                <div class="w-1/3">{{ $count_wine }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Spiritueux</div>
-                                <div class="w-1/3">{{ $spirit }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Cidres</div>
-                                <div class="w-1/3">{{ $cider }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Service du vin</div>
-                                <div class="w-1/3">{{ $wineSet }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Minéraux</div>
-                                <div class="w-1/3">{{ $mineralDrink }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Produits du terroir</div>
-                                <div class="w-1/3">{{ $regionalProduct }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Bières</div>
-                                <div class="w-1/3">{{ $beer }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Livres</div>
-                                <div class="w-1/3">{{ $book }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Sélections</div>
-                                <div class="w-1/3">{{ $selection }}</div>
-                            </div>
-                            <div class="flex flex-wrap">
-                                <div class="w-2/3">Sans catégorie</div>
-                                <div class="w-1/3">{{ $none }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    {{-- KPI Cards --}}
+    <div class="kpi-grid">
+        <div class="card">
+            <div class="kpi-label">TCPOS WOND</div>
+            <div class="kpi-value" style="font-size:20px;">
+                @if (! $tcposReachable)
+                    <span class="badge badge-danger"><span class="dot"></span> Injoignable</span>
+                @elseif ($needImportFromTcpos)
+                    <span class="badge badge-warning"><span class="dot"></span> Import requis</span>
+                @else
+                    <span class="badge badge-success"><span class="dot"></span> À jour</span>
+                @endif
             </div>
-            <div class="w-full lg:w-1/3">
-                <h3 class="mb-1 font-bold text-neutral">Synchronisation et importations</h3>
-                <div tabindex="0" class="collapse w-full mb-2">
-                    <div class="text-base font-normal">
-                        Prochains événements programmés <i class="bi bi-caret-down-fill"></i>
-                    </div>
-                    <div class="collapse-content">
-                        <div class="flex flex-wrap">
-                            <div class="w-1/2"><span class="tooltip tooltip-right"
-                                    data-tip="Prochaine importation Woocommerce"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-download"></i> Woocommerce</span></div>
-                            <div class="w-1/2">
-                                {{ $scheduledWoo?->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') ?? 'Non programmé' }}</div>
-                        </div>
-                        <div class="flex flex-wrap">
-                            <div class="w-1/2"><span class="tooltip tooltip-right"
-                                    data-tip="Prochaine importation TCPOS"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-download"></i> TCPOS</span></div>
-                            <div class="w-1/2">
-                                {{ $scheduledTcpos?->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') ?? 'Non programmé' }}
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap">
-                            <div class="w-1/2"><span class="tooltip tooltip-right"
-                                    data-tip="Prochaine synchronisation"><i class="bi bi-arrow-right-square"></i> <i class="bi bi-arrow-repeat"></i> Synchro</span></div>
-                            <div class="w-1/2">
-                                {{ $scheduledSync?->locale('fr_ch')->timezone('Europe/Zurich')->isoFormat('L LT') ?? 'Non programmé' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3"><span class="tooltip tooltip-right"
-                            data-tip="Dernière mise à jour dans la base TCPOS"><i class="bi bi-arrow-left-square"></i> <i class="bi bi-upload"></i> TCPOS</span></div>
-                    <div class="w-1/3">
-                        <span class="tooltip" data-tip="{{ $lastTcposUpdateDate->locale('fr_ch')->isoFormat('L LT') }}">
-                            {{ now()->locale('fr_ch')->longRelativeToNowDiffForHumans($lastTcposUpdateDate) }}
-                        </span>
-                    </div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3"><span class="tooltip tooltip-right"
-                            data-tip="Besoin d'importer la base de données TCPOS ?"><i class="bi bi-question-circle"></i> <i class="bi bi-download"></i> TCPOS</span></div>
-                    <div class="w-1/3">
-                        <span class="tooltip" data-tip="{{ $lastTcposUpdate }}">
-                            {!! $needImportFromTcpos ? '<i class="bi bi-exclamation-circle"></i> Oui' : '<i class="bi bi-check-circle"></i>' !!}
-                        </span>
-                    </div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3"><span class="tooltip tooltip-right" data-tip="Date de la dernière tâche d'arrière-fond exécutée (job)"><i class="bi bi-arrow-left-square"></i>
-                    <i class="bi bi-card-checklist"></i></span></div>
-                    <div class="w-1/3">
-                        <span class="tooltip" data-tip="{{ $lastJobDatetime ? $lastJobDatetime->isoFormat('L LT') : null }}">
-                            {{ $lastJobDatetime ? $lastJobDatetime->longRelativeToNowDiffForHumans() : null }}
-                        </span>
-                    </div>
-                </div>
-                <div class="flex flex-wrap">
-                    <div class="w-2/3"><span class="tooltip tooltip-right" data-tip="Nombre de zâches restantes à exécuter (jobs)"><i class="bi bi-hash"></i> <i class="bi bi-card-checklist"></i></div>
-                    <div class="w-1/3">{{ $remainingJobs }}</span></div>
-                </div>
-                <div class="flex flex-wrap my-4">
-                    @if($jobsWorking)
-                    <a class="bg-red-800 hover:bg-red-700 text-white py-1 px-3 rounded" href="/jobs">Tâches
-                        d'arrière-fond en cours d'exécution</a>
-                    @endif
-                </div>
+            <div class="kpi-meta">
+                <span>MAJ TCPOS : <strong>{{ $lastTcposUpdate }}</strong></span>
             </div>
-            <div class="w-full lg:w-1/3">
-                <div>
-                    <div class="mb-4">
-                        <a class="btn btn-neutral btn-sm" href="/jobs">Voir les
-                            Jobs</a>
-                        <a class="btn btn-neutral btn-sm" href="/logs">Voir les
-                            Logs</a>
-                        <a class="btn btn-neutral btn-sm" href="/tables">Voir les
-                            tables</a>
-                    </div>
-                    <div class="mb-4">
-                        <ul>
-                            <li><a class="link link-accent" href="/api/wc/import/all?force=1">1. Forcer l'importation depuis Woocommerce  | ~2 min.</a></li>
-                            <li><a class="link link-accent" href="/api/import/all?force=1">2. Forcer l'importation depuis TCPOS | ~15 min.</a></li>
-                            <li><a class="link link-accent" href="/api/sync/all?force=1">3. Forcer la synchronisation | ~25 min.</a></li>
-                        </ul>
-                    </div>
-                    <div class="mb-4">
-                        <a class="btn btn-outline btn-neutral btn-sm block" href="/api/sync/orders">Synchroniser les commandes manuellement (~1
-                            min.)</a>
-                    </div>
-                    <div class="mb-4">
-                        <a class="link" href="/api/check/woo">Contrôler Woocommerce</a>
-                    </div>
-                </div>
+        </div>
+
+        <div class="card">
+            <div class="kpi-label">File de Jobs</div>
+            <div class="kpi-value">
+                {{ $remainingJobs }}
+                <span style="font-size:13px;font-weight:500;color:var(--text-muted);">en attente</span>
+            </div>
+            <div class="kpi-meta">
+                @if ($failedJobs > 0)
+                    <span class="badge badge-danger">{{ $failedJobs }} échoué(s)</span>
+                @else
+                    <span class="badge badge-success">0 échoué</span>
+                @endif
+                @if ($jobsWorking)
+                    <span class="badge badge-info">Worker actif</span>
+                @endif
+                <span>Dernier : {{ $lastJobDatetime ? $lastJobDatetime->diffForHumans() : '—' }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="kpi-label">Produits</div>
+            <div class="kpi-value">
+                {{ $products_count }}
+                <span style="font-size:13px;font-weight:500;color:var(--text-muted);">TCPOS / {{ $wooProductsCount }} Woo</span>
+            </div>
+            <div class="kpi-meta">
+                @if ($productsPendingUpdate > 0)
+                    <span class="badge badge-warning">{{ $productsPendingUpdate }} à synchroniser</span>
+                @else
+                    <span class="badge badge-success">Synchronisés</span>
+                @endif
+                <span>Stock &lt; 6 : <strong>{{ $products_where_minimal_quantity_under_six }}</strong></span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="kpi-label">Clients (avec carte)</div>
+            <div class="kpi-value">{{ $customersWithCardCount }}</div>
+            <div class="kpi-meta">
+                <span>Filtrés sans bots</span>
+                <span>·</span>
+                <a href="{{ route('tables', ['tab' => 'customers']) }}">Inspecter →</a>
             </div>
         </div>
     </div>
 
-    <div class="px-6 py-4 mb-6 pl-4 bg-base-100 rounded-md shadow-md">
-        <h2 class="mb-4 text-2xl font-bold text-neutral">
-            Logs
-        </h2>
+    {{-- Details Row --}}
+    <div class="grid-2">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <h2 class="card-title">Prochaines tâches planifiées</h2>
+                <span class="badge badge-neutral">Europe/Zurich</span>
+            </div>
+            <div class="kv-list">
+                <div class="kv-row">
+                    <span class="kv-key">Import WooCommerce (<span class="mono">import:woo</span>)</span>
+                    <span class="kv-val">{{ $scheduledWoo ? $scheduledWoo->format('d.m H:i') . ' (' . $scheduledWoo->diffForHumans() . ')' : '—' }}</span>
+                </div>
+                <div class="kv-row">
+                    <span class="kv-key">Import TCPOS (<span class="mono">import:tcpos</span>)</span>
+                    <span class="kv-val">{{ $scheduledTcpos ? $scheduledTcpos->format('d.m H:i') . ' (' . $scheduledTcpos->diffForHumans() . ')' : '—' }}</span>
+                </div>
+                <div class="kv-row">
+                    <span class="kv-key">Synchro TCPOS → Woo (<span class="mono">sync:tcpos_woo</span>)</span>
+                    <span class="kv-val">{{ $scheduledSync ? $scheduledSync->format('d.m H:i') . ' (' . $scheduledSync->diffForHumans() . ')' : '—' }}</span>
+                </div>
+                <div class="kv-row">
+                    <span class="kv-key">Synchro Commandes (<span class="mono">sync:tcpos_woo_order</span>)</span>
+                    <span class="kv-val">{{ $scheduledOrders ? $scheduledOrders->format('d.m H:i') . ' (' . $scheduledOrders->diffForHumans() . ')' : '—' }}</span>
+                </div>
+            </div>
+        </div>
 
-        <form action="" method="get" class="grid grid-cols-6 gap-4">
-            <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="this.form.submit()" name="limit">
-                <option value="100" @if($activitiesLimit == 100) selected @endif>100</option>
-                <option value="500" @if($activitiesLimit == 500) selected @endif>500</option>
-                <option value="1000" @if($activitiesLimit == 1000) selected @endif>1000</option>
-                <option value="2000" @if($activitiesLimit == 2000) selected @endif>2000</option>
-                <option value="5000" @if($activitiesLimit == 5000) selected @endif>5000</option>
-            </select>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <h2 class="card-title">Répartition du catalogue</h2>
+                <span class="badge badge-neutral">{{ $products_count }} articles</span>
+            </div>
+            <div class="kv-list" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;">
+                <div class="kv-row"><span class="kv-key">Vins</span><span class="kv-val">{{ $count_wine }}</span></div>
+                <div class="kv-row"><span class="kv-key">Spiritueux</span><span class="kv-val">{{ $spirit }}</span></div>
+                <div class="kv-row"><span class="kv-key">Bières</span><span class="kv-val">{{ $beer }}</span></div>
+                <div class="kv-row"><span class="kv-key">Cidres</span><span class="kv-val">{{ $cider }}</span></div>
+                <div class="kv-row"><span class="kv-key">Coffrets</span><span class="kv-val">{{ $wineSet }}</span></div>
+                <div class="kv-row"><span class="kv-key">Sélections</span><span class="kv-val">{{ $selection }}</span></div>
+                <div class="kv-row"><span class="kv-key">Produits régionaux</span><span class="kv-val">{{ $regionalProduct }}</span></div>
+                <div class="kv-row"><span class="kv-key">Boissons minérales</span><span class="kv-val">{{ $mineralDrink }}</span></div>
+                <div class="kv-row"><span class="kv-key">Livres</span><span class="kv-val">{{ $book }}</span></div>
+                <div class="kv-row"><span class="kv-key">Non classés</span><span class="kv-val">{{ $none }}</span></div>
+            </div>
+        </div>
+    </div>
 
-            <select class="select select-bordered select-sm w-full max-w-xs my-2" onchange="this.form.submit()" name="show-info">
-                <option value="1" @if($showLogsLevelInfo == 1) selected @endif>Afficher les logs "info"</option>
-                <option value="0" @if($showLogsLevelInfo == 0) selected @endif>Ne pas afficher les logs "info"</option>
-            </select>
-        </form>
+    {{-- Manual Actions --}}
+    <div class="card" style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <h2 class="card-title">Actions manuelles</h2>
+            <span style="font-size:12.5px;color:var(--text-muted);">Déclenchement direct des imports et synchronisations</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/api/wc/import/all?force=1" target="_blank" class="btn btn-sm">1. Importer WooCommerce (~2 min)</a>
+            <a href="/api/import/all?force=1" target="_blank" class="btn btn-sm">2. Importer TCPOS (~15 min)</a>
+            <a href="/api/sync/all?force=1" target="_blank" class="btn btn-sm">3. Synchroniser tout</a>
+            <a href="/api/sync/customers" target="_blank" class="btn btn-sm">Synchroniser les clients</a>
+            <a href="/api/sync/orders" target="_blank" class="btn btn-sm">Synchroniser les commandes</a>
+            <a href="/api/check/woo" target="_blank" class="btn btn-sm">Contrôler WooCommerce</a>
+        </div>
+    </div>
 
-        <div class="overflow-x-auto shadow-lg">
-
-            <table class="w-full rounded whitespace-no-wrap">
-                <thead class="bg-gray-200">
+    {{-- Activity Log --}}
+    <div class="card card-flush">
+        <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <h2 class="card-title">Journal d'activité</h2>
+                <span class="badge badge-neutral">{{ $activities->count() }} affichées</span>
+            </div>
+            <form method="GET" action="{{ route('info') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <select name="resource" class="select" onchange="this.form.submit()">
+                    <option value="all" {{ $resourceFilter === 'all' ? 'selected' : '' }}>Toutes ressources</option>
+                    <option value="customers" {{ $resourceFilter === 'customers' ? 'selected' : '' }}>Clients</option>
+                    <option value="products" {{ $resourceFilter === 'products' ? 'selected' : '' }}>Produits</option>
+                    <option value="orders" {{ $resourceFilter === 'orders' ? 'selected' : '' }}>Commandes</option>
+                    <option value="attributes" {{ $resourceFilter === 'attributes' ? 'selected' : '' }}>Attributs</option>
+                </select>
+                <select name="level" class="select" onchange="this.form.submit()">
+                    <option value="default" {{ $levelFilter === 'default' ? 'selected' : '' }}>Sans niveau info</option>
+                    <option value="errors" {{ $levelFilter === 'errors' ? 'selected' : '' }}>Erreurs &amp; Warnings uniquement</option>
+                    <option value="info" {{ $levelFilter === 'info' ? 'selected' : '' }}>Tout (avec info)</option>
+                </select>
+                <select name="limit" class="select" onchange="this.form.submit()">
+                    <option value="50" {{ $activitiesLimit === 50 ? 'selected' : '' }}>50 lignes</option>
+                    <option value="100" {{ $activitiesLimit === 100 ? 'selected' : '' }}>100 lignes</option>
+                    <option value="250" {{ $activitiesLimit === 250 ? 'selected' : '' }}>250 lignes</option>
+                </select>
+            </form>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
                     <tr>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Groupe</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Ressource</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Type</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Message</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Durée</th>
-                        <th
-                            class="px-4 py-3 font-medium text-left text-xs text-gray-600 uppercase border-b border-gray-200">
-                            Date</th>
+                        <th>Date</th>
+                        <th>Groupe</th>
+                        <th>Ressource</th>
+                        <th>Niveau</th>
+                        <th>Message</th>
                     </tr>
                 </thead>
-                <tbody class="">
-                    @forelse($activities as $activity)
-                    @php
-                    $level = $activity->getExtraProperty('level');
-                    $colors = [
-                        'start'   => ['bg' => 'bg-success', 'text' => 'alert-success'],
-                        'end'     => ['bg' => 'bg-success', 'text' => 'alert-success'],
-                        'error'   => ['bg' => 'bg-error',   'text' => 'alert-error'],
-                        'warning' => ['bg' => 'bg-warning', 'text' => 'alert-warning'],
-                        'info'    => ['bg' => 'text-base-content', 'text' => 'bg-base-content-100'],
-                        'job'     => ['bg' => 'bg-info',    'text' => 'alert-info'],
-                    ];
-                    $color = $colors[$level] ?? ['bg' => '', 'text' => ''];
-                    @endphp
-
-                    <tr class="font-sm leading-relaxed {{ $color['text'] }} {{ $color['bg'] }}">
-                        <td class="px-4 min-w-max">{{ $activity->getExtraProperty('group') }}</td>
-                        <td class="px-4">{{ $activity->getExtraProperty('resource') }}</td>
-                        <td class="px-4">{{ $level }}</td>
-                        <td class="px-4">{{ $activity->description }}</td>
-                        <td class="min-w-max">{{ $activity->getExtraProperty('duration') ? number_format($activity->getExtraProperty('duration'), 2).' secondes' : null }}
-                        </td>
-                        <td class="min-w-max">{{ $activity->created_at->locale('fr_CH')->timezone('Europe/Zurich')->isoFormat('L LT') }}
-                        </td>
-                    </tr>
+                <tbody>
+                    @forelse ($activities as $activity)
+                        @php
+                            $level = data_get($activity->properties, 'level', 'info');
+                            $badgeClass = match ($level) {
+                                'error' => 'badge-danger',
+                                'warning' => 'badge-warning',
+                                'start', 'end', 'job' => 'badge-info',
+                                default => 'badge-neutral',
+                            };
+                        @endphp
+                        <tr>
+                            <td class="mono" style="white-space:nowrap;color:var(--text-muted);">
+                                {{ $activity->created_at->timezone('Europe/Zurich')->format('d.m.Y H:i:s') }}
+                            </td>
+                            <td>{{ data_get($activity->properties, 'group', '—') }}</td>
+                            <td>{{ data_get($activity->properties, 'resource', '—') }}</td>
+                            <td><span class="badge {{ $badgeClass }}">{{ $level }}</span></td>
+                            <td>{{ $activity->description }}</td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="100" class="">
-                            <div class="my-6">
-                                <div class="text-center">
-                                    <div class="text-gray-500 text-lg">
-                                        No Logs
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">
+                                Aucune activité pour ces filtres.
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
-</body>
+@endsection
+
+@section('scripts')
 <script>
-    var reload = 60;
-    var rld = setInterval(function(){
-        if(reload===0) {
-            document.querySelector('#reloadbtn').innerHTML = '<i class="bi bi-arrow-repeat mr-3"></i>…';
-            location.reload();
-            clearInterval(rld);
+(function () {
+    const STORAGE_KEY = 'cdv_dashboard_autoreload_paused';
+    const label = document.getElementById('autoreload-label');
+    const dot = document.getElementById('autoreload-dot');
+    const btn = document.getElementById('toggle-autoreload');
+
+    let paused = localStorage.getItem(STORAGE_KEY) === '1';
+    let remaining = 60;
+
+    function render() {
+        if (paused) {
+            label.textContent = 'Auto: Pause';
+            dot.style.color = 'var(--text-muted)';
         } else {
-            document.querySelector('#reloadbtn').innerHTML = '<i class="bi bi-arrow-repeat mr-3"></i>' + --reload;
+            label.textContent = 'Auto: ' + remaining + 's';
+            dot.style.color = 'var(--success)';
         }
-    },1000);
+    }
+
+    btn.addEventListener('click', function () {
+        paused = !paused;
+        localStorage.setItem(STORAGE_KEY, paused ? '1' : '0');
+        if (!paused) remaining = 60;
+        render();
+    });
+
+    render();
+    setInterval(function () {
+        if (paused) return;
+        remaining -= 1;
+        if (remaining <= 0) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('refresh');
+            window.location.href = url.toString();
+            return;
+        }
+        render();
+    }, 1000);
+})();
 </script>
-</html>
+@endsection
