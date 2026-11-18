@@ -10,7 +10,7 @@ Route::get('/', function () {
 });
 */
 
-Route::get('/', [ViewController::class, 'show'])->name('info');
+Route::get('/', [ViewController::class, 'show'])->name('dashboard');
 Route::get('/tables', [ViewController::class, 'tables'])->name('tables');
 Route::post('/tables/products/{id}/force-update', [ViewController::class, 'forceUpdateProduct'])->name('tables.products.force.update');
 

@@ -159,7 +159,7 @@
                 <h2 class="card-title">Journal d'activité</h2>
                 <span class="badge badge-neutral">{{ $activities->count() }} affichées</span>
             </div>
-            <form method="GET" action="{{ route('info') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <form method="GET" action="{{ route('dashboard') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                 <select name="resource" class="select" onchange="this.form.submit()">
                     <option value="all" {{ $resourceFilter === 'all' ? 'selected' : '' }}>Toutes ressources</option>
                     <option value="customers" {{ $resourceFilter === 'customers' ? 'selected' : '' }}>Clients</option>

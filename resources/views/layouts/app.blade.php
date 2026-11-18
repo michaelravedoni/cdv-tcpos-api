@@ -357,12 +357,12 @@
     <header class="topbar">
         <div class="topbar-inner">
             <div style="display:flex;align-items:center;gap:20px;min-width:0;">
-                <a href="{{ route('info') }}" class="brand" style="text-decoration:none;">
+                <a href="{{ route('dashboard') }}" class="brand" style="text-decoration:none;">
                     <span class="brand-badge">CDV</span>
                     <span>TCPOS ↔ WooCommerce</span>
                 </a>
                 <nav class="nav">
-                    <a href="{{ route('info') }}" class="{{ request()->routeIs('info') ? 'active' : '' }}">Dashboard</a>
+                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
                     <a href="{{ route('tables') }}" class="{{ request()->routeIs('tables') ? 'active' : '' }}">Tables &amp; Recherche</a>
                     <a href="/jobs">Jobs</a>
                     <a href="/health">Santé</a>

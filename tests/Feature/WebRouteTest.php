@@ -4,7 +4,7 @@ use App\Models\User;
 
 test('la page d\'accueil fonctionne', function () {
     $this->withoutExceptionHandling();
-    $this->get(route('info'))
+    $this->get(route('dashboard'))
         ->assertStatus(200);
 });
 
