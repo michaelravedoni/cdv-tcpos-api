@@ -28,6 +28,7 @@ class ViewController extends Controller
     {
         if ($request->boolean('refresh')) {
             Cache::forget('dashboard_tcpos_last_update');
+            Cache::forget('dashboard_counts');
         }
 
         $activitiesLimit = (int) $request->input('limit', 100);
@@ -35,21 +36,26 @@ class ViewController extends Controller
         $resourceFilter = $request->input('resource', 'all');
         $levelFilter = $request->input('level', $request->boolean('show-info') ? 'info' : 'default');
 
-        $activities = Activity::query()
-            ->orderBy('created_at', 'desc')
-            ->when($resourceFilter !== 'all', function (Builder $query) use ($resourceFilter) {
-                $query->where('properties->resource', $resourceFilter);
-            })
-            ->when($levelFilter === 'default', function (Builder $query) {
-                $query->whereNot('properties->level', 'info');
-            })
-            ->when($levelFilter === 'errors', function (Builder $query) {
-                $query->whereIn('properties->level', ['error', 'warning']);
-            })
-            ->limit($activitiesLimit)
+        // Read recent rows by primary key (id DESC) to avoid full-table JSON scans on large activity_log tables
+        $recentActivities = Activity::query()
+            ->orderByDesc('id')
+            ->limit(1000)
             ->get();
 
-        $lastJob = Monitor::query()->orderBy('started_at', 'desc')->first();
+        $activities = $recentActivities
+            ->when($resourceFilter !== 'all', function ($collection) use ($resourceFilter) {
+                return $collection->filter(fn ($item) => data_get($item->properties, 'resource') === $resourceFilter);
+            })
+            ->when($levelFilter === 'default', function ($collection) {
+                return $collection->filter(fn ($item) => data_get($item->properties, 'level') !== 'info');
+            })
+            ->when($levelFilter === 'errors', function ($collection) {
+                return $collection->filter(fn ($item) => in_array(data_get($item->properties, 'level'), ['error', 'warning'], true));
+            })
+            ->take($activitiesLimit)
+            ->values();
+
+        $lastJob = Monitor::query()->orderByDesc('id')->first();
         $remainingJobs = DB::table('jobs')->count();
         $failedJobs = DB::table('failed_jobs')->count();
 
@@ -95,18 +101,27 @@ class ViewController extends Controller
         $lastJobDatetime = $lastJob?->started_at?->locale('fr_ch')->timezone('Europe/Zurich') ?? false;
         $jobsWorking = $lastJob && $lastJob->started_at && $lastJob->started_at->diffInMinutes(now()) <= 1;
 
-        $products_where_minimal_quantity_under_six = Product::whereHas('stockRelation', function (Builder $query) {
-            $query->where('value', '<', 6);
-        })->count();
+        $counts = Cache::remember('dashboard_counts', 10, function () {
+            return [
+                'products_under_six' => Product::whereHas('stockRelation', function (Builder $query) {
+                    $query->where('value', '<', 6);
+                })->count(),
+                'products_count' => Product::count(),
+                'products_pending_update' => Product::where('sync_action', 'update')->count(),
+                'customers_with_card' => Woo::where('resource', 'customer')->count(),
+                'woo_products_count' => Woo::where('resource', 'product')->count(),
+                'category_counts' => Product::select('category', DB::raw('count(*) as total'))
+                    ->groupBy('category')
+                    ->pluck('total', 'category'),
+            ];
+        });
 
-        $products_count = Product::count();
-        $productsPendingUpdate = Product::where('sync_action', 'update')->count();
-        $customersWithCardCount = Woo::where('resource', 'customer')->count();
-        $wooProductsCount = Woo::where('resource', 'product')->count();
-
-        $categoryCounts = Product::select('category', DB::raw('count(*) as total'))
-            ->groupBy('category')
-            ->pluck('total', 'category');
+        $products_where_minimal_quantity_under_six = $counts['products_under_six'];
+        $products_count = $counts['products_count'];
+        $productsPendingUpdate = $counts['products_pending_update'];
+        $customersWithCardCount = $counts['customers_with_card'];
+        $wooProductsCount = $counts['woo_products_count'];
+        $categoryCounts = $counts['category_counts'];
 
         return view('welcome', [
             'activities' => $activities,
